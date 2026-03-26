@@ -44,7 +44,7 @@ const photoPlaceholders = [
 
 const bentoGroups = [
   {
-    cols: '200px 140px 140px',
+    cols: '280px 200px 200px',
     areas: '"a a b" "c d d" "c e f"',
     cells: [
       { area: 'a', ...photoPlaceholders[0] },
@@ -56,7 +56,7 @@ const bentoGroups = [
     ],
   },
   {
-    cols: '140px 140px 200px',
+    cols: '200px 200px 280px',
     areas: '"a b b" "a c d" "e e d"',
     cells: [
       { area: 'a', ...photoPlaceholders[6] },
@@ -67,7 +67,7 @@ const bentoGroups = [
     ],
   },
   {
-    cols: '140px 200px 140px',
+    cols: '200px 280px 200px',
     areas: '"a b b" "a c d" "e f d"',
     cells: [
       { area: 'a', ...photoPlaceholders[3] },

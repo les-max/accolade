@@ -418,7 +418,7 @@ footer.site-footer {
 .deco-top { left: 60px; right: 60px; }
 
 /* ── Bento photo strip rows ─────────────────────── */
-.bento-group { grid-template-rows: 140px 140px 140px; }
+.bento-group { grid-template-rows: 200px 200px 200px; }
 
 /* ── Tablet (900px) ─────────────────────────────── */
 @media (max-width: 900px) {
@@ -434,6 +434,6 @@ footer.site-footer {
   .section-header-split { flex-direction: column; align-items: flex-start; gap: 20px; }
   .section-header-split > p { text-align: left !important; max-width: 100% !important; }
   .deco-top { left: 20px; right: 20px; }
-  .bento-group { grid-template-rows: 90px 90px 90px !important; }
+  .bento-group { grid-template-rows: 120px 120px 120px !important; }
   .photo-marquee { padding: 12px 0; }
 }
