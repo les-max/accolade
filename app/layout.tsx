@@ -5,7 +5,7 @@ import Footer from "@/components/Footer";
 
 export const metadata: Metadata = {
   title: "Accolade Community Theatre",
-  description: "Where community comes alive on stage. Serving Allen, TX and surrounding communities through the power of live theatre.",
+  description: "Where community comes alive on stage. Serving Richardson, TX and surrounding communities through the power of live theatre.",
   openGraph: {
     title: "Accolade Community Theatre",
     description: "Where community comes alive on stage.",

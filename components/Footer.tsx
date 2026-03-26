@@ -45,7 +45,7 @@ export default function Footer() {
 
       <div className="footer-bottom">
         <span>© {year} Accolade Community Theatre. All rights reserved.</span>
-        <span>Allen, TX</span>
+        <span>Richardson, TX</span>
       </div>
     </footer>
   );

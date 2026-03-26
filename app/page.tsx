@@ -47,7 +47,7 @@ export default function HomePage() {
 
         <div style={{ position: 'relative', zIndex: 2, textAlign: 'center', padding: '0 24px', maxWidth: '860px' }}>
           <p style={{ fontFamily: 'Inter, sans-serif', fontSize: '0.7rem', letterSpacing: '0.4em', textTransform: 'uppercase', color: 'var(--teal)', marginBottom: '28px', fontWeight: 500 }}>
-            Allen, TX · Community Theatre
+            Richardson, TX · Community Theatre
           </p>
 
           <h1 style={{

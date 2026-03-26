@@ -19,7 +19,7 @@ export default function AboutPage() {
         eyebrow="Accolade Community Theatre"
         title="More Than a Stage."
         titleItalic="A Community."
-        subtitle="For over two decades, Accolade has been a home for storytellers, dreamers, and everyone in between — right here in Allen, TX."
+        subtitle="For over two decades, Accolade has been a home for storytellers, dreamers, and everyone in between — right here in Richardson, TX."
       />
 
       {/* ── Our Story ─────────────────────────────── */}
