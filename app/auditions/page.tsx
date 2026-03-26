@@ -11,7 +11,7 @@ export default function AuditionsPage() {
       <PageHero
         eyebrow="Get On Stage"
         title="Auditions"
-        titleItalic="Open to Youth"
+        titleItalic="Step Into the Light"
         subtitle="We are a youth theatre — welcoming performers ages 5–19. No experience necessary. If you want your kid on stage, we want to meet them."
         accentColor="var(--gold)"
       />
