@@ -301,7 +301,7 @@ footer.site-footer {
 }
 @keyframes marquee {
   0%   { transform: translateX(0); }
-  100% { transform: translateX(calc(-320px * 8 - 16px * 8)); }
+  100% { transform: translateX(-50%); }
 }
 @keyframes fadeUp {
   from { opacity: 0; transform: translateY(24px); }
@@ -338,7 +338,7 @@ footer.site-footer {
 
 /* ── Photo marquee ─────────────────────────────── */
 .photo-marquee {
-  padding: 100px 0;
+  padding: 20px 0;
   overflow: hidden;
   position: relative;
 }
@@ -353,8 +353,8 @@ footer.site-footer {
 .photo-marquee::after  { right: 0; background: linear-gradient(to left, var(--ink), transparent); }
 .marquee-track {
   display: flex;
-  gap: 16px;
-  animation: marquee 40s linear infinite;
+  width: max-content;
+  animation: marquee 60s linear infinite;
 }
 @media (prefers-reduced-motion: reduce) { .marquee-track { animation: none; } }
 .photo-marquee:hover .marquee-track,
