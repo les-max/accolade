@@ -34,9 +34,9 @@ export default function Nav() {
     <nav
       className={`site-nav${scrolled ? ' scrolled' : ''}`}
       style={{
-        background: scrolled ? 'rgba(14,13,20,0.85)' : 'transparent',
-        backdropFilter: scrolled ? 'blur(16px)' : undefined,
-        borderBottom: scrolled ? '1px solid rgba(255,255,255,0.07)' : undefined,
+        background: (scrolled || open) ? 'rgba(14,13,20,0.95)' : 'transparent',
+        backdropFilter: (scrolled || open) ? 'blur(16px)' : undefined,
+        borderBottom: (scrolled || open) ? '1px solid rgba(255,255,255,0.07)' : undefined,
       }}
     >
       {/* Logo */}
