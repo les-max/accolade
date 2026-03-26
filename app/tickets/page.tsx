@@ -16,11 +16,11 @@ export default function TicketsPage() {
       />
 
       {/* ── Current Production ────────────────────── */}
-      <section style={{ padding: '100px 48px' }}>
+      <section style={{ padding: 'clamp(48px, 10vw, 100px) clamp(20px, 5vw, 48px)' }}>
         <div style={{ maxWidth: '1200px', margin: '0 auto' }}>
           <p className="section-label">Current Production</p>
 
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1.3fr', gap: '64px', alignItems: 'start' }}>
+          <div className="g-2w" style={{ display: 'grid', gap: '64px', alignItems: 'start' }}>
             {/* Show poster */}
             <div style={{ aspectRatio: '2/3', borderRadius: '4px', background: 'linear-gradient(160deg, #2d1b4e, #1b0a2e)', position: 'relative', overflow: 'hidden' }}>
               <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(0deg, rgba(14,13,20,0.7) 0%, transparent 50%)' }} />
@@ -50,7 +50,7 @@ export default function TicketsPage() {
               {/* Ticket pricing */}
               <div style={{ background: 'var(--layer)', border: '1px solid var(--border)', borderRadius: '4px', padding: '32px', marginBottom: '32px' }}>
                 <p style={{ fontSize: '0.65rem', letterSpacing: '0.3em', textTransform: 'uppercase', color: 'var(--gold)', marginBottom: '20px', fontWeight: 600 }}>Ticket Pricing</p>
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
+                <div className="g-2" style={{ display: 'grid', gap: '16px' }}>
                   {[
                     { type: 'Adult', price: 'TBD' },
                     { type: 'Senior (65+)', price: 'TBD' },
@@ -77,8 +77,8 @@ export default function TicketsPage() {
       </section>
 
       {/* ── Group Sales ───────────────────────────── */}
-      <section style={{ padding: '80px 48px', background: 'var(--layer)', borderTop: '1px solid var(--border)', borderBottom: '1px solid var(--border)' }}>
-        <div style={{ maxWidth: '1200px', margin: '0 auto', display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '64px', alignItems: 'center' }}>
+      <section style={{ padding: 'clamp(40px, 8vw, 80px) clamp(20px, 5vw, 48px)', background: 'var(--layer)', borderTop: '1px solid var(--border)', borderBottom: '1px solid var(--border)' }}>
+        <div className="g-2" style={{ display: 'grid', maxWidth: '1200px', margin: '0 auto', gap: '64px', alignItems: 'center' }}>
           <div>
             <p className="section-label">Groups & Schools</p>
             <h2 style={{ fontFamily: "'Playfair Display', serif", fontSize: 'clamp(2rem, 3vw, 3rem)', fontWeight: 900, lineHeight: 1.1, marginBottom: '24px' }}>
@@ -109,7 +109,7 @@ export default function TicketsPage() {
       </section>
 
       {/* ── Partner benefits CTA ──────────────────── */}
-      <section style={{ padding: '100px 48px', textAlign: 'center' }}>
+      <section style={{ padding: 'clamp(48px, 10vw, 100px) clamp(20px, 5vw, 48px)', textAlign: 'center' }}>
         <div style={{ maxWidth: '600px', margin: '0 auto' }}>
           <h2 style={{ fontFamily: "'Playfair Display', serif", fontSize: 'clamp(1.8rem, 3vw, 2.8rem)', fontWeight: 900, marginBottom: '20px' }}>
             Get tickets + perks as a <em style={{ fontStyle: 'italic', fontWeight: 400, color: 'var(--gold)' }}>Partner</em>

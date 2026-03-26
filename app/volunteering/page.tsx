@@ -97,10 +97,10 @@ export default function VolunteeringPage() {
           {[...bentoGroups, ...bentoGroups].map((group, gi) => (
             <div
               key={gi}
+              className="bento-group"
               style={{
                 flexShrink: 0,
                 display: 'grid',
-                gridTemplateRows: '140px 140px 140px',
                 gridTemplateColumns: group.cols,
                 gridTemplateAreas: group.areas,
                 gap: '8px',
@@ -128,10 +128,10 @@ export default function VolunteeringPage() {
       </div>
 
       {/* ── Roles ─────────────────────────────────── */}
-      <section style={{ padding: '100px 48px' }}>
+      <section style={{ padding: 'clamp(48px, 10vw, 100px) clamp(20px, 5vw, 48px)' }}>
         <div style={{ maxWidth: '1200px', margin: '0 auto' }}>
           <p className="section-label">Volunteer Opportunities</p>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(340px, 1fr))', gap: '24px' }}>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: '24px' }}>
             {volunteerRoles.map(({ category, color, roles }) => (
               <div key={category} style={{ background: 'var(--layer)', border: '1px solid var(--border)', borderRadius: '4px', padding: '32px' }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '24px' }}>
@@ -153,8 +153,8 @@ export default function VolunteeringPage() {
       </section>
 
       {/* ── Claim a Role Form ─────────────────────────────── */}
-      <section style={{ padding: '80px 48px', background: 'var(--layer)', borderTop: '1px solid var(--border)', borderBottom: '1px solid var(--border)' }}>
-        <div style={{ maxWidth: '1200px', margin: '0 auto', display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '80px', alignItems: 'start' }}>
+      <section style={{ padding: 'clamp(40px, 8vw, 80px) clamp(20px, 5vw, 48px)', background: 'var(--layer)', borderTop: '1px solid var(--border)', borderBottom: '1px solid var(--border)' }}>
+        <div className="g-2" style={{ maxWidth: '1200px', margin: '0 auto', display: 'grid', gap: '80px', alignItems: 'start' }}>
           <div>
             <p className="section-label">Claim a Role</p>
             <h2 style={{ fontFamily: "'Playfair Display', serif", fontSize: 'clamp(2rem, 3vw, 2.8rem)', fontWeight: 900, lineHeight: 1.1, marginBottom: '20px' }}>
@@ -266,10 +266,10 @@ export default function VolunteeringPage() {
       </section>
 
       {/* ── How It Works ──────────────────────────── */}
-      <section style={{ padding: '80px 48px', borderBottom: '1px solid var(--border)' }}>
+      <section style={{ padding: 'clamp(40px, 8vw, 80px) clamp(20px, 5vw, 48px)', borderBottom: '1px solid var(--border)' }}>
         <div style={{ maxWidth: '1200px', margin: '0 auto' }}>
           <p className="section-label">How It Works</p>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '40px' }}>
+          <div className="g-4" style={{ display: 'grid', gap: '40px' }}>
             {[
               { step: '01', title: 'Express Interest', body: 'Click a role above or fill out the general signup form. Tell us your availability and what you love doing.' },
               { step: '02', title: 'Get Matched', body: 'Our production team reaches out when a show needs crew in your area.' },
@@ -287,7 +287,7 @@ export default function VolunteeringPage() {
       </section>
 
       {/* ── Signup Form ────────────────────────────── */}
-      <section style={{ padding: '100px 48px 120px' }}>
+      <section style={{ padding: 'clamp(48px, 10vw, 100px) clamp(20px, 5vw, 48px) clamp(60px, 12vw, 120px)' }}>
         <div style={{ maxWidth: '640px', margin: '0 auto' }}>
           <p className="section-label">General Signup</p>
           <h2 style={{ fontFamily: "'Playfair Display', serif", fontSize: 'clamp(2rem, 3vw, 3rem)', fontWeight: 900, marginBottom: '16px' }}>

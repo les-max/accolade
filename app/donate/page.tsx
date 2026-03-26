@@ -17,10 +17,10 @@ export default function DonatePage() {
       />
 
       {/* ── Impact ────────────────────────────────── */}
-      <section style={{ padding: '100px 48px' }}>
+      <section style={{ padding: 'clamp(48px, 10vw, 100px) clamp(20px, 5vw, 48px)' }}>
         <div style={{ maxWidth: '1200px', margin: '0 auto' }}>
           <p className="section-label">Your Impact</p>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '32px', marginBottom: '80px' }}>
+          <div className="g-3" style={{ display: 'grid', gap: '32px', marginBottom: '80px' }}>
             {[
               { amount: '$25',  label: 'Covers a student\'s costume materials for one show', color: 'var(--rose)' },
               { amount: '$50',  label: 'Pays for one night of rehearsal space rental', color: 'var(--amber)' },
@@ -37,8 +37,8 @@ export default function DonatePage() {
           </div>
 
           {/* Donation form placeholder */}
-          <div style={{ maxWidth: '640px', margin: '0 auto', background: 'var(--layer)', border: '1px solid var(--border)', borderRadius: '4px', padding: '60px 48px', textAlign: 'center', position: 'relative' }}>
-            <div style={{ position: 'absolute', top: '-1px', left: '60px', right: '60px', height: '1px', background: 'repeating-linear-gradient(90deg, var(--rose) 0, var(--rose) 8px, transparent 8px, transparent 16px)', opacity: 0.4 }} />
+          <div style={{ maxWidth: '640px', margin: '0 auto', background: 'var(--layer)', border: '1px solid var(--border)', borderRadius: '4px', padding: 'clamp(32px, 6vw, 60px) clamp(20px, 5vw, 48px)', textAlign: 'center', position: 'relative' }}>
+            <div className="deco-top" style={{ position: 'absolute', top: '-1px', height: '1px', background: 'repeating-linear-gradient(90deg, var(--rose) 0, var(--rose) 8px, transparent 8px, transparent 16px)', opacity: 0.4 }} />
             <p style={{ fontSize: '0.65rem', letterSpacing: '0.4em', textTransform: 'uppercase', color: 'var(--rose)', marginBottom: '24px', fontWeight: 500 }}>Make a Donation</p>
             <h2 style={{ fontFamily: "'Playfair Display', serif", fontSize: '2rem', fontWeight: 900, marginBottom: '12px' }}>Online Giving</h2>
             <p style={{ color: 'var(--muted)', marginBottom: '32px', lineHeight: 1.7 }}>
@@ -56,10 +56,10 @@ export default function DonatePage() {
       </section>
 
       {/* ── Other Ways ────────────────────────────── */}
-      <section style={{ padding: '80px 48px 120px', background: 'var(--layer)', borderTop: '1px solid var(--border)' }}>
+      <section style={{ padding: 'clamp(40px, 8vw, 80px) clamp(20px, 5vw, 48px) clamp(48px, 10vw, 120px)', background: 'var(--layer)', borderTop: '1px solid var(--border)' }}>
         <div style={{ maxWidth: '1200px', margin: '0 auto' }}>
           <p className="section-label">Other Ways to Give</p>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '40px' }}>
+          <div className="g-3" style={{ display: 'grid', gap: '40px' }}>
             {[
               { title: 'Become a Partner', body: 'Business or individual partnerships provide sustained support and include community benefits like tickets and playbill recognition.', href: '/partners', cta: 'Partner With Us' },
               { title: 'Volunteer Your Time', body: 'Time is money. Donate your skills backstage, front of house, or behind the scenes. Every hour counts.', href: '/volunteering', cta: 'Volunteer' },

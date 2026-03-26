@@ -10,10 +10,10 @@ export default function PageHero({ eyebrow, title, titleItalic, subtitle, accent
   return (
     <section style={{
       position: 'relative',
-      paddingTop: '180px',
-      paddingBottom: '120px',
-      paddingLeft: '48px',
-      paddingRight: '48px',
+      paddingTop: 'clamp(100px, 15vw, 180px)',
+      paddingBottom: 'clamp(60px, 10vw, 120px)',
+      paddingLeft: 'clamp(20px, 5vw, 48px)',
+      paddingRight: 'clamp(20px, 5vw, 48px)',
       textAlign: 'center',
       overflow: 'hidden',
     }}>

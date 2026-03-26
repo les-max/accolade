@@ -48,7 +48,7 @@ export default function PastShowsPage() {
         subtitle="Every show is a chapter in Accolade's story. Browse our production history below."
       />
 
-      <section style={{ padding: '80px 48px 120px' }}>
+      <section style={{ padding: 'clamp(40px, 8vw, 80px) clamp(20px, 5vw, 48px) clamp(48px, 10vw, 120px)' }}>
         <div style={{ maxWidth: '1400px', margin: '0 auto' }}>
           {seasons.map(({ year, shows }) => (
             <div key={year} style={{ marginBottom: '80px' }}>

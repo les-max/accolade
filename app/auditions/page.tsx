@@ -17,17 +17,17 @@ export default function AuditionsPage() {
       />
 
       {/* ── Upcoming Auditions ────────────────────── */}
-      <section style={{ padding: '100px 48px' }}>
+      <section style={{ padding: 'clamp(48px, 10vw, 100px) clamp(20px, 5vw, 48px)' }}>
         <div style={{ maxWidth: '1200px', margin: '0 auto' }}>
           <p className="section-label">Upcoming Auditions</p>
 
           {/* Newsies audition card */}
           <div style={{ border: '1px solid var(--border)', borderRadius: '4px', background: 'var(--layer)', overflow: 'hidden', marginBottom: '24px' }}>
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 2fr', gap: 0 }}>
-              <div style={{ background: 'linear-gradient(160deg, #2d1b4e, #1b0a2e)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '60px 40px', minHeight: '240px' }}>
-                <h2 style={{ fontFamily: "'Playfair Display', serif", fontSize: '2.5rem', fontWeight: 900, textAlign: 'center' }}>Newsies</h2>
+            <div className="g-2s" style={{ display: 'grid' }}>
+              <div style={{ background: 'linear-gradient(160deg, #2d1b4e, #1b0a2e)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 'clamp(32px, 5vw, 60px) clamp(20px, 4vw, 40px)', minHeight: '200px' }}>
+                <h2 style={{ fontFamily: "'Playfair Display', serif", fontSize: 'clamp(1.8rem, 4vw, 2.5rem)', fontWeight: 900, textAlign: 'center' }}>Newsies</h2>
               </div>
-              <div style={{ padding: '48px' }}>
+              <div style={{ padding: 'clamp(24px, 4vw, 48px)' }}>
                 <div style={{ display: 'flex', gap: '12px', marginBottom: '24px', flexWrap: 'wrap' }}>
                   <span style={{ padding: '6px 14px', border: '1px solid rgba(212,168,83,0.3)', fontSize: '0.6rem', letterSpacing: '0.2em', textTransform: 'uppercase', color: 'var(--gold-light)' }}>Musical</span>
                   <span style={{ padding: '6px 14px', border: '1px solid rgba(61,158,140,0.3)', fontSize: '0.6rem', letterSpacing: '0.2em', textTransform: 'uppercase', color: 'var(--teal)' }}>Ages 10+</span>
@@ -35,7 +35,7 @@ export default function AuditionsPage() {
                 <p style={{ color: 'var(--muted)', lineHeight: 1.75, marginBottom: '32px', maxWidth: '520px' }}>
                   The rousing musical based on the 1899 newsboy strike in New York City. We&apos;re casting a large ensemble — singers, dancers, and actors all welcome. Auditions include a brief song (16–32 bars) and a movement call.
                 </p>
-                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '24px', marginBottom: '32px' }}>
+                <div className="g-3" style={{ display: 'grid', gap: '24px', marginBottom: '32px' }}>
                   {[
                     { label: 'Audition Dates', value: 'TBD — Summer 2025' },
                     { label: 'Show Dates', value: 'TBD — Summer 2025' },
@@ -60,10 +60,10 @@ export default function AuditionsPage() {
       </section>
 
       {/* ── What to Expect ────────────────────────── */}
-      <section style={{ padding: '80px 48px', background: 'var(--layer)', borderTop: '1px solid var(--border)', borderBottom: '1px solid var(--border)' }}>
+      <section style={{ padding: 'clamp(40px, 8vw, 80px) clamp(20px, 5vw, 48px)', background: 'var(--layer)', borderTop: '1px solid var(--border)', borderBottom: '1px solid var(--border)' }}>
         <div style={{ maxWidth: '1200px', margin: '0 auto' }}>
           <p className="section-label">What to Expect</p>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '48px' }}>
+          <div className="g-3" style={{ display: 'grid', gap: '48px' }}>
             {[
               { step: '01', title: 'Pick Your Time', body: 'When registration opens, choose from available audition slots. Slots fill quickly, so sign up early.' },
               { step: '02', title: 'Prepare Your Piece', body: 'For musicals, bring 16–32 bars of a song in the style of the show. For plays, prepare a 1–2 minute monologue.' },
@@ -80,10 +80,10 @@ export default function AuditionsPage() {
       </section>
 
       {/* ── Crew / Crew Registration ──────────────── */}
-      <section style={{ padding: '100px 48px' }}>
+      <section style={{ padding: 'clamp(48px, 10vw, 100px) clamp(20px, 5vw, 48px)' }}>
         <div style={{ maxWidth: '1200px', margin: '0 auto' }}>
           <p className="section-label">Not a Performer?</p>
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '64px', alignItems: 'center' }}>
+          <div className="g-2" style={{ display: 'grid', gap: '64px', alignItems: 'center' }}>
             <div>
               <h2 style={{ fontFamily: "'Playfair Display', serif", fontSize: 'clamp(2rem, 3vw, 3rem)', fontWeight: 900, lineHeight: 1.1, marginBottom: '24px' }}>
                 Join the<br />
@@ -110,7 +110,7 @@ export default function AuditionsPage() {
       </section>
 
       {/* ── FAQ ───────────────────────────────────── */}
-      <section style={{ padding: '0 48px 120px' }}>
+      <section style={{ padding: '0 clamp(20px, 5vw, 48px) clamp(48px, 10vw, 120px)' }}>
         <div style={{ maxWidth: '800px', margin: '0 auto' }}>
           <p className="section-label">Common Questions</p>
           {[

@@ -91,16 +91,16 @@ export default function HomePage() {
       </section>
 
       {/* ── Now Showing ──────────────────────────────── */}
-      <section style={{ padding: '140px 48px', position: 'relative' }}>
+      <section style={{ padding: 'clamp(56px, 12vw, 140px) clamp(20px, 5vw, 48px)', position: 'relative' }}>
         <div style={{ maxWidth: '1400px', margin: '0 auto' }}>
           <p className="section-label">Now Showing</p>
-          <div style={{ display: 'grid', gridTemplateColumns: '1.2fr 1fr', gap: '32px' }}>
+          <div className="g-2a" style={{ display: 'grid', gap: '32px' }}>
 
             {/* Featured show card */}
             <div style={{ position: 'relative', aspectRatio: '3/4', borderRadius: '4px', overflow: 'hidden' }}>
               <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(160deg, #2d1b4e, #1b0a2e, #0f1a2e)' }} />
               <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(0deg, rgba(14,13,20,0.96) 0%, rgba(14,13,20,0.2) 40%, transparent 60%)' }} />
-              <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, padding: '48px 40px', zIndex: 2 }}>
+              <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, padding: 'clamp(24px, 4vw, 48px) clamp(20px, 4vw, 40px)', zIndex: 2 }}>
                 <p style={{ fontSize: '0.65rem', letterSpacing: '0.3em', textTransform: 'uppercase', color: 'var(--teal)', marginBottom: '16px', fontWeight: 500 }}>
                   Current Production
                 </p>
@@ -137,22 +137,22 @@ export default function HomePage() {
       </section>
 
       {/* ── Stats ─────────────────────────────────────── */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', background: 'var(--layer)', borderTop: '1px solid var(--border)', borderBottom: '1px solid var(--border)' }}>
+      <div className="g-4" style={{ display: 'grid', background: 'var(--layer)', borderTop: '1px solid var(--border)', borderBottom: '1px solid var(--border)' }}>
         {[
           { number: '20+',   label: 'Years of\nCommunity Theatre' },
           { number: '100+',  label: 'Productions\nCompleted' },
           { number: '500+',  label: 'Students &\nPerformers Served' },
           { number: '1000s', label: 'Audience Members\nEach Season' },
         ].map(({ number, label }, i) => (
-          <div key={i} style={{ padding: '60px 32px', textAlign: 'center', borderRight: i < 3 ? '1px solid var(--border)' : undefined }}>
-            <div style={{ fontFamily: "'Playfair Display', serif", fontSize: '3rem', fontWeight: 900, color: 'var(--gold)', lineHeight: 1, marginBottom: '8px' }}>{number}</div>
+          <div key={i} style={{ padding: 'clamp(32px, 5vw, 60px) clamp(16px, 3vw, 32px)', textAlign: 'center', borderRight: i < 3 ? '1px solid var(--border)' : undefined }}>
+            <div style={{ fontFamily: "'Playfair Display', serif", fontSize: 'clamp(2rem, 4vw, 3rem)', fontWeight: 900, color: 'var(--gold)', lineHeight: 1, marginBottom: '8px' }}>{number}</div>
             <div style={{ fontSize: '0.68rem', letterSpacing: '0.22em', textTransform: 'uppercase', color: 'var(--muted)', lineHeight: 1.5, whiteSpace: 'pre-line' }}>{label}</div>
           </div>
         ))}
       </div>
 
       {/* ── Mission ───────────────────────────────────── */}
-      <section style={{ padding: '160px 48px', position: 'relative', overflow: 'hidden' }}>
+      <section style={{ padding: 'clamp(56px, 12vw, 160px) clamp(20px, 5vw, 48px)', position: 'relative', overflow: 'hidden' }}>
         <div style={{ position: 'absolute', inset: 0, background: 'radial-gradient(ellipse at 25% 50%, rgba(61,158,140,0.05) 0%, transparent 55%), radial-gradient(ellipse at 75% 50%, rgba(212,168,83,0.04) 0%, transparent 55%)' }} />
         <div style={{ position: 'relative', maxWidth: '1000px', margin: '0 auto', textAlign: 'center' }}>
           <p style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: '0.75rem', letterSpacing: '0.4em', color: 'var(--teal)', textTransform: 'uppercase', marginBottom: '40px', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '20px' }}>
@@ -174,8 +174,8 @@ export default function HomePage() {
       </section>
 
       {/* ── Get Involved ─────────────────────────────── */}
-      <section style={{ padding: '100px 48px 140px' }}>
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', maxWidth: '1400px', margin: '0 auto 64px' }}>
+      <section style={{ padding: 'clamp(48px, 10vw, 100px) clamp(20px, 5vw, 48px) clamp(56px, 12vw, 140px)' }}>
+        <div className="section-header-split" style={{ maxWidth: '1400px', margin: '0 auto 64px' }}>
           <h2 style={{ fontFamily: "'Playfair Display', serif", fontSize: 'clamp(2.5rem, 5vw, 4.5rem)', fontWeight: 900, lineHeight: 1, maxWidth: '580px' }}>
             There&apos;s a place here<br />
             <em style={{ fontStyle: 'italic', fontWeight: 400, color: 'var(--teal)' }}>for you</em>
@@ -185,7 +185,7 @@ export default function HomePage() {
           </p>
         </div>
 
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '24px', maxWidth: '1400px', margin: '0 auto' }}>
+        <div className="g-3" style={{ display: 'grid', gap: '24px', maxWidth: '1400px', margin: '0 auto' }}>
           {[
             { tag: 'Perform', tagColor: 'var(--gold)',  bg: 'linear-gradient(160deg, #2a1540, #0f0a1a)', iconBorder: 'rgba(212,168,83,0.35)',   title: 'Audition for a Show',    body: 'All skill levels welcome. From first-time performers to seasoned actors — if you want to be on stage, we want you.',                         href: '/auditions',   idx: 0 },
             { tag: 'Support', tagColor: 'var(--teal)',  bg: 'linear-gradient(160deg, #0d2a28, #061514)', iconBorder: 'rgba(61,158,140,0.35)',    title: 'Volunteer Backstage',    body: 'Great theatre takes a village. Help build sets, run lights, manage costumes, or usher for shows.',                                           href: '/volunteering', idx: 1 },
@@ -207,10 +207,10 @@ export default function HomePage() {
       </section>
 
       {/* ── Community CTA ─────────────────────────────── */}
-      <section style={{ padding: '0 48px 160px', textAlign: 'center', position: 'relative' }}>
+      <section style={{ padding: '0 clamp(20px, 5vw, 48px) clamp(56px, 12vw, 160px)', textAlign: 'center', position: 'relative' }}>
         <div style={{ position: 'absolute', top: '-100px', left: '50%', transform: 'translateX(-50%)', width: '600px', height: '600px', borderRadius: '50%', background: 'radial-gradient(circle, rgba(61,158,140,0.05) 0%, transparent 70%)', pointerEvents: 'none' }} />
-        <div style={{ position: 'relative', maxWidth: '800px', margin: '0 auto', padding: '80px 60px', border: '1px solid var(--border)', borderRadius: '4px', background: 'var(--layer)', backdropFilter: 'blur(20px)' }}>
-          <div style={{ position: 'absolute', top: '-1px', left: '60px', right: '60px', height: '1px', background: 'repeating-linear-gradient(90deg, var(--teal) 0, var(--teal) 8px, transparent 8px, transparent 16px)', opacity: 0.4 }} />
+        <div style={{ position: 'relative', maxWidth: '800px', margin: '0 auto', padding: 'clamp(32px, 6vw, 80px) clamp(20px, 5vw, 60px)', border: '1px solid var(--border)', borderRadius: '4px', background: 'var(--layer)', backdropFilter: 'blur(20px)' }}>
+          <div className="deco-top" style={{ position: 'absolute', top: '-1px', height: '1px', background: 'repeating-linear-gradient(90deg, var(--teal) 0, var(--teal) 8px, transparent 8px, transparent 16px)', opacity: 0.4 }} />
           <p style={{ fontSize: '0.65rem', letterSpacing: '0.4em', textTransform: 'uppercase', color: 'var(--teal)', marginBottom: '24px', fontWeight: 500 }}>This is your theatre</p>
           <h2 style={{ fontFamily: "'Playfair Display', serif", fontSize: 'clamp(2rem, 4vw, 3.5rem)', fontWeight: 900, marginBottom: '20px', lineHeight: 1.1 }}>
             Ready to be part of<br />
