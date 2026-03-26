@@ -359,8 +359,9 @@ footer.site-footer {
   animation: marquee 60s linear infinite;
 }
 @media (prefers-reduced-motion: reduce) { .marquee-track { animation: none; } }
-.photo-marquee:hover .marquee-track,
-.photo-marquee:focus-within .marquee-track { animation-play-state: paused; }
+@media (hover: hover) {
+  .photo-marquee:hover .marquee-track { animation-play-state: paused; }
+}
 
 /* ── Volunteer role card hover ─────────────────── */
 .volunteer-role-card {
