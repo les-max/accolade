@@ -68,15 +68,6 @@ export default function PastShowsPage() {
             </div>
           ))}
 
-          {/* Archive note */}
-          <div style={{ textAlign: 'center', padding: '60px 0', borderTop: '1px solid var(--border)' }}>
-            <p style={{ color: 'var(--muted)', fontSize: '0.88rem', lineHeight: 1.75, maxWidth: '500px', margin: '0 auto' }}>
-              We&apos;re currently building out our full production archive. If you have photos or memories from an Accolade production, we&apos;d love to hear from you.
-            </p>
-            <a href="mailto:info@accoladetheatre.org" style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', marginTop: '24px', fontSize: '0.7rem', letterSpacing: '0.18em', textTransform: 'uppercase', color: 'var(--gold)', textDecoration: 'none', fontWeight: 600 }}>
-              Share Your Photos →
-            </a>
-          </div>
         </div>
       </section>
     </>
