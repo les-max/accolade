@@ -122,7 +122,7 @@ export default function VolunteeringPage() {
                     href={`mailto:info@accoladetheatre.org?subject=Volunteer Interest: ${encodeURIComponent(title)} — ${encodeURIComponent(show)}&body=Hi! I'm interested in volunteering as ${title} for ${show}. Here's a little about me:%0A%0AName:%0APhone:%0AAvailability:`}
                     style={{ textDecoration: 'none' }}
                   >
-                    <div style={{
+                    <div className="volunteer-role-card" style={{
                       background: 'var(--deep)',
                       border: '1px solid var(--border)',
                       borderRadius: '4px',
@@ -131,12 +131,7 @@ export default function VolunteeringPage() {
                       alignItems: 'center',
                       justifyContent: 'space-between',
                       gap: '12px',
-                      transition: 'border-color 0.2s',
-                      cursor: 'pointer',
-                    }}
-                    onMouseEnter={e => (e.currentTarget.style.borderColor = color)}
-                    onMouseLeave={e => (e.currentTarget.style.borderColor = 'var(--border)')}
-                    >
+                    }}>
                       <div>
                         <p style={{ fontSize: '0.6rem', letterSpacing: '0.2em', textTransform: 'uppercase', color, marginBottom: '6px', fontWeight: 600 }}>{category}</p>
                         <p style={{ fontSize: '0.95rem', color: 'var(--warm-white)', fontWeight: 500 }}>{title}</p>

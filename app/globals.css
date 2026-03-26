@@ -360,6 +360,13 @@ footer.site-footer {
 .photo-marquee:hover .marquee-track,
 .photo-marquee:focus-within .marquee-track { animation-play-state: paused; }
 
+/* ── Volunteer role card hover ─────────────────── */
+.volunteer-role-card {
+  transition: border-color 0.2s;
+  cursor: pointer;
+}
+.volunteer-role-card:hover { border-color: var(--teal); }
+
 /* ── Mobile ────────────────────────────────────── */
 @media (max-width: 768px) {
   nav.site-nav { padding: 20px 24px; }
