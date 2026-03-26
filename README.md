@@ -1,36 +1,44 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Accolade Community Theatre
 
-## Getting Started
+Website for Accolade Community Theatre in Richardson, TX. Built with Next.js 15, React 19, and Tailwind CSS 4.
 
-First, run the development server:
+**Live site:** https://accolade-theatre.vercel.app
+**Production domain:** accoladetheatre.org (pending cutover after Awards Night — June 19, 2026)
+
+## Stack
+
+- **Framework:** Next.js 15 (App Router)
+- **Styling:** Tailwind CSS 4 + custom CSS variables
+- **Language:** TypeScript
+- **Deployment:** Vercel (GitHub integration)
+
+## Pages
+
+| Route | Description |
+|-------|-------------|
+| `/` | Homepage — hero, featured show, mission, CTAs |
+| `/about` | Organization story, values, board members |
+| `/auditions` | Audition info, crew roles, FAQ |
+| `/tickets` | Current show tickets and pricing |
+| `/past-shows` | Production archive by season |
+| `/volunteering` | Volunteer roles and signup |
+| `/partners` | Partnership tiers and benefits |
+| `/donate` | Donation impact and giving methods |
+
+## Development
 
 ```bash
+npm install
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Open [http://localhost:3000](http://localhost:3000).
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Design System
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+Dark theatrical aesthetic with warm navy base (`#0e0d14`) and gold/teal/rose accents.
+Fonts: Playfair Display (headings), Bebas Neue (labels), Inter (body).
 
-## Learn More
+## Deployment
 
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+Pushes to `main` auto-deploy to Vercel. Preview deployments are created for all pull requests.

@@ -1,5 +1,4 @@
 import Link from 'next/link';
-
 export default function Footer() {
   const year = new Date().getFullYear();
 
@@ -7,7 +6,8 @@ export default function Footer() {
     <footer className="site-footer">
       <div className="footer-inner">
         <div className="footer-brand">
-          <h3>Accolade<br />Theatre</h3>
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img src="/accolade-logo.png" alt="Accolade Community Theatre" style={{ height: '48px', width: 'auto', display: 'block', marginBottom: '16px' }} />
           <p>
             A community theatre dedicated to bringing stories to life and
             welcoming everyone — performers, crew, and audience alike — to

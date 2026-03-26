@@ -15,8 +15,8 @@ const navLinks = [
 
 export default function Nav() {
   const [scrolled, setScrolled] = useState(false);
-  const [open, setOpen] = useState(false);
-  const pathname = usePathname();
+  const [open, setOpen]         = useState(false);
+  const pathname                = usePathname();
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 40);
@@ -24,58 +24,63 @@ export default function Nav() {
     return () => window.removeEventListener('scroll', onScroll);
   }, []);
 
-  // Close menu on route change
   useEffect(() => { setOpen(false); }, [pathname]);
-
-  // Lock body scroll when menu is open
   useEffect(() => {
     document.body.style.overflow = open ? 'hidden' : '';
     return () => { document.body.style.overflow = ''; };
   }, [open]);
 
   return (
-    <nav className={`site-nav${scrolled ? ' scrolled' : ''}`} aria-label="Main navigation">
-      <Link href="/" className="nav-logo" aria-label="Accolade Community Theatre — home">
-        Accolade&nbsp;Theatre
+    <nav style={{
+      position: 'fixed',
+      top: 0, left: 0, right: 0,
+      zIndex: 1000,
+      padding: scrolled ? '18px 48px' : '28px 48px',
+      display: 'flex',
+      justifyContent: 'space-between',
+      alignItems: 'center',
+      transition: 'background 0.4s, padding 0.4s',
+      background: scrolled ? 'rgba(14,13,20,0.85)' : 'transparent',
+      backdropFilter: scrolled ? 'blur(16px)' : undefined,
+      borderBottom: scrolled ? '1px solid rgba(255,255,255,0.07)' : undefined,
+    }}>
+
+      {/* Logo */}
+      <Link href="/" aria-label="Accolade Community Theatre — home" style={{ display: 'flex', alignItems: 'center' }}>
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img src="/accolade-logo.png" alt="Accolade Community Theatre" style={{ height: '40px', width: 'auto', display: 'block' }} />
       </Link>
 
-      {/* Desktop links */}
-      <ul className="nav-links" role="list">
+      {/* Desktop nav links */}
+      <ul style={{ display: 'flex', gap: '36px', listStyle: 'none', alignItems: 'center', margin: 0, padding: 0 }}>
         {navLinks.map(({ href, label }) => (
           <li key={href}>
-            <Link href={href} aria-current={pathname === href ? 'page' : undefined}>
+            <Link href={href} style={{
+              color: pathname === href ? 'var(--gold)' : 'var(--warm-white)',
+              textDecoration: 'none',
+              fontSize: '0.72rem',
+              letterSpacing: '0.18em',
+              textTransform: 'uppercase',
+              fontWeight: 500,
+            }}>
               {label}
             </Link>
           </li>
         ))}
-        <li className="nav-cta">
-          <Link href="/tickets">Get Tickets</Link>
-        </li>
-      </ul>
-
-      {/* Mobile hamburger */}
-      <button
-        className="nav-hamburger"
-        aria-label={open ? 'Close menu' : 'Open menu'}
-        aria-expanded={open}
-        onClick={() => setOpen(!open)}
-      >
-        <span style={{ transform: open ? 'rotate(45deg) translate(5px, 5px)' : undefined }} />
-        <span style={{ opacity: open ? 0 : undefined }} />
-        <span style={{ transform: open ? 'rotate(-45deg) translate(5px, -5px)' : undefined }} />
-      </button>
-
-      {/* Mobile menu */}
-      <ul className={`nav-links${open ? ' open' : ''}`} role="list" aria-hidden={!open}>
-        {navLinks.map(({ href, label }) => (
-          <li key={href}>
-            <Link href={href} aria-current={pathname === href ? 'page' : undefined}>
-              {label}
-            </Link>
-          </li>
-        ))}
-        <li className="nav-cta">
-          <Link href="/tickets">Get Tickets</Link>
+        <li>
+          <Link href="/tickets" style={{
+            padding: '8px 20px',
+            border: '1px solid var(--gold)',
+            color: 'var(--gold)',
+            borderRadius: '2px',
+            textDecoration: 'none',
+            fontSize: '0.72rem',
+            letterSpacing: '0.18em',
+            textTransform: 'uppercase',
+            fontWeight: 500,
+          }}>
+            Get Tickets
+          </Link>
         </li>
       </ul>
     </nav>
