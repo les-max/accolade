@@ -12,7 +12,7 @@ export default function AuditionsPage() {
         eyebrow="Get On Stage"
         title="Auditions"
         titleItalic="Open to Youth"
-        subtitle="We are a youth theatre — welcoming performers ages 3–19. No experience necessary. If you want your kid on stage, we want to meet them."
+        subtitle="We are a youth theatre — welcoming performers ages 5–19. No experience necessary. If you want your kid on stage, we want to meet them."
         accentColor="var(--gold)"
       />
 
@@ -115,7 +115,7 @@ export default function AuditionsPage() {
           <p className="section-label">Common Questions</p>
           {[
             { q: 'Do I need prior experience to audition?', a: 'Not at all. Accolade welcomes first-time performers. The director will always consider enthusiasm and commitment alongside skill.' },
-            { q: 'What age ranges do you cast?', a: 'We are a youth theatre — our productions are cast with performers ages 3–19. Adults are welcome to be part of the community as volunteers and crew.' },
+            { q: 'What age ranges do you cast?', a: 'We are a youth theatre — our productions are cast with performers ages 5–19. Adults are welcome to be part of the community as volunteers and crew.' },
             { q: 'Is there a fee to participate?', a: 'Some productions have a participation fee (tuition) to help cover costs. This is always disclosed during the audition process. Financial hardship waivers are available — just ask.' },
             { q: 'How do I know when auditions are announced?', a: 'Join our mailing list or follow us on social media. Audition announcements go out 4–6 weeks before the audition date.' },
           ].map(({ q, a }, i) => (

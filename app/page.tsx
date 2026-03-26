@@ -68,7 +68,7 @@ export default function HomePage() {
           </h1>
 
           <p style={{ fontSize: '1.05rem', fontWeight: 300, color: 'var(--muted)', maxWidth: '500px', margin: '0 auto 52px', lineHeight: 1.75, letterSpacing: '0.02em' }}>
-            A youth theatre giving kids ages 3–19 the chance to discover the magic of live performance — in Richardson, TX and beyond.
+            A youth theatre giving kids ages 5–19 the chance to discover the magic of live performance — in Richardson, TX and beyond.
           </p>
 
           <div style={{ display: 'flex', gap: '16px', justifyContent: 'center', flexWrap: 'wrap' }}>
