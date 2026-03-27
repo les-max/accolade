@@ -1,11 +1,19 @@
 import PageHero from '@/components/PageHero';
 import Link from 'next/link';
+import { createClient } from '@/lib/supabase/server';
 
 export const metadata = {
   title: 'Auditions — Accolade Community Theatre',
 };
 
-export default function AuditionsPage() {
+export default async function AuditionsPage() {
+  const supabase = await createClient();
+  const { data: activeShows } = await supabase
+    .from('shows')
+    .select('id, slug, title, description, age_min, age_max, audition_type, show_image')
+    .eq('status', 'active')
+    .order('created_at', { ascending: false });
+
   return (
     <>
       <PageHero
@@ -21,8 +29,46 @@ export default function AuditionsPage() {
         <div style={{ maxWidth: '1200px', margin: '0 auto' }}>
           <p className="section-label">Upcoming Auditions</p>
 
-          {/* Newsies audition card */}
-          <div style={{ border: '1px solid var(--border)', borderRadius: '4px', background: 'var(--layer)', overflow: 'hidden', marginBottom: '24px' }}>
+          {activeShows && activeShows.length > 0 ? (
+            activeShows.map(show => {
+              const ageLabel = show.age_min && show.age_max ? `Ages ${show.age_min}–${show.age_max}` : show.age_min ? `Ages ${show.age_min}+` : null;
+              return (
+                <div key={show.id} style={{ border: '1px solid var(--border)', borderRadius: '4px', background: 'var(--layer)', overflow: 'hidden', marginBottom: '24px' }}>
+                  <div className="g-2s" style={{ display: 'grid' }}>
+                    <div style={{
+                      background: show.show_image ? `url(${show.show_image}) center/cover` : 'linear-gradient(160deg, #2d1b4e, #1b0a2e)',
+                      display: 'flex', alignItems: 'center', justifyContent: 'center',
+                      padding: 'clamp(32px, 5vw, 60px) clamp(20px, 4vw, 40px)', minHeight: '200px',
+                    }}>
+                      <h2 style={{ fontFamily: "'Playfair Display', serif", fontSize: 'clamp(1.8rem, 4vw, 2.5rem)', fontWeight: 900, textAlign: 'center' }}>{show.title}</h2>
+                    </div>
+                    <div style={{ padding: 'clamp(24px, 4vw, 48px)' }}>
+                      <div style={{ display: 'flex', gap: '12px', marginBottom: '24px', flexWrap: 'wrap' }}>
+                        <span style={{ padding: '6px 14px', border: '1px solid rgba(212,168,83,0.3)', fontSize: '0.6rem', letterSpacing: '0.2em', textTransform: 'uppercase', color: 'var(--gold-light)' }}>
+                          {show.audition_type === 'slot' ? 'Time Slots' : 'Open Windows'}
+                        </span>
+                        {ageLabel && (
+                          <span style={{ padding: '6px 14px', border: '1px solid rgba(61,158,140,0.3)', fontSize: '0.6rem', letterSpacing: '0.2em', textTransform: 'uppercase', color: 'var(--teal)' }}>
+                            {ageLabel}
+                          </span>
+                        )}
+                      </div>
+                      {show.description && (
+                        <p style={{ color: 'var(--muted)', lineHeight: 1.75, marginBottom: '32px', maxWidth: '520px' }}>
+                          {show.description}
+                        </p>
+                      )}
+                      <Link href={`/auditions/${show.slug}`} className="btn-primary">
+                        <span>Register to Audition</span>
+                      </Link>
+                    </div>
+                  </div>
+                </div>
+              );
+            })
+          ) : (
+            /* No active shows — keep the placeholder Newsies card */
+            <div style={{ border: '1px solid var(--border)', borderRadius: '4px', background: 'var(--layer)', overflow: 'hidden', marginBottom: '24px' }}>
             <div className="g-2s" style={{ display: 'grid' }}>
               <div style={{ background: 'linear-gradient(160deg, #2d1b4e, #1b0a2e)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 'clamp(32px, 5vw, 60px) clamp(20px, 4vw, 40px)', minHeight: '200px' }}>
                 <h2 style={{ fontFamily: "'Playfair Display', serif", fontSize: 'clamp(1.8rem, 4vw, 2.5rem)', fontWeight: 900, textAlign: 'center' }}>Newsies</h2>
@@ -56,6 +102,7 @@ export default function AuditionsPage() {
               </div>
             </div>
           </div>
+          )}
         </div>
       </section>
 

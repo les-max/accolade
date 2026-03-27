@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
+import { createClient } from '@/lib/supabase/client';
 
 const navLinks = [
   { href: '/about',        label: 'About' },
@@ -14,9 +15,10 @@ const navLinks = [
 ];
 
 export default function Nav() {
-  const [scrolled, setScrolled] = useState(false);
-  const [open, setOpen]         = useState(false);
-  const pathname                = usePathname();
+  const [scrolled, setScrolled]   = useState(false);
+  const [open, setOpen]           = useState(false);
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const pathname                  = usePathname();
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 40);
@@ -25,6 +27,17 @@ export default function Nav() {
   }, []);
 
   useEffect(() => { setOpen(false); }, [pathname]);
+
+  useEffect(() => {
+    const supabase = createClient();
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      setIsLoggedIn(!!session);
+    });
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      setIsLoggedIn(!!session);
+    });
+    return () => subscription.unsubscribe();
+  }, []);
 
   return (
     <nav
@@ -69,6 +82,18 @@ export default function Nav() {
             </Link>
           </li>
         ))}
+        <li>
+          <Link href={isLoggedIn ? '/account' : '/login'} style={{
+            color: 'var(--muted)',
+            textDecoration: 'none',
+            fontSize: '0.72rem',
+            letterSpacing: '0.18em',
+            textTransform: 'uppercase',
+            fontWeight: 500,
+          }}>
+            {isLoggedIn ? 'My Account' : 'Sign In'}
+          </Link>
+        </li>
         <li className="nav-cta">
           <Link href="/tickets" style={{
             padding: '8px 20px',
