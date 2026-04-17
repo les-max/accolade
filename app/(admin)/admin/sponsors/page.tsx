@@ -8,7 +8,7 @@ export default async function SponsorsAdminPage() {
   const supabase = await createClient()
   const { data: sponsors } = await supabase
     .from('sponsors')
-    .select('*')
+    .select('id, name, logo_url, website_url, active, sort_order, created_at')
     .order('sort_order', { ascending: true })
     .order('created_at', { ascending: false })
 
@@ -26,12 +26,13 @@ export default async function SponsorsAdminPage() {
         <h2 style={{ fontSize: '0.75rem', letterSpacing: '0.2em', textTransform: 'uppercase', color: 'var(--muted)', marginBottom: '24px', fontWeight: 500 }}>
           Add a Sponsor
         </h2>
-        <form action={addSponsor} style={{ display: 'grid', gap: '20px' }}>
+        <form action={addSponsor} encType="multipart/form-data" style={{ display: 'grid', gap: '20px' }}>
           <div>
-            <label style={{ display: 'block', fontSize: '0.72rem', letterSpacing: '0.15em', textTransform: 'uppercase', color: 'var(--muted)', marginBottom: '8px', fontWeight: 500 }}>
+            <label htmlFor="sponsor-name" style={{ display: 'block', fontSize: '0.72rem', letterSpacing: '0.15em', textTransform: 'uppercase', color: 'var(--muted)', marginBottom: '8px', fontWeight: 500 }}>
               Sponsor Name *
             </label>
             <input
+              id="sponsor-name"
               name="name"
               required
               placeholder="e.g. Richardson Arts Council"
@@ -40,10 +41,11 @@ export default async function SponsorsAdminPage() {
           </div>
 
           <div>
-            <label style={{ display: 'block', fontSize: '0.72rem', letterSpacing: '0.15em', textTransform: 'uppercase', color: 'var(--muted)', marginBottom: '8px', fontWeight: 500 }}>
+            <label htmlFor="sponsor-logo" style={{ display: 'block', fontSize: '0.72rem', letterSpacing: '0.15em', textTransform: 'uppercase', color: 'var(--muted)', marginBottom: '8px', fontWeight: 500 }}>
               Logo Image * (PNG, JPG, or SVG recommended)
             </label>
             <input
+              id="sponsor-logo"
               name="logo"
               type="file"
               accept="image/*"
@@ -53,10 +55,11 @@ export default async function SponsorsAdminPage() {
           </div>
 
           <div>
-            <label style={{ display: 'block', fontSize: '0.72rem', letterSpacing: '0.15em', textTransform: 'uppercase', color: 'var(--muted)', marginBottom: '8px', fontWeight: 500 }}>
+            <label htmlFor="sponsor-website" style={{ display: 'block', fontSize: '0.72rem', letterSpacing: '0.15em', textTransform: 'uppercase', color: 'var(--muted)', marginBottom: '8px', fontWeight: 500 }}>
               Website URL (optional)
             </label>
             <input
+              id="sponsor-website"
               name="website_url"
               type="url"
               placeholder="https://example.com"
@@ -65,10 +68,11 @@ export default async function SponsorsAdminPage() {
           </div>
 
           <div>
-            <label style={{ display: 'block', fontSize: '0.72rem', letterSpacing: '0.15em', textTransform: 'uppercase', color: 'var(--muted)', marginBottom: '8px', fontWeight: 500 }}>
+            <label htmlFor="sponsor-order" style={{ display: 'block', fontSize: '0.72rem', letterSpacing: '0.15em', textTransform: 'uppercase', color: 'var(--muted)', marginBottom: '8px', fontWeight: 500 }}>
               Display Order (optional — lower numbers appear first)
             </label>
             <input
+              id="sponsor-order"
               name="sort_order"
               type="number"
               defaultValue={0}
@@ -126,7 +130,7 @@ export default async function SponsorsAdminPage() {
               <span style={{ fontSize: '0.78rem', color: 'var(--muted)' }}>
                 {sponsor.website_url ? (
                   <a href={sponsor.website_url} target="_blank" rel="noopener noreferrer" style={{ color: 'var(--teal)', textDecoration: 'none' }}>
-                    {new URL(sponsor.website_url).hostname}
+                    {(() => { try { return new URL(sponsor.website_url).hostname } catch { return sponsor.website_url } })()}
                   </a>
                 ) : '—'}
               </span>
