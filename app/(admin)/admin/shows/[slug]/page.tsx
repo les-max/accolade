@@ -5,6 +5,7 @@ import SlotManager from './SlotManager'
 import RoleManager from './RoleManager'
 import StatusControl from './StatusControl'
 import CustomQuestionsManager from './CustomQuestionsManager'
+import EventDetailsManager from './EventDetailsManager'
 
 export default async function ShowDetailPage({
   params,
@@ -94,6 +95,21 @@ export default async function ShowDetailPage({
       </div>
 
       {/* Slots */}
+      <EventDetailsManager
+        showId={show.id}
+        slug={slug}
+        show={{
+          event_type:       show.event_type ?? 'show',
+          start_date:       show.start_date ?? null,
+          end_date:         show.end_date ?? null,
+          featured:         show.featured ?? false,
+          homepage_visible: show.homepage_visible ?? false,
+          cta_label:        show.cta_label ?? null,
+          cta_url:          show.cta_url ?? null,
+          show_image:       show.show_image ?? null,
+        }}
+      />
+
       <SlotManager show={show} slots={slotsData ?? []} countBySlot={countBySlot} slug={slug} />
 
       {/* Roles */}

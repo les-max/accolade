@@ -57,6 +57,26 @@ export async function updateShowStatus(
   revalidatePath(`/admin/shows/${slug}`)
 }
 
+export async function updateShowDetails(
+  showId: string,
+  slug: string,
+  fields: {
+    event_type: string
+    start_date: string | null
+    end_date: string | null
+    featured: boolean
+    homepage_visible: boolean
+    cta_label: string | null
+    cta_url: string | null
+    show_image: string | null
+  }
+) {
+  const supabase = await createClient()
+  const { error } = await supabase.from('shows').update(fields).eq('id', showId)
+  if (error) throw new Error(error.message)
+  revalidatePath(`/admin/shows/${slug}`)
+}
+
 export type CustomQuestion = {
   id: string
   label: string

@@ -15,6 +15,13 @@ export async function createShow(formData: FormData) {
   const show_image = formData.get('show_image') as string || null
   const show_grade = formData.get('show_grade') === 'true'
   const show_headshot_upload = formData.get('show_headshot_upload') === 'true'
+  const event_type = formData.get('event_type') as string || 'show'
+  const start_date = formData.get('start_date') as string || null
+  const end_date = formData.get('end_date') as string || null
+  const featured = formData.get('featured') === 'true'
+  const homepage_visible = formData.get('homepage_visible') === 'true'
+  const cta_label = formData.get('cta_label') as string || null
+  const cta_url = formData.get('cta_url') as string || null
 
   const { error } = await supabase.from('shows').insert({
     title,
@@ -25,6 +32,13 @@ export async function createShow(formData: FormData) {
     age_max,
     show_image,
     status: 'draft',
+    event_type,
+    start_date,
+    end_date,
+    featured,
+    homepage_visible,
+    cta_label,
+    cta_url,
     field_config: {
       show_grade,
       show_headshot_upload,

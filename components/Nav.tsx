@@ -1,24 +1,56 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { createClient } from '@/lib/supabase/client';
 
-const navLinks = [
-  { href: '/about',        label: 'About' },
-  { href: '/auditions',    label: 'Auditions' },
-  { href: '/past-shows',   label: 'Past Shows' },
-  { href: '/volunteering', label: 'Volunteer' },
-  { href: '/partners',     label: 'Partners' },
-  { href: '/donate',       label: 'Donate' },
+type DropdownItem = { href: string; label: string };
+type NavItem =
+  | { type: 'link';     href: string; label: string }
+  | { type: 'dropdown'; label: string; items: DropdownItem[] };
+
+const NAV_ITEMS: NavItem[] = [
+  { type: 'link', href: '/about', label: 'About' },
+  {
+    type: 'dropdown',
+    label: 'Shows',
+    items: [
+      { href: '/current-season', label: 'Current Season' },
+      { href: '/auditions',      label: 'Auditions' },
+      { href: '/past-shows',     label: 'Past Shows' },
+    ],
+  },
+  {
+    type: 'dropdown',
+    label: 'Join Us',
+    items: [
+      { href: '/volunteering', label: 'Volunteer' },
+      { href: '/partners',     label: 'Partner' },
+      { href: '/partners',     label: 'Sponsor' },
+      { href: '/donate',       label: 'Donate' },
+    ],
+  },
+  { type: 'link', href: '/tickets', label: 'Tickets' },
 ];
 
+function Chevron({ open }: { open: boolean }) {
+  return (
+    <svg
+      width="10" height="10" viewBox="0 0 10 10" fill="none"
+      style={{ transition: 'transform 0.2s', transform: open ? 'rotate(180deg)' : 'rotate(0deg)', opacity: 0.55, flexShrink: 0 }}
+    >
+      <path d="M2 3.5l3 3 3-3" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+    </svg>
+  );
+}
+
 export default function Nav() {
-  const [scrolled, setScrolled]   = useState(false);
-  const [open, setOpen]           = useState(false);
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
-  const pathname                  = usePathname();
+  const [scrolled, setScrolled]         = useState(false);
+  const [menuOpen, setMenuOpen]         = useState(false);
+  const [openDropdown, setOpenDropdown] = useState<string | null>(null);
+  const pathname                        = usePathname();
+  const navRef                          = useRef<HTMLElement>(null);
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 40);
@@ -26,26 +58,48 @@ export default function Nav() {
     return () => window.removeEventListener('scroll', onScroll);
   }, []);
 
-  useEffect(() => { setOpen(false); }, [pathname]);
+  useEffect(() => {
+    setMenuOpen(false);
+    setOpenDropdown(null);
+  }, [pathname]);
+
+  useEffect(() => {
+    const onClick = (e: MouseEvent) => {
+      if (navRef.current && !navRef.current.contains(e.target as Node)) {
+        setOpenDropdown(null);
+      }
+    };
+    document.addEventListener('mousedown', onClick);
+    return () => document.removeEventListener('mousedown', onClick);
+  }, []);
 
   useEffect(() => {
     const supabase = createClient();
     supabase.auth.getSession().then(({ data: { session } }) => {
-      setIsLoggedIn(!!session);
+      // session used only for future member features
+      void session;
     });
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
-      setIsLoggedIn(!!session);
-    });
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(() => {});
     return () => subscription.unsubscribe();
   }, []);
 
+  const baseLinkStyle: React.CSSProperties = {
+    color: 'var(--warm-white)',
+    textDecoration: 'none',
+    fontSize: '0.72rem',
+    letterSpacing: '0.18em',
+    textTransform: 'uppercase',
+    fontWeight: 500,
+  };
+
   return (
     <nav
+      ref={navRef}
       className={`site-nav${scrolled ? ' scrolled' : ''}`}
       style={{
-        background: (scrolled || open) ? 'rgba(14,13,20,0.95)' : 'transparent',
-        backdropFilter: (scrolled || open) ? 'blur(16px)' : undefined,
-        borderBottom: (scrolled || open) ? '1px solid rgba(255,255,255,0.07)' : undefined,
+        background: (scrolled || menuOpen) ? 'rgba(14,13,20,0.95)' : 'transparent',
+        backdropFilter: (scrolled || menuOpen) ? 'blur(16px)' : undefined,
+        borderBottom: (scrolled || menuOpen) ? '1px solid rgba(255,255,255,0.07)' : undefined,
       }}
     >
       {/* Logo */}
@@ -57,9 +111,9 @@ export default function Nav() {
       {/* Hamburger */}
       <button
         className="nav-hamburger"
-        onClick={() => setOpen(!open)}
-        aria-label={open ? 'Close menu' : 'Open menu'}
-        aria-expanded={open}
+        onClick={() => setMenuOpen(!menuOpen)}
+        aria-label={menuOpen ? 'Close menu' : 'Open menu'}
+        aria-expanded={menuOpen}
       >
         <span />
         <span />
@@ -67,48 +121,118 @@ export default function Nav() {
       </button>
 
       {/* Nav links */}
-      <ul className={`nav-links${open ? ' open' : ''}`}>
-        {navLinks.map(({ href, label }) => (
-          <li key={href}>
-            <Link href={href} style={{
-              color: pathname === href ? 'var(--gold)' : 'var(--warm-white)',
-              textDecoration: 'none',
-              fontSize: '0.72rem',
-              letterSpacing: '0.18em',
-              textTransform: 'uppercase',
-              fontWeight: 500,
-            }}>
-              {label}
-            </Link>
-          </li>
-        ))}
-        <li>
-          <Link href={isLoggedIn ? '/account' : '/login'} style={{
-            color: 'var(--muted)',
-            textDecoration: 'none',
-            fontSize: '0.72rem',
-            letterSpacing: '0.18em',
-            textTransform: 'uppercase',
-            fontWeight: 500,
-          }}>
-            {isLoggedIn ? 'My Account' : 'Sign In'}
-          </Link>
-        </li>
-        <li className="nav-cta">
-          <Link href="/tickets" style={{
-            padding: '8px 20px',
-            border: '1px solid var(--gold)',
-            color: 'var(--gold)',
-            borderRadius: '2px',
-            textDecoration: 'none',
-            fontSize: '0.72rem',
-            letterSpacing: '0.18em',
-            textTransform: 'uppercase',
-            fontWeight: 500,
-          }}>
-            Get Tickets
-          </Link>
-        </li>
+      <ul className={`nav-links${menuOpen ? ' open' : ''}`}>
+        {NAV_ITEMS.map(item => {
+          if (item.type === 'link') {
+            return (
+              <li key={item.href}>
+                <Link href={item.href} style={{ ...baseLinkStyle, color: pathname === item.href ? 'var(--gold)' : 'var(--warm-white)' }}>
+                  {item.label}
+                </Link>
+              </li>
+            );
+          }
+
+          const isActive = item.items.some(i => pathname === i.href);
+          const isOpen   = openDropdown === item.label;
+
+          return (
+            <li
+              key={item.label}
+              style={{ position: 'relative' }}
+              onMouseEnter={() => { if (!menuOpen) setOpenDropdown(item.label); }}
+              onMouseLeave={() => { if (!menuOpen) setOpenDropdown(null); }}
+            >
+              <button
+                onClick={() => setOpenDropdown(isOpen ? null : item.label)}
+                style={{
+                  ...baseLinkStyle,
+                  color: isActive ? 'var(--gold)' : 'var(--warm-white)',
+                  background: 'none',
+                  border: 'none',
+                  cursor: 'pointer',
+                  padding: 0,
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '6px',
+                }}
+                aria-haspopup="true"
+                aria-expanded={isOpen}
+              >
+                {item.label}
+                <Chevron open={isOpen} />
+              </button>
+
+              {/* Desktop floating panel — starts at 100% so no gap breaks hover */}
+              {isOpen && !menuOpen && (
+                <div style={{
+                  position: 'absolute',
+                  top: '100%',
+                  left: '50%',
+                  transform: 'translateX(-50%)',
+                  paddingTop: '16px',
+                  zIndex: 100,
+                }}>
+                  <div style={{
+                    position: 'relative',
+                    minWidth: '180px',
+                    background: 'rgba(14,13,20,0.98)',
+                    backdropFilter: 'blur(20px)',
+                    WebkitBackdropFilter: 'blur(20px)',
+                    border: '1px solid rgba(255,255,255,0.08)',
+                    borderRadius: '4px',
+                    padding: '8px 0',
+                  }}>
+                    <div style={{
+                      position: 'absolute',
+                      top: '-5px', left: '50%',
+                      transform: 'translateX(-50%) rotate(45deg)',
+                      width: '8px', height: '8px',
+                      background: 'rgba(14,13,20,0.98)',
+                      border: '1px solid rgba(255,255,255,0.08)',
+                      borderBottom: 'none', borderRight: 'none',
+                    }} />
+                    {item.items.map(({ href, label }) => (
+                      <Link
+                        key={label}
+                        href={href}
+                        style={{
+                          display: 'block',
+                          padding: '10px 20px',
+                          fontSize: '0.72rem',
+                          letterSpacing: '0.14em',
+                          textTransform: 'uppercase',
+                          color: pathname === href ? 'var(--gold)' : 'var(--muted)',
+                          textDecoration: 'none',
+                          fontWeight: 500,
+                          whiteSpace: 'nowrap',
+                          transition: 'color 0.2s',
+                        }}
+                        onMouseEnter={e => (e.currentTarget.style.color = 'var(--warm-white)')}
+                        onMouseLeave={e => (e.currentTarget.style.color = pathname === href ? 'var(--gold)' : 'var(--muted)')}
+                      >
+                        {label}
+                      </Link>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* Mobile inline expansion */}
+              {isOpen && menuOpen && (
+                <div style={{ paddingLeft: '16px', marginTop: '6px' }}>
+                  {item.items.map(({ href, label }) => (
+                    <div key={label} style={{ padding: '8px 0', borderBottom: '1px solid rgba(255,255,255,0.04)' }}>
+                      <Link href={href} style={{ ...baseLinkStyle, fontSize: '0.88rem', color: pathname === href ? 'var(--gold)' : 'var(--muted)' }}>
+                        {label}
+                      </Link>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </li>
+          );
+        })}
       </ul>
     </nav>
   );
