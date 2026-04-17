@@ -444,6 +444,7 @@ footer.site-footer {
   .photo-marquee { padding: 12px 0; }
 }
 
+/* Overrides inline filter on img — server component can't use JS for hover */
 .sponsor-logo-link:hover img {
   filter: grayscale(0%) brightness(1) !important;
 }

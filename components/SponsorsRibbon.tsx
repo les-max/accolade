@@ -37,9 +37,17 @@ export default async function SponsorsRibbon() {
           alignItems: 'center',
           justifyContent: 'center',
         }}>
-          {sponsors.map(sponsor => {
-            const logo = (
-              // eslint-disable-next-line @next/next/no-img-element
+          {sponsors.map(sponsor => sponsor.website_url ? (
+            <a
+              key={sponsor.id}
+              href={sponsor.website_url}
+              target="_blank"
+              rel="noopener noreferrer"
+              title={sponsor.name}
+              style={{ display: 'block', lineHeight: 0 }}
+              className="sponsor-logo-link"
+            >
+              {/* eslint-disable-next-line @next/next/no-img-element */}
               <img
                 src={sponsor.logo_url}
                 alt={sponsor.name}
@@ -53,26 +61,25 @@ export default async function SponsorsRibbon() {
                   display: 'block',
                 }}
               />
-            )
-
-            return sponsor.website_url ? (
-              <a
-                key={sponsor.id}
-                href={sponsor.website_url}
-                target="_blank"
-                rel="noopener noreferrer"
-                title={sponsor.name}
-                style={{ display: 'block', lineHeight: 0 }}
-                className="sponsor-logo-link"
-              >
-                {logo}
-              </a>
-            ) : (
-              <div key={sponsor.id} title={sponsor.name} style={{ lineHeight: 0 }}>
-                {logo}
-              </div>
-            )
-          })}
+            </a>
+          ) : (
+            <div key={sponsor.id} title={sponsor.name} style={{ lineHeight: 0 }}>
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
+                src={sponsor.logo_url}
+                alt={sponsor.name}
+                style={{
+                  height: '56px',
+                  width: 'auto',
+                  maxWidth: '160px',
+                  objectFit: 'contain',
+                  filter: 'grayscale(100%) brightness(0.8)',
+                  transition: 'filter 0.3s',
+                  display: 'block',
+                }}
+              />
+            </div>
+          ))}
         </div>
       </div>
     </section>
