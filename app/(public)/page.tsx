@@ -1,7 +1,55 @@
 import Link from 'next/link';
+import Image from 'next/image';
+import fs from 'fs';
+import path from 'path';
 import CursorGlow from '@/components/CursorGlow';
+import HeroPhotoLayer from '@/components/HeroPhotoLayer';
+import { createClient } from '@/lib/supabase/server';
+import SponsorsRibbon from '@/components/SponsorsRibbon'
 
-export default function HomePage() {
+const IMG_EXT = /\.(jpe?g|png|webp|avif)$/i;
+
+function getHeroPhotos(): string[] {
+  const dir = path.join(process.cwd(), 'public', 'hero');
+  try {
+    return fs.readdirSync(dir)
+      .filter(f => IMG_EXT.test(f))
+      .sort()
+      .map(f => `/hero/${f}`);
+  } catch {
+    return [];
+  }
+}
+
+const TYPE_COLORS: Record<string, string> = {
+  show:     'var(--teal)',
+  audition: 'var(--gold)',
+  camp:     'var(--rose)',
+  workshop: 'var(--amber)',
+  event:    'var(--muted)',
+}
+
+function formatDateRange(start: string | null, end: string | null): string {
+  if (!start) return ''
+  const s = new Date(start).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric', timeZone: 'UTC' })
+  if (!end || end === start) return s
+  const e = new Date(end).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric', timeZone: 'UTC' })
+  return `${s} – ${e}`
+}
+
+export default async function HomePage() {
+  const heroPhotos = getHeroPhotos();
+
+  const supabase = await createClient();
+  const { data: events } = await supabase
+    .from('shows')
+    .select('id, title, slug, description, event_type, start_date, end_date, show_image, featured, cta_label, cta_url')
+    .eq('homepage_visible', true)
+    .order('start_date', { ascending: true })
+    .limit(5);
+
+  const featuredEvent = events?.find(e => e.featured) ?? events?.[0] ?? null;
+  const stackEvents = events?.filter(e => e.id !== featuredEvent?.id) ?? [];
   return (
     <>
       <CursorGlow />
@@ -15,41 +63,18 @@ export default function HomePage() {
         alignItems: 'center',
         justifyContent: 'center',
         overflow: 'hidden',
+        background: 'linear-gradient(135deg, #1e0f35 0%, #0d1a2e 30%, #1e1030 60%, #0e0d14 100%)',
       }}>
         <div style={{
           position: 'absolute',
           inset: 0,
-          background: 'linear-gradient(180deg, transparent 0%, rgba(14,13,20,0.4) 50%, var(--ink) 100%), linear-gradient(135deg, #1e0f35 0%, #0d1a2e 30%, #1e1030 60%, #0e0d14 100%)',
+          background: 'linear-gradient(180deg, rgba(14,13,20,0.55) 0%, rgba(14,13,20,0.3) 40%, rgba(14,13,20,0.6) 80%, var(--ink) 100%)',
           zIndex: 1,
         }} />
 
-        {/* Photo grid placeholder — swap divs for <Image> tags when photos are ready */}
-        <div style={{
-          position: 'absolute',
-          inset: 0,
-          zIndex: 0,
-          display: 'grid',
-          gridTemplateColumns: '1fr 1fr 1fr 1fr',
-          gridTemplateRows: '1fr 1fr',
-          gap: '4px',
-          opacity: 0.18,
-          filter: 'saturate(0.4)',
-        }}>
-          {[...Array(8)].map((_, i) => (
-            <div key={i} style={{
-              background: i % 2 === 0
-                ? 'linear-gradient(135deg, #2a1a3e, #1a2a3e)'
-                : 'linear-gradient(135deg, #1a1030, #201828)',
-              gridRow: i === 2 ? 'span 2' : undefined,
-            }} />
-          ))}
-        </div>
+        <HeroPhotoLayer photos={heroPhotos} />
 
         <div style={{ position: 'relative', zIndex: 2, textAlign: 'center', padding: '0 24px', maxWidth: '860px' }}>
-          <p style={{ fontFamily: 'Inter, sans-serif', fontSize: '0.7rem', letterSpacing: '0.4em', textTransform: 'uppercase', color: 'var(--teal)', marginBottom: '28px', fontWeight: 500 }}>
-            Richardson, TX · Community Theatre
-          </p>
-
           <h1 style={{
             fontFamily: "'Playfair Display', serif",
             fontSize: 'clamp(3.2rem, 9vw, 8.5rem)',
@@ -68,7 +93,7 @@ export default function HomePage() {
           </h1>
 
           <p style={{ fontSize: '1.05rem', fontWeight: 300, color: 'var(--muted)', maxWidth: '500px', margin: '0 auto 52px', lineHeight: 1.75, letterSpacing: '0.02em' }}>
-            A youth theatre giving kids ages 5–19 the chance to discover the magic of live performance — in Richardson, TX and beyond.
+            Making excellent theatre experiences possible for families in Richardson, TX and beyond.
           </p>
 
           <div style={{ display: 'flex', gap: '16px', justifyContent: 'center', flexWrap: 'wrap' }}>
@@ -91,50 +116,80 @@ export default function HomePage() {
       </section>
 
       {/* ── Now Showing ──────────────────────────────── */}
-      <section style={{ padding: 'clamp(56px, 12vw, 140px) clamp(20px, 5vw, 48px)', position: 'relative' }}>
-        <div style={{ maxWidth: '1400px', margin: '0 auto' }}>
-          <p className="section-label">Now Showing</p>
-          <div className="g-2a" style={{ display: 'grid', gap: '32px' }}>
+      {featuredEvent && (
+        <section style={{ padding: 'clamp(56px, 12vw, 140px) clamp(20px, 5vw, 48px)', position: 'relative' }}>
+          <div style={{ maxWidth: '1400px', margin: '0 auto' }}>
+            <p className="section-label">Now Showing</p>
+            <div className="g-2a" style={{ display: 'grid', gap: '32px' }}>
 
-            {/* Featured show card */}
-            <div style={{ position: 'relative', aspectRatio: '3/4', borderRadius: '4px', overflow: 'hidden' }}>
-              <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(160deg, #2d1b4e, #1b0a2e, #0f1a2e)' }} />
-              <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(0deg, rgba(14,13,20,0.96) 0%, rgba(14,13,20,0.2) 40%, transparent 60%)' }} />
-              <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, padding: 'clamp(24px, 4vw, 48px) clamp(20px, 4vw, 40px)', zIndex: 2 }}>
-                <p style={{ fontSize: '0.65rem', letterSpacing: '0.3em', textTransform: 'uppercase', color: 'var(--teal)', marginBottom: '16px', fontWeight: 500 }}>
-                  Current Production
-                </p>
-                <h2 style={{ fontFamily: "'Playfair Display', serif", fontSize: 'clamp(2rem, 4vw, 3.5rem)', fontWeight: 900, lineHeight: 1, marginBottom: '16px' }}>
-                  Newsies
-                </h2>
-                <p style={{ fontSize: '0.85rem', color: 'var(--muted)', lineHeight: 1.65, maxWidth: '360px' }}>
-                  The rousing musical about the real-life newsboy strike of 1899 — full of energy, heart, and unforgettable numbers.
-                </p>
-                <Link href="/tickets" style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', marginTop: '24px', fontSize: '0.7rem', letterSpacing: '0.18em', textTransform: 'uppercase', color: 'var(--gold)', textDecoration: 'none', fontWeight: 600 }}>
-                  Get Tickets →
-                </Link>
-              </div>
-            </div>
-
-            {/* Upcoming stack */}
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
-              {[
-                { title: 'Summer Camp Showcase', date: 'Coming Summer 2025', accent: 'var(--rose)', bg: 'linear-gradient(135deg, #1a2a1a, #0a1a0a)' },
-                { title: 'Season Announcements', date: 'Stay Tuned', accent: 'var(--amber)', bg: 'linear-gradient(135deg, #2a1a1a, #1a0a0a)' },
-              ].map(({ title, date, accent, bg }) => (
-                <div key={title} style={{ position: 'relative', aspectRatio: '16/9', borderRadius: '4px', overflow: 'hidden' }}>
-                  <div style={{ position: 'absolute', inset: 0, background: bg }} />
-                  <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(0deg, rgba(14,13,20,0.9) 0%, rgba(14,13,20,0.1) 60%)' }} />
-                  <div style={{ position: 'absolute', bottom: 0, left: 0, padding: '32px', zIndex: 2 }}>
-                    <p style={{ fontSize: '0.6rem', letterSpacing: '0.3em', textTransform: 'uppercase', color: accent, marginBottom: '10px', fontWeight: 500 }}>{date}</p>
-                    <h3 style={{ fontFamily: "'Playfair Display', serif", fontSize: '1.6rem', fontWeight: 700 }}>{title}</h3>
-                  </div>
+              {/* Featured card */}
+              <div style={{ position: 'relative', aspectRatio: '3/4', borderRadius: '4px', overflow: 'hidden' }}>
+                {featuredEvent.show_image ? (
+                  <Image src={featuredEvent.show_image} alt={featuredEvent.title} fill style={{ objectFit: 'cover' }} sizes="50vw" />
+                ) : (
+                  <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(160deg, #2d1b4e, #1b0a2e, #0f1a2e)' }} />
+                )}
+                <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(0deg, rgba(14,13,20,0.96) 0%, rgba(14,13,20,0.2) 40%, transparent 60%)' }} />
+                <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, padding: 'clamp(24px, 4vw, 48px) clamp(20px, 4vw, 40px)', zIndex: 2 }}>
+                  <p style={{ fontSize: '0.65rem', letterSpacing: '0.3em', textTransform: 'uppercase', color: TYPE_COLORS[featuredEvent.event_type] ?? 'var(--teal)', marginBottom: '16px', fontWeight: 500 }}>
+                    {featuredEvent.event_type.charAt(0).toUpperCase() + featuredEvent.event_type.slice(1)}
+                    {formatDateRange(featuredEvent.start_date, featuredEvent.end_date) && (
+                      <span style={{ color: 'var(--muted)', marginLeft: '12px' }}>
+                        {formatDateRange(featuredEvent.start_date, featuredEvent.end_date)}
+                      </span>
+                    )}
+                  </p>
+                  <h2 style={{ fontFamily: "'Playfair Display', serif", fontSize: 'clamp(2rem, 4vw, 3.5rem)', fontWeight: 900, lineHeight: 1, marginBottom: '16px' }}>
+                    {featuredEvent.title}
+                  </h2>
+                  {featuredEvent.description && (
+                    <p style={{ fontSize: '0.85rem', color: 'var(--muted)', lineHeight: 1.65, maxWidth: '360px' }}>
+                      {featuredEvent.description}
+                    </p>
+                  )}
+                  {featuredEvent.cta_label && featuredEvent.cta_url && (
+                    <Link href={featuredEvent.cta_url} style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', marginTop: '24px', fontSize: '0.7rem', letterSpacing: '0.18em', textTransform: 'uppercase', color: 'var(--gold)', textDecoration: 'none', fontWeight: 600 }}>
+                      {featuredEvent.cta_label} →
+                    </Link>
+                  )}
                 </div>
-              ))}
+              </div>
+
+              {/* Stack */}
+              {stackEvents.length > 0 && (
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
+                  {stackEvents.map(event => (
+                    <div key={event.id} style={{ position: 'relative', aspectRatio: '16/9', borderRadius: '4px', overflow: 'hidden' }}>
+                      {event.show_image ? (
+                        <Image src={event.show_image} alt={event.title} fill style={{ objectFit: 'cover' }} sizes="40vw" />
+                      ) : (
+                        <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(135deg, #1a2030, #0e1020)' }} />
+                      )}
+                      <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(0deg, rgba(14,13,20,0.9) 0%, rgba(14,13,20,0.1) 60%)' }} />
+                      <div style={{ position: 'absolute', bottom: 0, left: 0, padding: '32px', zIndex: 2 }}>
+                        <p style={{ fontSize: '0.6rem', letterSpacing: '0.3em', textTransform: 'uppercase', color: TYPE_COLORS[event.event_type] ?? 'var(--muted)', marginBottom: '10px', fontWeight: 500 }}>
+                          {event.event_type.charAt(0).toUpperCase() + event.event_type.slice(1)}
+                          {formatDateRange(event.start_date, event.end_date) && (
+                            <span style={{ color: 'var(--muted)', marginLeft: '10px' }}>
+                              {formatDateRange(event.start_date, event.end_date)}
+                            </span>
+                          )}
+                        </p>
+                        <h3 style={{ fontFamily: "'Playfair Display', serif", fontSize: '1.6rem', fontWeight: 700 }}>{event.title}</h3>
+                        {event.cta_label && event.cta_url && (
+                          <Link href={event.cta_url} style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', marginTop: '12px', fontSize: '0.68rem', letterSpacing: '0.15em', textTransform: 'uppercase', color: 'var(--gold)', textDecoration: 'none', fontWeight: 600 }}>
+                            {event.cta_label} →
+                          </Link>
+                        )}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
             </div>
           </div>
-        </div>
-      </section>
+        </section>
+      )}
 
       {/* ── Stats ─────────────────────────────────────── */}
       <div className="g-4" style={{ display: 'grid', background: 'var(--layer)', borderTop: '1px solid var(--border)', borderBottom: '1px solid var(--border)' }}>
@@ -205,6 +260,9 @@ export default function HomePage() {
           ))}
         </div>
       </section>
+
+      {/* ── Sponsors ──────────────────────────────────── */}
+      <SponsorsRibbon />
 
       {/* ── Community CTA ─────────────────────────────── */}
       <section style={{ padding: '0 clamp(20px, 5vw, 48px) clamp(56px, 12vw, 160px)', textAlign: 'center', position: 'relative' }}>
