@@ -15,7 +15,7 @@ export default function AdminNav({ userEmail }: { userEmail: string }) {
   }
 
   const navItems = [
-    { label: 'Shows', href: '/admin/shows' },
+    { label: 'Events', href: '/admin/shows' },
     { label: 'Sponsors', href: '/admin/sponsors' },
   ]
 
