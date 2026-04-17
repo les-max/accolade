@@ -34,8 +34,8 @@ export async function middleware(request: NextRequest) {
     return NextResponse.redirect(url)
   }
 
-  // Protect /admin routes
-  if (!user && request.nextUrl.pathname.startsWith('/admin')) {
+  // Protect /admin routes (but not /admin-login)
+  if (!user && request.nextUrl.pathname.startsWith('/admin/')) {
     const url = request.nextUrl.clone()
     url.pathname = '/login'
     url.searchParams.set('redirect', request.nextUrl.pathname)
