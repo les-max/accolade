@@ -13,6 +13,9 @@ export default async function AdminLayout({
 
   if (!user) redirect('/login')
 
+  const ALLOWED_EMAILS = ['les@lesbrowndesign.com']
+  if (!ALLOWED_EMAILS.includes(user.email ?? '')) redirect('/')
+
   return (
     <>
       <Nav />
