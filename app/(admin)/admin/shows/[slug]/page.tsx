@@ -107,6 +107,7 @@ export default async function ShowDetailPage({
           cta_label:        show.cta_label ?? null,
           cta_url:          show.cta_url ?? null,
           show_image:       show.show_image ?? null,
+          show_image_wide:  show.show_image_wide ?? null,
         }}
       />
 

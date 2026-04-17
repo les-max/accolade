@@ -43,7 +43,7 @@ export default async function HomePage() {
   const supabase = await createClient();
   const { data: events } = await supabase
     .from('shows')
-    .select('id, title, slug, description, event_type, start_date, end_date, show_image, featured, cta_label, cta_url')
+    .select('id, title, slug, description, event_type, start_date, end_date, show_image, show_image_wide, featured, cta_label, cta_url')
     .eq('homepage_visible', true)
     .order('start_date', { ascending: true })
     .limit(5);
@@ -160,8 +160,8 @@ export default async function HomePage() {
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
                   {stackEvents.map(event => (
                     <div key={event.id} style={{ position: 'relative', aspectRatio: '16/9', borderRadius: '4px', overflow: 'hidden' }}>
-                      {event.show_image ? (
-                        <Image src={event.show_image} alt={event.title} fill style={{ objectFit: 'cover' }} sizes="40vw" />
+                      {event.show_image_wide ? (
+                        <Image src={event.show_image_wide} alt={event.title} fill style={{ objectFit: 'cover' }} sizes="40vw" />
                       ) : (
                         <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(135deg, #1a2030, #0e1020)' }} />
                       )}

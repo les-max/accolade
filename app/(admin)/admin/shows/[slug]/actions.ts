@@ -69,6 +69,7 @@ export async function updateShowDetails(
     cta_label: string | null
     cta_url: string | null
     show_image: string | null
+    show_image_wide: string | null
   }
 ) {
   const supabase = await createClient()

@@ -15,6 +15,7 @@ export async function createShow(formData: FormData) {
   const age_min = formData.get('age_min') ? Number(formData.get('age_min')) : null
   const age_max = formData.get('age_max') ? Number(formData.get('age_max')) : null
   const show_image = formData.get('show_image') as string || null
+  const show_image_wide = formData.get('show_image_wide') as string || null
   const show_grade = formData.get('show_grade') === 'true'
   const show_headshot_upload = formData.get('show_headshot_upload') === 'true'
   const event_type = formData.get('event_type') as string || 'show'
@@ -33,6 +34,7 @@ export async function createShow(formData: FormData) {
     age_min,
     age_max,
     show_image,
+    show_image_wide,
     status: 'draft',
     event_type,
     start_date,

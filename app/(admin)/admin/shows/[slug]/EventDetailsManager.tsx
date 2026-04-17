@@ -61,6 +61,7 @@ type Props = {
     cta_label: string | null
     cta_url: string | null
     show_image: string | null
+    show_image_wide: string | null
   }
 }
 
@@ -75,6 +76,8 @@ export default function EventDetailsManager({ showId, slug, show }: Props) {
   const [ctaUrl, setCtaUrl] = useState(show.cta_url ?? '')
   const [imageFile, setImageFile] = useState<File | null>(null)
   const [imagePreview, setImagePreview] = useState<string | null>(show.show_image)
+  const [imageWideFile, setImageWideFile] = useState<File | null>(null)
+  const [imageWidePreview, setImageWidePreview] = useState<string | null>(show.show_image_wide)
   const [saved, setSaved] = useState(false)
   const [error, setError] = useState('')
 
@@ -84,6 +87,12 @@ export default function EventDetailsManager({ showId, slug, show }: Props) {
     if (file) setImagePreview(URL.createObjectURL(file))
   }
 
+  function handleImageWideChange(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0] ?? null
+    setImageWideFile(file)
+    if (file) setImageWidePreview(URL.createObjectURL(file))
+  }
+
   function handleSave() {
     setError('')
     setSaved(false)
@@ -91,6 +100,8 @@ export default function EventDetailsManager({ showId, slug, show }: Props) {
       try {
         let imageUrl = show.show_image
         if (imageFile) imageUrl = await uploadEventImage(imageFile)
+        let imageWideUrl = show.show_image_wide
+        if (imageWideFile) imageWideUrl = await uploadEventImage(imageWideFile)
 
         await updateShowDetails(showId, slug, {
           event_type: eventType,
@@ -101,6 +112,7 @@ export default function EventDetailsManager({ showId, slug, show }: Props) {
           cta_label: ctaLabel || null,
           cta_url: ctaUrl || null,
           show_image: imageUrl,
+          show_image_wide: imageWideUrl,
         })
         setSaved(true)
         setTimeout(() => setSaved(false), 3000)
@@ -155,9 +167,9 @@ export default function EventDetailsManager({ showId, slug, show }: Props) {
         </label>
       </div>
 
-      {/* Image */}
-      <div style={{ marginBottom: '20px' }}>
-        <span style={labelStyle}>Event Image</span>
+      {/* Portrait image 3/4 */}
+      <div style={{ marginBottom: '16px' }}>
+        <span style={labelStyle}>Portrait Image — 3:4 ratio (featured card)</span>
         <label style={{
           display: 'flex', alignItems: 'center', gap: '16px',
           border: '1px dashed var(--border)', borderRadius: '2px',
@@ -167,17 +179,44 @@ export default function EventDetailsManager({ showId, slug, show }: Props) {
           <input type="file" accept="image/*" onChange={handleImageChange} style={{ display: 'none' }} />
           {imagePreview ? (
             // eslint-disable-next-line @next/next/no-img-element
-            <img src={imagePreview} alt="preview" style={{ width: '72px', height: '54px', objectFit: 'cover', borderRadius: '2px' }} />
+            <img src={imagePreview} alt="preview" style={{ width: '40px', height: '54px', objectFit: 'cover', borderRadius: '2px' }} />
           ) : (
-            <div style={{ width: '72px', height: '54px', background: 'rgba(255,255,255,0.05)', borderRadius: '2px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+            <div style={{ width: '40px', height: '54px', background: 'rgba(255,255,255,0.05)', borderRadius: '2px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
               <span style={{ fontSize: '1.2rem', opacity: 0.4 }}>+</span>
             </div>
           )}
           <div>
             <p style={{ fontSize: '0.8rem', color: 'var(--warm-white)', marginBottom: '3px' }}>
-              {imageFile ? imageFile.name : imagePreview ? 'Click to replace image' : 'Click to upload image'}
+              {imageFile ? imageFile.name : imagePreview ? 'Click to replace' : 'Click to upload portrait image'}
             </p>
-            <p style={{ fontSize: '0.7rem', color: 'var(--muted)' }}>JPG, PNG, WebP</p>
+            <p style={{ fontSize: '0.7rem', color: 'var(--muted)' }}>JPG, PNG, WebP · portrait orientation</p>
+          </div>
+        </label>
+      </div>
+
+      {/* Wide image 16/9 */}
+      <div style={{ marginBottom: '20px' }}>
+        <span style={labelStyle}>Wide Image — 16:9 ratio (stack cards)</span>
+        <label style={{
+          display: 'flex', alignItems: 'center', gap: '16px',
+          border: '1px dashed var(--border)', borderRadius: '2px',
+          padding: '14px', cursor: 'pointer',
+          background: 'rgba(255,255,255,0.02)',
+        }}>
+          <input type="file" accept="image/*" onChange={handleImageWideChange} style={{ display: 'none' }} />
+          {imageWidePreview ? (
+            // eslint-disable-next-line @next/next/no-img-element
+            <img src={imageWidePreview} alt="preview" style={{ width: '72px', height: '40px', objectFit: 'cover', borderRadius: '2px' }} />
+          ) : (
+            <div style={{ width: '72px', height: '40px', background: 'rgba(255,255,255,0.05)', borderRadius: '2px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+              <span style={{ fontSize: '1.2rem', opacity: 0.4 }}>+</span>
+            </div>
+          )}
+          <div>
+            <p style={{ fontSize: '0.8rem', color: 'var(--warm-white)', marginBottom: '3px' }}>
+              {imageWideFile ? imageWideFile.name : imageWidePreview ? 'Click to replace' : 'Click to upload wide image'}
+            </p>
+            <p style={{ fontSize: '0.7rem', color: 'var(--muted)' }}>JPG, PNG, WebP · landscape orientation</p>
           </div>
         </label>
       </div>

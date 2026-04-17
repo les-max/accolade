@@ -74,6 +74,8 @@ export default function NewShowPage() {
   const [homepageVisible, setHomepageVisible] = useState(false)
   const [imageFile, setImageFile] = useState<File | null>(null)
   const [imagePreview, setImagePreview] = useState<string | null>(null)
+  const [imageWideFile, setImageWideFile] = useState<File | null>(null)
+  const [imageWidePreview, setImageWidePreview] = useState<string | null>(null)
   const [error, setError] = useState('')
 
   function handleTitleChange(val: string) {
@@ -86,6 +88,13 @@ export default function NewShowPage() {
     setImageFile(file)
     if (file) setImagePreview(URL.createObjectURL(file))
     else setImagePreview(null)
+  }
+
+  function handleImageWideChange(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0] ?? null
+    setImageWideFile(file)
+    if (file) setImageWidePreview(URL.createObjectURL(file))
+    else setImageWidePreview(null)
   }
 
   function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
@@ -103,6 +112,10 @@ export default function NewShowPage() {
         if (imageFile) {
           const url = await uploadEventImage(imageFile)
           data.set('show_image', url)
+        }
+        if (imageWideFile) {
+          const url = await uploadEventImage(imageWideFile)
+          data.set('show_image_wide', url)
         }
         await createShow(data)
       } catch (err) {
@@ -194,29 +207,56 @@ export default function NewShowPage() {
             </label>
           </div>
 
-          {/* Image upload */}
-          <div style={{ marginBottom: '0' }}>
-            <span style={labelStyle}>Event Image</span>
+          {/* Portrait image 3/4 */}
+          <div style={{ marginBottom: '20px' }}>
+            <span style={labelStyle}>Portrait Image * — 3:4 ratio (featured card)</span>
             <label style={{
               display: 'flex', alignItems: 'center', gap: '16px',
               border: '1px dashed var(--border)', borderRadius: '2px',
               padding: '16px', cursor: 'pointer',
               background: 'rgba(255,255,255,0.02)',
             }}>
-              <input type="file" accept="image/*" onChange={handleImageChange} style={{ display: 'none' }} />
+              <input type="file" accept="image/*" required onChange={handleImageChange} style={{ display: 'none' }} />
               {imagePreview ? (
                 // eslint-disable-next-line @next/next/no-img-element
-                <img src={imagePreview} alt="preview" style={{ width: '80px', height: '60px', objectFit: 'cover', borderRadius: '2px' }} />
+                <img src={imagePreview} alt="preview" style={{ width: '45px', height: '60px', objectFit: 'cover', borderRadius: '2px' }} />
               ) : (
-                <div style={{ width: '80px', height: '60px', background: 'rgba(255,255,255,0.05)', borderRadius: '2px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                <div style={{ width: '45px', height: '60px', background: 'rgba(255,255,255,0.05)', borderRadius: '2px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                   <span style={{ fontSize: '1.5rem', opacity: 0.4 }}>+</span>
                 </div>
               )}
               <div>
                 <p style={{ fontSize: '0.82rem', color: 'var(--warm-white)', marginBottom: '4px' }}>
-                  {imageFile ? imageFile.name : 'Click to upload image'}
+                  {imageFile ? imageFile.name : 'Click to upload portrait image'}
                 </p>
-                <p style={{ fontSize: '0.72rem', color: 'var(--muted)' }}>JPG, PNG, WebP</p>
+                <p style={{ fontSize: '0.72rem', color: 'var(--muted)' }}>JPG, PNG, WebP · portrait orientation</p>
+              </div>
+            </label>
+          </div>
+
+          {/* Wide image 16/9 */}
+          <div style={{ marginBottom: '0' }}>
+            <span style={labelStyle}>Wide Image * — 16:9 ratio (stack cards)</span>
+            <label style={{
+              display: 'flex', alignItems: 'center', gap: '16px',
+              border: '1px dashed var(--border)', borderRadius: '2px',
+              padding: '16px', cursor: 'pointer',
+              background: 'rgba(255,255,255,0.02)',
+            }}>
+              <input type="file" accept="image/*" required onChange={handleImageWideChange} style={{ display: 'none' }} />
+              {imageWidePreview ? (
+                // eslint-disable-next-line @next/next/no-img-element
+                <img src={imageWidePreview} alt="preview" style={{ width: '80px', height: '45px', objectFit: 'cover', borderRadius: '2px' }} />
+              ) : (
+                <div style={{ width: '80px', height: '45px', background: 'rgba(255,255,255,0.05)', borderRadius: '2px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                  <span style={{ fontSize: '1.5rem', opacity: 0.4 }}>+</span>
+                </div>
+              )}
+              <div>
+                <p style={{ fontSize: '0.82rem', color: 'var(--warm-white)', marginBottom: '4px' }}>
+                  {imageWideFile ? imageWideFile.name : 'Click to upload wide image'}
+                </p>
+                <p style={{ fontSize: '0.72rem', color: 'var(--muted)' }}>JPG, PNG, WebP · landscape orientation</p>
               </div>
             </label>
           </div>
