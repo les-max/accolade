@@ -370,8 +370,14 @@ footer.site-footer {
 }
 .volunteer-role-card:hover { border-color: var(--teal); }
 
+/* ── Nav desktop/mobile visibility helpers ─────── */
+.nav-desktop-only { display: flex; }
+.nav-mobile-only  { display: none !important; }
+
 /* ── Mobile ────────────────────────────────────── */
-@media (max-width: 768px) {
+@media (max-width: 860px) {
+  .nav-desktop-only { display: none !important; }
+  .nav-mobile-only  { display: flex; }
   nav.site-nav { padding: 20px 24px; }
   nav.site-nav.scrolled { padding: 14px 24px; }
   .nav-links { display: none; }
@@ -436,4 +442,8 @@ footer.site-footer {
   .deco-top { left: 20px; right: 20px; }
   .bento-group { grid-template-rows: 120px 120px 120px !important; }
   .photo-marquee { padding: 12px 0; }
+}
+
+.sponsor-logo-link:hover img {
+  filter: grayscale(0%) brightness(1) !important;
 }
