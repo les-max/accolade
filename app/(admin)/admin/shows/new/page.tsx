@@ -118,7 +118,8 @@ export default function NewShowPage() {
           data.set('show_image_wide', url)
         }
         await createShow(data)
-      } catch (err) {
+      } catch (err: unknown) {
+        if (err instanceof Error && (err as { digest?: string }).digest?.startsWith('NEXT_REDIRECT')) throw err
         setError(err instanceof Error ? err.message : 'Something went wrong')
       }
     })
