@@ -426,17 +426,26 @@ footer.site-footer {
 /* ── Bento photo strip rows ─────────────────────── */
 .bento-group { grid-template-rows: 200px 200px 200px; }
 
+/* ── Now Showing bento ──────────────────────────── */
+.now-bento {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+}
+
 /* ── Tablet (900px) ─────────────────────────────── */
 @media (max-width: 900px) {
   .g-4 { grid-template-columns: 1fr 1fr; }
   .g-2s { grid-template-columns: 1fr; }
   .g-2w { grid-template-columns: 1fr; }
   .g-2a { grid-template-columns: 1fr; }
+  .now-bento { grid-template-columns: 1fr 1fr; }
 }
 
 /* ── Mobile (640px) ─────────────────────────────── */
 @media (max-width: 640px) {
   .g-2, .g-2s, .g-3, .g-4 { grid-template-columns: 1fr; }
+  .now-bento { grid-template-columns: 1fr; }
   .section-header-split { flex-direction: column; align-items: flex-start; gap: 20px; }
   .section-header-split > p { text-align: left !important; max-width: 100% !important; }
   .deco-top { left: 20px; right: 20px; }
@@ -444,7 +453,3 @@ footer.site-footer {
   .photo-marquee { padding: 12px 0; }
 }
 
-/* Overrides inline filter on img — server component can't use JS for hover */
-.sponsor-logo-link:hover img {
-  filter: grayscale(0%) brightness(1) !important;
-}

@@ -22,10 +22,10 @@ export default async function ShowsPage() {
           <p style={{ fontSize: '0.65rem', letterSpacing: '0.3em', textTransform: 'uppercase', color: 'var(--gold)', marginBottom: '8px' }}>
             Admin
           </p>
-          <h1 style={{ fontFamily: "'Playfair Display', serif", fontSize: '2rem', fontWeight: 700 }}>Shows</h1>
+          <h1 style={{ fontFamily: "'Playfair Display', serif", fontSize: '2rem', fontWeight: 700 }}>Events</h1>
         </div>
-        <Link href="/admin/shows/new" className="btn-primary">
-          <span>New Show</span>
+        <Link href="/admin/events/new" className="btn-primary">
+          <span>New Event</span>
         </Link>
       </div>
 
@@ -81,7 +81,7 @@ export default async function ShowsPage() {
                   {show.status}
                 </span>
                 <div style={{ textAlign: 'right' }}>
-                  <Link href={`/admin/shows/${show.slug}`} style={{
+                  <Link href={`/admin/events/${show.slug}`} style={{
                     fontSize: '0.72rem',
                     color: 'var(--gold)',
                     textDecoration: 'none',
@@ -104,13 +104,13 @@ export default async function ShowsPage() {
           background: 'var(--layer)',
         }}>
           <p style={{ fontFamily: "'Playfair Display', serif", fontSize: '1.3rem', marginBottom: '12px' }}>
-            No shows yet
+            No events yet
           </p>
           <p style={{ color: 'var(--muted)', fontSize: '0.85rem', marginBottom: '32px' }}>
-            Create your first show to start accepting audition registrations.
+            Create your first event to start accepting audition registrations.
           </p>
-          <Link href="/admin/shows/new" className="btn-primary">
-            <span>Create First Show</span>
+          <Link href="/admin/events/new" className="btn-primary">
+            <span>Create First Event</span>
           </Link>
         </div>
       )}

@@ -23,7 +23,7 @@ export default function AdminLoginPage() {
       setError('Invalid email or password.')
       setLoading(false)
     } else {
-      router.push('/admin/shows')
+      router.push('/admin/events')
     }
   }
 

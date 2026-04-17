@@ -52,7 +52,7 @@ export default async function RegistrationsPage({
     <div style={{ maxWidth: '1100px' }}>
       {/* Header */}
       <div style={{ marginBottom: '32px' }}>
-        <Link href={`/admin/shows/${slug}`} style={{ color: 'var(--muted)', fontSize: '0.78rem', textDecoration: 'none', display: 'inline-block', marginBottom: '16px' }}>
+        <Link href={`/admin/events/${slug}`} style={{ color: 'var(--muted)', fontSize: '0.78rem', textDecoration: 'none', display: 'inline-block', marginBottom: '16px' }}>
           ← {show.title}
         </Link>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: '24px', flexWrap: 'wrap' }}>
@@ -60,7 +60,7 @@ export default async function RegistrationsPage({
             Registrations
           </h1>
           <a
-            href={`/api/admin/shows/${slug}/registrations/export?slot=${slotFilter ?? ''}&status=${statusFilter ?? ''}`}
+            href={`/api/admin/events/${slug}/registrations/export?slot=${slotFilter ?? ''}&status=${statusFilter ?? ''}`}
             style={{
               display: 'inline-flex', alignItems: 'center', gap: '8px',
               padding: '10px 20px',

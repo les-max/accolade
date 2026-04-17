@@ -22,28 +22,28 @@ export async function addSlot(showId: string, formData: FormData) {
   })
 
   if (error) throw new Error(error.message)
-  revalidatePath('/admin/shows/[slug]', 'page')
+  revalidatePath('/admin/events/[slug]', 'page')
 }
 
 export async function deleteSlot(slotId: string, slug: string) {
   const supabase = await createClient()
   const { error } = await supabase.from('audition_slots').delete().eq('id', slotId)
   if (error) throw new Error(error.message)
-  revalidatePath(`/admin/shows/${slug}`)
+  revalidatePath(`/admin/events/${slug}`)
 }
 
 export async function addRole(showId: string, roleName: string, slug: string) {
   const supabase = await createClient()
   const { error } = await supabase.from('show_roles').insert({ show_id: showId, role_name: roleName })
   if (error) throw new Error(error.message)
-  revalidatePath(`/admin/shows/${slug}`)
+  revalidatePath(`/admin/events/${slug}`)
 }
 
 export async function deleteRole(roleId: string, slug: string) {
   const supabase = await createClient()
   const { error } = await supabase.from('show_roles').delete().eq('id', roleId)
   if (error) throw new Error(error.message)
-  revalidatePath(`/admin/shows/${slug}`)
+  revalidatePath(`/admin/events/${slug}`)
 }
 
 export async function updateShowStatus(
@@ -54,7 +54,7 @@ export async function updateShowStatus(
   const supabase = await createClient()
   const { error } = await supabase.from('shows').update({ status }).eq('id', showId)
   if (error) throw new Error(error.message)
-  revalidatePath(`/admin/shows/${slug}`)
+  revalidatePath(`/admin/events/${slug}`)
 }
 
 export async function updateShowDetails(
@@ -70,12 +70,35 @@ export async function updateShowDetails(
     cta_url: string | null
     show_image: string | null
     show_image_wide: string | null
+    audition_type?: string
+    age_min?: number | null
+    age_max?: number | null
+    show_grade?: boolean
+    show_headshot_upload?: boolean
   }
 ) {
   const supabase = await createClient()
-  const { error } = await supabase.from('shows').update(fields).eq('id', showId)
+
+  const { show_grade, show_headshot_upload, ...coreFields } = fields
+  const update: Record<string, unknown> = { ...coreFields }
+
+  if (show_grade !== undefined || show_headshot_upload !== undefined) {
+    const { data: existing } = await supabase
+      .from('shows')
+      .select('field_config')
+      .eq('id', showId)
+      .single()
+    const existingConfig = (existing?.field_config as Record<string, unknown>) ?? {}
+    update.field_config = {
+      ...existingConfig,
+      ...(show_grade !== undefined && { show_grade }),
+      ...(show_headshot_upload !== undefined && { show_headshot_upload }),
+    }
+  }
+
+  const { error } = await supabase.from('shows').update(update).eq('id', showId)
   if (error) throw new Error(error.message)
-  revalidatePath(`/admin/shows/${slug}`)
+  revalidatePath(`/admin/events/${slug}`)
 }
 
 export type CustomQuestion = {
@@ -104,5 +127,5 @@ export async function updateCustomQuestions(slug: string, questions: CustomQuest
     .eq('slug', slug)
 
   if (error) throw new Error(error.message)
-  revalidatePath(`/admin/shows/${slug}`)
+  revalidatePath(`/admin/events/${slug}`)
 }

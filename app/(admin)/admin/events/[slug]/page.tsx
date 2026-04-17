@@ -42,8 +42,8 @@ export default async function ShowDetailPage({
     <div style={{ maxWidth: '860px' }}>
       {/* Header */}
       <div style={{ marginBottom: '40px' }}>
-        <Link href="/admin/shows" style={{ color: 'var(--muted)', fontSize: '0.78rem', textDecoration: 'none', display: 'inline-block', marginBottom: '16px' }}>
-          ← Shows
+        <Link href="/admin/events" style={{ color: 'var(--muted)', fontSize: '0.78rem', textDecoration: 'none', display: 'inline-block', marginBottom: '16px' }}>
+          ← Events
         </Link>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: '24px', flexWrap: 'wrap' }}>
           <div>
@@ -61,10 +61,12 @@ export default async function ShowDetailPage({
                 {show.status}
               </span>
             </div>
-            <p style={{ color: 'var(--muted)', fontSize: '0.82rem' }}>
-              {show.audition_type === 'slot' ? 'Specific time slots' : 'Audition windows'}
-              {show.age_min && show.age_max ? ` · Ages ${show.age_min}–${show.age_max}` : ''}
-            </p>
+            {show.event_type === 'audition' && (
+              <p style={{ color: 'var(--muted)', fontSize: '0.82rem' }}>
+                {show.audition_type === 'slot' ? 'Specific time slots' : 'Audition windows'}
+                {show.age_min && show.age_max ? ` · Ages ${show.age_min}–${show.age_max}` : ''}
+              </p>
+            )}
           </div>
           <StatusControl showId={show.id} currentStatus={show.status} slug={slug} />
         </div>
@@ -99,32 +101,41 @@ export default async function ShowDetailPage({
         showId={show.id}
         slug={slug}
         show={{
-          event_type:       show.event_type ?? 'show',
-          start_date:       show.start_date ?? null,
-          end_date:         show.end_date ?? null,
-          featured:         show.featured ?? false,
-          homepage_visible: show.homepage_visible ?? false,
-          cta_label:        show.cta_label ?? null,
-          cta_url:          show.cta_url ?? null,
-          show_image:       show.show_image ?? null,
-          show_image_wide:  show.show_image_wide ?? null,
+          event_type:           show.event_type ?? 'show',
+          start_date:           show.start_date ?? null,
+          end_date:             show.end_date ?? null,
+          featured:             show.featured ?? false,
+          homepage_visible:     show.homepage_visible ?? false,
+          cta_label:            show.cta_label ?? null,
+          cta_url:              show.cta_url ?? null,
+          show_image:           show.show_image ?? null,
+          show_image_wide:      show.show_image_wide ?? null,
+          audition_type:        show.audition_type ?? 'slot',
+          age_min:              show.age_min ?? null,
+          age_max:              show.age_max ?? null,
+          show_grade:           (show.field_config as Record<string, unknown>)?.show_grade === true,
+          show_headshot_upload: (show.field_config as Record<string, unknown>)?.show_headshot_upload === true,
         }}
       />
 
-      <SlotManager show={show} slots={slotsData ?? []} countBySlot={countBySlot} slug={slug} />
+      {show.event_type === 'audition' && (
+        <SlotManager show={show} slots={slotsData ?? []} countBySlot={countBySlot} slug={slug} />
+      )}
 
-      {/* Roles */}
-      <RoleManager show={show} roles={rolesData ?? []} slug={slug} />
+      {show.event_type === 'audition' && (
+        <RoleManager show={show} roles={rolesData ?? []} slug={slug} />
+      )}
 
-      {/* Custom Questions */}
-      <CustomQuestionsManager
-        slug={slug}
-        initialQuestions={(show.field_config as { custom_questions?: import('./actions').CustomQuestion[] })?.custom_questions ?? []}
-      />
+      {['audition', 'camp', 'workshop'].includes(show.event_type ?? '') && (
+        <CustomQuestionsManager
+          slug={slug}
+          initialQuestions={(show.field_config as { custom_questions?: import('./actions').CustomQuestion[] })?.custom_questions ?? []}
+        />
+      )}
 
       {/* Registrations link */}
       <div style={{ marginTop: '16px' }}>
-        <Link href={`/admin/shows/${slug}/registrations`} className="btn-ghost" style={{ fontSize: '0.72rem' }}>
+        <Link href={`/admin/events/${slug}/registrations`} className="btn-ghost" style={{ fontSize: '0.72rem' }}>
           <span>View Registrations</span>
         </Link>
       </div>

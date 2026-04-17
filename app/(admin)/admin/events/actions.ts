@@ -52,5 +52,5 @@ export async function createShow(formData: FormData) {
 
   if (error) throw new Error(error.message)
 
-  redirect(`/admin/shows/${slug}`)
+  redirect(`/admin/events/${slug}`)
 }

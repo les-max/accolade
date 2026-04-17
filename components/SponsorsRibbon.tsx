@@ -14,6 +14,7 @@ export default async function SponsorsRibbon() {
   return (
     <section style={{
       padding: 'clamp(32px, 6vw, 56px) clamp(20px, 5vw, 48px)',
+      marginBottom: 'clamp(48px, 8vw, 100px)',
       borderTop: '1px solid var(--border)',
       borderBottom: '1px solid var(--border)',
       background: 'var(--layer)',
@@ -52,12 +53,10 @@ export default async function SponsorsRibbon() {
                 src={sponsor.logo_url}
                 alt={sponsor.name}
                 style={{
-                  height: '56px',
+                  height: '72px',
                   width: 'auto',
-                  maxWidth: '160px',
+                  maxWidth: '200px',
                   objectFit: 'contain',
-                  filter: 'grayscale(100%) brightness(0.8)',
-                  transition: 'filter 0.3s',
                   display: 'block',
                 }}
               />
@@ -69,12 +68,10 @@ export default async function SponsorsRibbon() {
                 src={sponsor.logo_url}
                 alt={sponsor.name}
                 style={{
-                  height: '56px',
+                  height: '72px',
                   width: 'auto',
-                  maxWidth: '160px',
+                  maxWidth: '200px',
                   objectFit: 'contain',
-                  filter: 'grayscale(100%) brightness(0.8)',
-                  transition: 'filter 0.3s',
                   display: 'block',
                 }}
               />

@@ -152,6 +152,7 @@ export default function Nav() {
                   border: 'none',
                   cursor: 'pointer',
                   padding: 0,
+                  lineHeight: 'inherit',
                   display: 'flex',
                   alignItems: 'center',
                   gap: '6px',

@@ -62,6 +62,11 @@ type Props = {
     cta_url: string | null
     show_image: string | null
     show_image_wide: string | null
+    audition_type: string
+    age_min: number | null
+    age_max: number | null
+    show_grade: boolean
+    show_headshot_upload: boolean
   }
 }
 
@@ -74,6 +79,13 @@ export default function EventDetailsManager({ showId, slug, show }: Props) {
   const [homepageVisible, setHomepageVisible] = useState(show.homepage_visible ?? false)
   const [ctaLabel, setCtaLabel] = useState(show.cta_label ?? '')
   const [ctaUrl, setCtaUrl] = useState(show.cta_url ?? '')
+  const [auditionType, setAuditionType] = useState<'slot' | 'window'>(
+    (show.audition_type as 'slot' | 'window') ?? 'slot'
+  )
+  const [ageMin, setAgeMin] = useState<number | null>(show.age_min)
+  const [ageMax, setAgeMax] = useState<number | null>(show.age_max)
+  const [showGrade, setShowGrade] = useState(show.show_grade ?? false)
+  const [showHeadshot, setShowHeadshot] = useState(show.show_headshot_upload ?? false)
   const [imageFile, setImageFile] = useState<File | null>(null)
   const [imagePreview, setImagePreview] = useState<string | null>(show.show_image)
   const [imageWideFile, setImageWideFile] = useState<File | null>(null)
@@ -113,6 +125,11 @@ export default function EventDetailsManager({ showId, slug, show }: Props) {
           cta_url: ctaUrl || null,
           show_image: imageUrl,
           show_image_wide: imageWideUrl,
+          audition_type: auditionType,
+          age_min: ageMin,
+          age_max: ageMax,
+          show_grade: showGrade,
+          show_headshot_upload: showHeadshot,
         })
         setSaved(true)
         setTimeout(() => setSaved(false), 3000)
@@ -166,6 +183,56 @@ export default function EventDetailsManager({ showId, slug, show }: Props) {
           <input type="date" value={endDate} onChange={e => setEndDate(e.target.value)} style={inputStyle} />
         </label>
       </div>
+
+      {/* Audition Settings — audition type only */}
+      {eventType === 'audition' && (
+        <div style={{ marginBottom: '20px' }}>
+          <span style={labelStyle}>Audition Type</span>
+          <div style={{ display: 'flex', gap: '12px', marginBottom: '8px' }}>
+            {(['slot', 'window'] as const).map(type => (
+              <button
+                key={type} type="button"
+                onClick={() => setAuditionType(type)}
+                style={{
+                  padding: '8px 16px',
+                  border: `1px solid ${auditionType === type ? 'var(--gold)' : 'var(--border)'}`,
+                  borderRadius: '2px',
+                  background: auditionType === type ? 'rgba(212,168,83,0.1)' : 'transparent',
+                  color: auditionType === type ? 'var(--gold)' : 'var(--muted)',
+                  fontSize: '0.72rem',
+                  letterSpacing: '0.1em',
+                  cursor: 'pointer',
+                  transition: 'all 0.2s',
+                }}
+              >
+                {type === 'slot' ? 'Specific Time Slots' : 'Audition Windows'}
+              </button>
+            ))}
+          </div>
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px', marginTop: '12px' }}>
+            <label>
+              <span style={labelStyle}>Min Age</span>
+              <input
+                type="number" min={1} max={99}
+                value={ageMin ?? ''}
+                onChange={e => setAgeMin(e.target.value ? Number(e.target.value) : null)}
+                placeholder="e.g. 8"
+                style={inputStyle}
+              />
+            </label>
+            <label>
+              <span style={labelStyle}>Max Age</span>
+              <input
+                type="number" min={1} max={99}
+                value={ageMax ?? ''}
+                onChange={e => setAgeMax(e.target.value ? Number(e.target.value) : null)}
+                placeholder="e.g. 18"
+                style={inputStyle}
+              />
+            </label>
+          </div>
+        </div>
+      )}
 
       {/* Portrait image 3/4 */}
       <div style={{ marginBottom: '16px' }}>
@@ -249,6 +316,24 @@ export default function EventDetailsManager({ showId, slug, show }: Props) {
           <input type="text" value={ctaUrl} onChange={e => setCtaUrl(e.target.value)} placeholder="/tickets" style={inputStyle} />
         </label>
       </div>
+
+      {/* Registration Fields — audition, camp, workshop */}
+      {['audition', 'camp', 'workshop'].includes(eventType) && (
+        <div style={{ marginBottom: '20px' }}>
+          <span style={labelStyle}>Registration Form Fields</span>
+          {[
+            { label: 'Ask for grade in school', state: showGrade, set: setShowGrade },
+            { label: 'Allow headshot / resume upload', state: showHeadshot, set: setShowHeadshot },
+          ].map(({ label, state, set }) => (
+            <div key={label} style={{ display: 'flex', alignItems: 'center', gap: '12px', marginTop: '12px', cursor: 'pointer' }}
+              onClick={() => set(!state)}
+            >
+              <Toggle on={state} onChange={set} />
+              <span style={{ fontSize: '0.82rem', color: 'var(--warm-white)' }}>{label}</span>
+            </div>
+          ))}
+        </div>
+      )}
 
       {error && <p style={{ color: 'var(--rose)', fontSize: '0.8rem', marginBottom: '12px' }}>{error}</p>}
 

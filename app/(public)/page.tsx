@@ -46,10 +46,8 @@ export default async function HomePage() {
     .select('id, title, slug, description, event_type, start_date, end_date, show_image, show_image_wide, featured, cta_label, cta_url')
     .eq('homepage_visible', true)
     .order('start_date', { ascending: true })
-    .limit(5);
+    .limit(10);
 
-  const featuredEvent = events?.find(e => e.featured) ?? events?.[0] ?? null;
-  const stackEvents = events?.filter(e => e.id !== featuredEvent?.id) ?? [];
   return (
     <>
       <CursorGlow />
@@ -116,76 +114,37 @@ export default async function HomePage() {
       </section>
 
       {/* ── Now Showing ──────────────────────────────── */}
-      {featuredEvent && (
+      {events && events.length > 0 && (
         <section style={{ padding: 'clamp(56px, 12vw, 140px) clamp(20px, 5vw, 48px)', position: 'relative' }}>
           <div style={{ maxWidth: '1400px', margin: '0 auto' }}>
             <p className="section-label">Now Showing</p>
-            <div className="g-2a" style={{ display: 'grid', gap: '32px' }}>
-
-              {/* Featured card */}
-              <div style={{ position: 'relative', aspectRatio: '3/4', borderRadius: '4px', overflow: 'hidden' }}>
-                {featuredEvent.show_image ? (
-                  <Image src={featuredEvent.show_image} alt={featuredEvent.title} fill style={{ objectFit: 'cover' }} sizes="50vw" />
-                ) : (
-                  <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(160deg, #2d1b4e, #1b0a2e, #0f1a2e)' }} />
-                )}
-                <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(0deg, rgba(14,13,20,0.96) 0%, rgba(14,13,20,0.2) 40%, transparent 60%)' }} />
-                <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, padding: 'clamp(24px, 4vw, 48px) clamp(20px, 4vw, 40px)', zIndex: 2 }}>
-                  <p style={{ fontSize: '0.65rem', letterSpacing: '0.3em', textTransform: 'uppercase', color: TYPE_COLORS[featuredEvent.event_type] ?? 'var(--teal)', marginBottom: '16px', fontWeight: 500 }}>
-                    {featuredEvent.event_type.charAt(0).toUpperCase() + featuredEvent.event_type.slice(1)}
-                    {formatDateRange(featuredEvent.start_date, featuredEvent.end_date) && (
-                      <span style={{ color: 'var(--muted)', marginLeft: '12px' }}>
-                        {formatDateRange(featuredEvent.start_date, featuredEvent.end_date)}
-                      </span>
-                    )}
-                  </p>
-                  <h2 style={{ fontFamily: "'Playfair Display', serif", fontSize: 'clamp(2rem, 4vw, 3.5rem)', fontWeight: 900, lineHeight: 1, marginBottom: '16px' }}>
-                    {featuredEvent.title}
-                  </h2>
-                  {featuredEvent.description && (
-                    <p style={{ fontSize: '0.85rem', color: 'var(--muted)', lineHeight: 1.65, maxWidth: '360px' }}>
-                      {featuredEvent.description}
-                    </p>
+            <div className="now-bento">
+              {events.map(event => (
+                <div key={event.id} style={{ position: 'relative', aspectRatio: '16/9', borderRadius: '4px', overflow: 'hidden' }}>
+                  {(event.show_image_wide ?? event.show_image) ? (
+                    <Image src={(event.show_image_wide ?? event.show_image)!} alt={event.title} fill style={{ objectFit: 'cover' }} sizes="33vw" />
+                  ) : (
+                    <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(135deg, #1a2030, #0e1020)' }} />
                   )}
-                  {featuredEvent.cta_label && featuredEvent.cta_url && (
-                    <Link href={featuredEvent.cta_url} style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', marginTop: '24px', fontSize: '0.7rem', letterSpacing: '0.18em', textTransform: 'uppercase', color: 'var(--gold)', textDecoration: 'none', fontWeight: 600 }}>
-                      {featuredEvent.cta_label} →
-                    </Link>
-                  )}
-                </div>
-              </div>
-
-              {/* Stack */}
-              {stackEvents.length > 0 && (
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
-                  {stackEvents.map(event => (
-                    <div key={event.id} style={{ position: 'relative', aspectRatio: '16/9', borderRadius: '4px', overflow: 'hidden' }}>
-                      {event.show_image_wide ? (
-                        <Image src={event.show_image_wide} alt={event.title} fill style={{ objectFit: 'cover' }} sizes="40vw" />
-                      ) : (
-                        <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(135deg, #1a2030, #0e1020)' }} />
+                  <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(0deg, rgba(14,13,20,0.9) 0%, rgba(14,13,20,0.1) 60%)' }} />
+                  <div style={{ position: 'absolute', bottom: 0, left: 0, padding: '24px', zIndex: 2 }}>
+                    <p style={{ fontSize: '0.6rem', letterSpacing: '0.3em', textTransform: 'uppercase', color: TYPE_COLORS[event.event_type] ?? 'var(--muted)', marginBottom: '8px', fontWeight: 500 }}>
+                      {event.event_type.charAt(0).toUpperCase() + event.event_type.slice(1)}
+                      {formatDateRange(event.start_date, event.end_date) && (
+                        <span style={{ color: 'var(--muted)', marginLeft: '10px' }}>
+                          {formatDateRange(event.start_date, event.end_date)}
+                        </span>
                       )}
-                      <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(0deg, rgba(14,13,20,0.9) 0%, rgba(14,13,20,0.1) 60%)' }} />
-                      <div style={{ position: 'absolute', bottom: 0, left: 0, padding: '32px', zIndex: 2 }}>
-                        <p style={{ fontSize: '0.6rem', letterSpacing: '0.3em', textTransform: 'uppercase', color: TYPE_COLORS[event.event_type] ?? 'var(--muted)', marginBottom: '10px', fontWeight: 500 }}>
-                          {event.event_type.charAt(0).toUpperCase() + event.event_type.slice(1)}
-                          {formatDateRange(event.start_date, event.end_date) && (
-                            <span style={{ color: 'var(--muted)', marginLeft: '10px' }}>
-                              {formatDateRange(event.start_date, event.end_date)}
-                            </span>
-                          )}
-                        </p>
-                        <h3 style={{ fontFamily: "'Playfair Display', serif", fontSize: '1.6rem', fontWeight: 700 }}>{event.title}</h3>
-                        {event.cta_label && event.cta_url && (
-                          <Link href={event.cta_url} style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', marginTop: '12px', fontSize: '0.68rem', letterSpacing: '0.15em', textTransform: 'uppercase', color: 'var(--gold)', textDecoration: 'none', fontWeight: 600 }}>
-                            {event.cta_label} →
-                          </Link>
-                        )}
-                      </div>
-                    </div>
-                  ))}
+                    </p>
+                    <h3 style={{ fontFamily: "'Playfair Display', serif", fontSize: '1.4rem', fontWeight: 700, lineHeight: 1.1 }}>{event.title}</h3>
+                    {event.cta_label && event.cta_url && (
+                      <Link href={event.cta_url} style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', marginTop: '10px', fontSize: '0.65rem', letterSpacing: '0.15em', textTransform: 'uppercase', color: 'var(--gold)', textDecoration: 'none', fontWeight: 600 }}>
+                        {event.cta_label} →
+                      </Link>
+                    )}
+                  </div>
                 </div>
-              )}
+              ))}
             </div>
           </div>
         </section>

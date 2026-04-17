@@ -151,6 +151,7 @@ export default function NewShowPage() {
           <label style={{ display: 'block', marginBottom: '20px' }}>
             <span style={labelStyle}>Event Type</span>
             <input type="hidden" name="event_type" value={eventType} />
+            <input type="hidden" name="audition_type" value={auditionType} />
             <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
               {EVENT_TYPES.map(({ value, label }) => (
                 <button
@@ -293,12 +294,12 @@ export default function NewShowPage() {
         </div>
 
         {/* ── Audition Settings ── */}
+        {eventType === 'audition' && (
         <div style={{ background: 'var(--layer)', border: '1px solid var(--border)', borderRadius: '4px', padding: '32px', marginBottom: '24px' }}>
           <p style={{ fontSize: '0.65rem', letterSpacing: '0.25em', textTransform: 'uppercase', color: 'var(--muted)', marginBottom: '24px' }}>Audition Settings</p>
 
           <div style={{ marginBottom: '20px' }}>
             <span style={labelStyle}>Audition Type</span>
-            <input type="hidden" name="audition_type" value={auditionType} />
             <div style={{ display: 'flex', gap: '12px' }}>
               {(['slot', 'window'] as const).map(type => (
                 <button
@@ -339,8 +340,10 @@ export default function NewShowPage() {
             </label>
           </div>
         </div>
+        )}
 
-        {/* ── Optional Fields ── */}
+        {/* ── Registration Form Fields ── */}
+        {['audition', 'camp', 'workshop'].includes(eventType) && (
         <div style={{ background: 'var(--layer)', border: '1px solid var(--border)', borderRadius: '4px', padding: '32px', marginBottom: '32px' }}>
           <p style={{ fontSize: '0.65rem', letterSpacing: '0.25em', textTransform: 'uppercase', color: 'var(--muted)', marginBottom: '16px' }}>Registration Form Fields</p>
           <p style={{ fontSize: '0.82rem', color: 'var(--muted)', marginBottom: '20px' }}>
@@ -357,6 +360,7 @@ export default function NewShowPage() {
             </label>
           ))}
         </div>
+        )}
 
         {error && <p style={{ color: 'var(--rose)', fontSize: '0.82rem', marginBottom: '16px' }}>{error}</p>}
 
