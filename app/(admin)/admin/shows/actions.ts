@@ -5,6 +5,8 @@ import { redirect } from 'next/navigation'
 
 export async function createShow(formData: FormData) {
   const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) throw new Error('Unauthorized')
 
   const title = formData.get('title') as string
   const slug = formData.get('slug') as string
