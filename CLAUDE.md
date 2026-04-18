@@ -1,5 +1,18 @@
 @AGENTS.md
 
+## Session Start Protocol — Inbox
+
+At the start of every session, read `notes/inbox.md` before doing anything else.
+
+For each item in the inbox:
+- If it's a clear actionable change, do it (or propose a plan if the change is big).
+- If it needs clarification, ask Les before acting.
+- If it's a longer-term plan or idea, add it to a relevant plan file (create one if it doesn't exist) and note where it went.
+
+Once each item is handled, move its text to `notes/log/YYYY-MM-DD-processed.md` (appending if that file already exists for today) so nothing is lost. Then clear the inbox so Les can see it fresh next time.
+
+Never delete inbox items without archiving them first.
+
 <!-- VERCEL BEST PRACTICES START -->
 ## Best practices for developing on Vercel
 
