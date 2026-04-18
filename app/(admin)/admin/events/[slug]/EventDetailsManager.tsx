@@ -49,6 +49,16 @@ function Toggle({ on, onChange }: { on: boolean; onChange: (v: boolean) => void 
 
 const EVENT_TYPES = ['show', 'audition', 'camp', 'workshop', 'event']
 
+// Accepts full YouTube URLs or bare IDs; stores just the 11-char ID.
+function extractYoutubeId(input: string): string | null {
+  const trimmed = input.trim()
+  if (!trimmed) return null
+  const match = trimmed.match(/(?:v=|youtu\.be\/|embed\/|shorts\/)([A-Za-z0-9_-]{11})/)
+  if (match) return match[1]
+  if (/^[A-Za-z0-9_-]{11}$/.test(trimmed)) return trimmed
+  return trimmed
+}
+
 type Props = {
   showId: string
   slug: string
@@ -62,6 +72,8 @@ type Props = {
     cta_url: string | null
     show_image: string | null
     show_image_wide: string | null
+    past_shows_visible: boolean
+    youtube_video_id: string | null
     audition_type: string
     age_min: number | null
     age_max: number | null
@@ -90,6 +102,8 @@ export default function EventDetailsManager({ showId, slug, show }: Props) {
   const [imagePreview, setImagePreview] = useState<string | null>(show.show_image)
   const [imageWideFile, setImageWideFile] = useState<File | null>(null)
   const [imageWidePreview, setImageWidePreview] = useState<string | null>(show.show_image_wide)
+  const [pastShowsVisible, setPastShowsVisible] = useState(show.past_shows_visible ?? false)
+  const [youtubeVideoId, setYoutubeVideoId] = useState(show.youtube_video_id ?? '')
   const [saved, setSaved] = useState(false)
   const [error, setError] = useState('')
 
@@ -125,6 +139,8 @@ export default function EventDetailsManager({ showId, slug, show }: Props) {
           cta_url: ctaUrl || null,
           show_image: imageUrl,
           show_image_wide: imageWideUrl,
+          past_shows_visible: pastShowsVisible,
+          youtube_video_id: extractYoutubeId(youtubeVideoId),
           audition_type: auditionType,
           age_min: ageMin,
           age_max: ageMax,
@@ -234,9 +250,9 @@ export default function EventDetailsManager({ showId, slug, show }: Props) {
         </div>
       )}
 
-      {/* Portrait image 3/4 */}
+      {/* Portrait image 2:3 */}
       <div style={{ marginBottom: '16px' }}>
-        <span style={labelStyle}>Portrait Image — 3:4 ratio (featured card)</span>
+        <span style={labelStyle}>Portrait Image — 2:3 ratio · 1200 × 1800 px (tickets, past shows)</span>
         <label style={{
           display: 'flex', alignItems: 'center', gap: '16px',
           border: '1px dashed var(--border)', borderRadius: '2px',
@@ -246,9 +262,9 @@ export default function EventDetailsManager({ showId, slug, show }: Props) {
           <input type="file" accept="image/*" onChange={handleImageChange} style={{ display: 'none' }} />
           {imagePreview ? (
             // eslint-disable-next-line @next/next/no-img-element
-            <img src={imagePreview} alt="preview" style={{ width: '40px', height: '54px', objectFit: 'cover', borderRadius: '2px' }} />
+            <img src={imagePreview} alt="preview" style={{ width: '36px', height: '54px', objectFit: 'cover', borderRadius: '2px' }} />
           ) : (
-            <div style={{ width: '40px', height: '54px', background: 'rgba(255,255,255,0.05)', borderRadius: '2px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+            <div style={{ width: '36px', height: '54px', background: 'rgba(255,255,255,0.05)', borderRadius: '2px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
               <span style={{ fontSize: '1.2rem', opacity: 0.4 }}>+</span>
             </div>
           )}
@@ -261,9 +277,9 @@ export default function EventDetailsManager({ showId, slug, show }: Props) {
         </label>
       </div>
 
-      {/* Wide image 16/9 */}
+      {/* Wide image 16:9 */}
       <div style={{ marginBottom: '20px' }}>
-        <span style={labelStyle}>Wide Image — 16:9 ratio (stack cards)</span>
+        <span style={labelStyle}>Wide Image — 16:9 ratio · 1920 × 1080 px (homepage, current season)</span>
         <label style={{
           display: 'flex', alignItems: 'center', gap: '16px',
           border: '1px dashed var(--border)', borderRadius: '2px',
@@ -303,6 +319,31 @@ export default function EventDetailsManager({ showId, slug, show }: Props) {
             </div>
           </div>
         ))}
+      </div>
+
+      {/* Past Productions */}
+      <div style={{ marginBottom: '20px', paddingTop: '16px', borderTop: '1px solid var(--border)' }}>
+        <span style={labelStyle}>Past Productions</span>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '14px', marginBottom: '16px' }}>
+          <Toggle on={pastShowsVisible} onChange={setPastShowsVisible} />
+          <div>
+            <p style={{ fontSize: '0.82rem', color: 'var(--warm-white)', marginBottom: '1px' }}>Show in past productions</p>
+            <p style={{ fontSize: '0.7rem', color: 'var(--muted)' }}>Appears in the Past Productions archive</p>
+          </div>
+        </div>
+        <label>
+          <span style={labelStyle}>YouTube Video <span style={{ color: 'var(--muted)', fontWeight: 400 }}>(optional)</span></span>
+          <input
+            type="text"
+            value={youtubeVideoId}
+            onChange={e => setYoutubeVideoId(e.target.value)}
+            placeholder="https://youtu.be/dQw4w9WgXcQ  or  dQw4w9WgXcQ"
+            style={inputStyle}
+          />
+          <p style={{ fontSize: '0.7rem', color: 'var(--muted)', marginTop: '6px' }}>
+            Paste a YouTube URL or the 11-character video ID. Leave blank to hide the video player.
+          </p>
+        </label>
       </div>
 
       {/* CTA */}

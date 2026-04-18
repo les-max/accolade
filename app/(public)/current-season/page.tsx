@@ -24,7 +24,7 @@ export default async function CurrentSeasonPage() {
 
   const { data: events } = await supabase
     .from('shows')
-    .select('id, title, slug, description, event_type, start_date, end_date, show_image, cta_label, cta_url, status')
+    .select('id, title, slug, description, event_type, start_date, end_date, show_image, show_image_wide, cta_label, cta_url, status')
     .eq('homepage_visible', true)
     .order('start_date', { ascending: true });
 
@@ -67,9 +67,9 @@ export default async function CurrentSeasonPage() {
                   >
                     {/* Image */}
                     <div style={{ position: 'relative', aspectRatio: '16/9', flexShrink: 0 }}>
-                      {event.show_image ? (
+                      {(event.show_image_wide ?? event.show_image) ? (
                         <Image
-                          src={event.show_image}
+                          src={(event.show_image_wide ?? event.show_image)!}
                           alt={event.title}
                           fill
                           style={{ objectFit: 'cover' }}

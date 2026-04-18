@@ -1,45 +1,20 @@
 import PageHero from '@/components/PageHero';
+import PastShowsGrid from '@/components/PastShowsGrid';
+import { createClient } from '@/lib/supabase/server';
 
 export const metadata = {
   title: 'Past Shows — Accolade Community Theatre',
 };
 
-// Placeholder shows — to be replaced with real data from Supabase
-const seasons = [
-  {
-    year: '2024–2025',
-    shows: [
-      { title: 'Frog and Toad Kids', type: 'Musical', image: null },
-      { title: 'Newsies', type: 'Musical (Current)', image: null },
-    ],
-  },
-  {
-    year: '2023–2024',
-    shows: [
-      { title: 'Show Title', type: 'Musical', image: null },
-      { title: 'Show Title', type: 'Play', image: null },
-      { title: 'Show Title', type: 'Musical', image: null },
-    ],
-  },
-  {
-    year: '2022–2023',
-    shows: [
-      { title: 'Show Title', type: 'Musical', image: null },
-      { title: 'Show Title', type: 'Musical', image: null },
-      { title: 'Show Title', type: 'Play', image: null },
-    ],
-  },
-];
+export default async function PastShowsPage() {
+  const supabase = await createClient();
 
-const gradients = [
-  'linear-gradient(160deg, #2d1b4e, #1b0a2e)',
-  'linear-gradient(160deg, #0d2a28, #061514)',
-  'linear-gradient(160deg, #302a1a, #141008)',
-  'linear-gradient(160deg, #1a0a2a, #0a0515)',
-  'linear-gradient(160deg, #1a2a1a, #0a1a0a)',
-];
+  const { data: shows } = await supabase
+    .from('shows')
+    .select('id, title, event_type, end_date, show_image, show_image_wide, youtube_video_id')
+    .eq('past_shows_visible', true)
+    .order('end_date', { ascending: false, nullsFirst: false });
 
-export default function PastShowsPage() {
   return (
     <>
       <PageHero
@@ -50,24 +25,16 @@ export default function PastShowsPage() {
 
       <section style={{ padding: 'clamp(40px, 8vw, 80px) clamp(20px, 5vw, 48px) clamp(48px, 10vw, 120px)' }}>
         <div style={{ maxWidth: '1400px', margin: '0 auto' }}>
-          {seasons.map(({ year, shows }) => (
-            <div key={year} style={{ marginBottom: '80px' }}>
-              <p className="section-label">{year} Season</p>
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: '24px' }}>
-                {shows.map(({ title, type }, i) => (
-                  <div key={`${title}-${i}`} style={{ position: 'relative', aspectRatio: '2/3', borderRadius: '4px', overflow: 'hidden' }}>
-                    <div style={{ position: 'absolute', inset: 0, background: gradients[i % gradients.length] }} />
-                    <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(0deg, rgba(14,13,20,0.95) 0%, rgba(14,13,20,0.1) 50%, transparent 100%)' }} />
-                    <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, padding: '28px 24px', zIndex: 2 }}>
-                      <span style={{ fontSize: '0.58rem', letterSpacing: '0.25em', textTransform: 'uppercase', color: 'var(--teal)', fontWeight: 500, display: 'block', marginBottom: '8px' }}>{type}</span>
-                      <h3 style={{ fontFamily: "'Playfair Display', serif", fontSize: '1.3rem', fontWeight: 700, lineHeight: 1.1 }}>{title}</h3>
-                    </div>
-                  </div>
-                ))}
-              </div>
+          {shows && shows.length > 0 ? (
+            <PastShowsGrid shows={shows} />
+          ) : (
+            <div style={{ textAlign: 'center', padding: '80px 0', color: 'var(--muted)' }}>
+              <p style={{ fontFamily: "'Playfair Display', serif", fontSize: '1.4rem', marginBottom: '12px' }}>
+                The archive is still warming up
+              </p>
+              <p style={{ fontSize: '0.9rem' }}>Past productions will appear here as shows close out.</p>
             </div>
-          ))}
-
+          )}
         </div>
       </section>
     </>

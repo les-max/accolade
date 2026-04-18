@@ -70,6 +70,8 @@ export async function updateShowDetails(
     cta_url: string | null
     show_image: string | null
     show_image_wide: string | null
+    past_shows_visible: boolean
+    youtube_video_id: string | null
     audition_type?: string
     age_min?: number | null
     age_max?: number | null

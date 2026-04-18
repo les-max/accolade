@@ -209,9 +209,9 @@ export default function NewShowPage() {
             </label>
           </div>
 
-          {/* Portrait image 3/4 */}
+          {/* Portrait image 2:3 */}
           <div style={{ marginBottom: '20px' }}>
-            <span style={labelStyle}>Portrait Image * — 3:4 ratio (featured card)</span>
+            <span style={labelStyle}>Portrait Image * — 2:3 ratio · 1200 × 1800 px (tickets, past shows)</span>
             <label style={{
               display: 'flex', alignItems: 'center', gap: '16px',
               border: '1px dashed var(--border)', borderRadius: '2px',
@@ -221,9 +221,9 @@ export default function NewShowPage() {
               <input type="file" accept="image/*" required onChange={handleImageChange} style={{ display: 'none' }} />
               {imagePreview ? (
                 // eslint-disable-next-line @next/next/no-img-element
-                <img src={imagePreview} alt="preview" style={{ width: '45px', height: '60px', objectFit: 'cover', borderRadius: '2px' }} />
+                <img src={imagePreview} alt="preview" style={{ width: '40px', height: '60px', objectFit: 'cover', borderRadius: '2px' }} />
               ) : (
-                <div style={{ width: '45px', height: '60px', background: 'rgba(255,255,255,0.05)', borderRadius: '2px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                <div style={{ width: '40px', height: '60px', background: 'rgba(255,255,255,0.05)', borderRadius: '2px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                   <span style={{ fontSize: '1.5rem', opacity: 0.4 }}>+</span>
                 </div>
               )}
@@ -236,9 +236,9 @@ export default function NewShowPage() {
             </label>
           </div>
 
-          {/* Wide image 16/9 */}
+          {/* Wide image 16:9 */}
           <div style={{ marginBottom: '0' }}>
-            <span style={labelStyle}>Wide Image * — 16:9 ratio (stack cards)</span>
+            <span style={labelStyle}>Wide Image * — 16:9 ratio · 1920 × 1080 px (homepage, current season)</span>
             <label style={{
               display: 'flex', alignItems: 'center', gap: '16px',
               border: '1px dashed var(--border)', borderRadius: '2px',

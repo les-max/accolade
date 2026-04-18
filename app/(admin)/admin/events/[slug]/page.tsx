@@ -110,6 +110,8 @@ export default async function ShowDetailPage({
           cta_url:              show.cta_url ?? null,
           show_image:           show.show_image ?? null,
           show_image_wide:      show.show_image_wide ?? null,
+          past_shows_visible:   show.past_shows_visible ?? false,
+          youtube_video_id:     show.youtube_video_id ?? null,
           audition_type:        show.audition_type ?? 'slot',
           age_min:              show.age_min ?? null,
           age_max:              show.age_max ?? null,
