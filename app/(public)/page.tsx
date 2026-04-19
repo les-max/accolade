@@ -191,8 +191,8 @@ export default async function HomePage() {
       <section style={{ padding: 'clamp(48px, 10vw, 100px) clamp(20px, 5vw, 48px) clamp(56px, 12vw, 140px)' }}>
         <div className="section-header-split" style={{ maxWidth: '1400px', margin: '0 auto 64px' }}>
           <h2 style={{ fontFamily: "'Playfair Display', serif", fontSize: 'clamp(2.5rem, 5vw, 4.5rem)', fontWeight: 900, lineHeight: 1, maxWidth: '580px' }}>
-            There&apos;s a place here<br />
-            <em style={{ fontStyle: 'italic', fontWeight: 400, color: 'var(--teal)' }}>for you</em>
+            There&apos;s a place<br />
+            here <em style={{ fontStyle: 'italic', fontWeight: 400, color: 'var(--teal)' }}>for you</em>
           </h2>
           <p style={{ fontSize: '0.88rem', color: 'var(--muted)', maxWidth: '300px', lineHeight: 1.75, textAlign: 'right' }}>
             Whether you want to perform, volunteer, or just enjoy great shows — Accolade is your community theatre.
@@ -201,14 +201,21 @@ export default async function HomePage() {
 
         <div className="g-3" style={{ display: 'grid', gap: '24px', maxWidth: '1400px', margin: '0 auto' }}>
           {[
-            { tag: 'Perform', tagColor: 'var(--gold)',  bg: 'linear-gradient(160deg, #2a1540, #0f0a1a)', iconBorder: 'rgba(212,168,83,0.35)',   title: 'Audition for a Show',    body: 'All skill levels welcome. From first-time performers to seasoned actors — if you want to be on stage, we want you.',                         href: '/auditions',   idx: 0 },
-            { tag: 'Support', tagColor: 'var(--teal)',  bg: 'linear-gradient(160deg, #0d2a28, #061514)', iconBorder: 'rgba(61,158,140,0.35)',    title: 'Volunteer Backstage',    body: 'Great theatre takes a village. Help build sets, run lights, manage costumes, or usher for shows.',                                           href: '/volunteering', idx: 1 },
-            { tag: 'Partner', tagColor: 'var(--rose)',  bg: 'linear-gradient(160deg, #302a1a, #141008)', iconBorder: 'rgba(200,90,122,0.35)',    title: 'Become a Partner',       body: 'Support the arts in your community. Partnership opportunities available for businesses and individuals.',                                  href: '/partners',    idx: 2 },
-          ].map(({ tag, tagColor, bg, iconBorder, title, body, href }) => (
+            { tag: 'Perform', tagColor: 'var(--gold)',  bg: 'linear-gradient(160deg, #2a1540, #0f0a1a)', borderColor: 'rgba(212,168,83,0.3)',  title: 'Audition for a Show',  body: 'All skill levels welcome. From first-time performers to seasoned actors — if you want to be on stage, we want you.',          href: '/auditions',    image: null as string | null },
+            { tag: 'Support', tagColor: 'var(--teal)',  bg: 'linear-gradient(160deg, #0d2a28, #061514)', borderColor: 'rgba(61,158,140,0.3)',  title: 'Volunteer Backstage',  body: 'Great theatre takes a village. Help build sets, run lights, manage costumes, or usher for shows.',                            href: '/volunteering', image: null as string | null },
+            { tag: 'Partner', tagColor: 'var(--rose)',  bg: 'linear-gradient(160deg, #302a1a, #141008)', borderColor: 'rgba(200,90,122,0.3)',  title: 'Become a Partner',     body: 'Support the arts in your community. Partnership opportunities available for businesses and individuals.',                   href: '/partners',     image: null as string | null },
+          ].map(({ tag, tagColor, bg, borderColor, title, body, href, image }) => (
             <Link key={tag} href={href} style={{ position: 'relative', aspectRatio: '4/5', borderRadius: '4px', overflow: 'hidden', textDecoration: 'none', color: 'var(--warm-white)', display: 'block' }}>
               <div style={{ position: 'absolute', inset: 0, background: bg }} />
               <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(0deg, rgba(14,13,20,0.95) 0%, rgba(14,13,20,0.2) 50%, transparent 100%)' }} />
-              <div style={{ position: 'absolute', top: '28px', left: '28px', width: '48px', height: '48px', border: `1px solid ${iconBorder}`, borderRadius: '50%', zIndex: 2 }} />
+              {/* Photo inset */}
+              <div style={{ position: 'absolute', top: '24px', left: '24px', right: '24px', height: '45%', borderRadius: '3px', overflow: 'hidden', border: `1px solid ${borderColor}`, zIndex: 2 }}>
+                {image ? (
+                  <Image src={image} alt={title} fill style={{ objectFit: 'cover' }} sizes="33vw" />
+                ) : (
+                  <div style={{ width: '100%', height: '100%', background: 'rgba(255,255,255,0.04)' }} />
+                )}
+              </div>
               <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, padding: '36px 28px', zIndex: 2 }}>
                 <span style={{ fontSize: '0.62rem', letterSpacing: '0.3em', textTransform: 'uppercase', fontWeight: 600, marginBottom: '12px', display: 'block', color: tagColor }}>{tag}</span>
                 <h3 style={{ fontFamily: "'Playfair Display', serif", fontSize: '1.7rem', fontWeight: 700, marginBottom: '12px', lineHeight: 1.1 }}>{title}</h3>

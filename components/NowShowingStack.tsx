@@ -58,7 +58,7 @@ function SlotCard({ event, visible }: { event: StackEvent; visible: boolean }) {
             </span>
           )}
         </p>
-        <h3 style={{ fontFamily: "'Playfair Display', serif", fontSize: '1.6rem', fontWeight: 700 }}>{event.title}</h3>
+        <h3 style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: '1.6rem', fontWeight: 400 }}>{event.title}</h3>
         {event.cta_label && event.cta_url && (
           <Link href={event.cta_url} style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', marginTop: '12px', fontSize: '0.68rem', letterSpacing: '0.15em', textTransform: 'uppercase', color: 'var(--gold)', textDecoration: 'none', fontWeight: 600 }}>
             {event.cta_label} →

@@ -4,3 +4,9 @@ Drop thoughts, ideas, bugs, copy changes, or plans here as they hit you. Next Cl
 
 ---
 
+## Reminder — work the punch list!
+
+The consolidated punch list is ready at `notes/punch-list.md`. Photos needed are in `notes/photos-needed.md`. Let's start jamming through the quick wins.
+
+---
+
