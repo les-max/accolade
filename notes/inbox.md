@@ -28,3 +28,7 @@ In addition to the admin pages, I want to have user pages for cast, crew and par
 ## 2026-04-18 — Photographer upload page + auto-link to show pages
 
 Let's also see about adding a page where our photographers can upload all their photos to either our Google Drive or our Google Photos — Google Photos would be preferred. Make it easy on them. Once it's uploaded the link automatically goes to the cast/crew/parent show page.
+
+## 2026-04-20 — Volunteer signup lists tied to shows
+
+We need to be able to create signup lists that are connected to specific shows. So a signup list for different volunteer positions for the overall show and also for specific days. So on every rehearsal we need some parent volunteers to be there. During tech week we need parents to sign up to bring food, manage kids backstage and other things. So the lists need to be flexible.
