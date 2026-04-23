@@ -10,6 +10,17 @@ The consolidated punch list is ready at `notes/punch-list.md`. Photos needed are
 
 ---
 
+## 2026-04-20 — Admin area role/permission levels
+
+Regarding the admin area:
+
+We need multiple levels of security:
+
+- **Users** — parents and students
+- A level up that can create lists and sign ups
+- A level up from that that can manage ticketing and anything having to do with money
+- And at the top an admin role that can do everything
+
 ## 2026-04-18 — User pages for cast, crew, and parents
 
 In addition to the admin pages, I want to have user pages for cast, crew and parents so that they can log in and see things like show information, rehearsal schedules, etc and when a show wraps we can post links to all the official photos and such so they can see them. Parents could see if they've paid their tuition, sign up for a volunteer position (these are required for every show), etc.
