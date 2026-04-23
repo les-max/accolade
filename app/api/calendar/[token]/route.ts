@@ -59,6 +59,7 @@ export async function GET(
       .order('start_time')
 
     for (const e of showEvents ?? []) {
+      if (!e.start_time) continue
       const start = new Date(e.start_time)
       const end   = e.end_time
         ? new Date(e.end_time)
