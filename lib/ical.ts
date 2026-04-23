@@ -23,15 +23,15 @@ function escapeText(s: string): string {
 function foldLine(line: string): string {
   const encoder = new TextEncoder()
   if (encoder.encode(line).length <= 75) return line
-  let result = ''
+
+  const segments: string[] = []
   let currentLine = ''
   let byteCount = 0
-  const isFirst = { v: true }
+
   for (const char of line) {
     const charBytes = encoder.encode(char).length
     if (byteCount + charBytes > 75) {
-      result += (isFirst.v ? '' : '\r\n ') + currentLine
-      isFirst.v = false
+      segments.push(currentLine)
       currentLine = char
       byteCount = charBytes
     } else {
@@ -39,8 +39,9 @@ function foldLine(line: string): string {
       byteCount += charBytes
     }
   }
-  if (currentLine) result += (isFirst.v ? '' : '\r\n ') + currentLine
-  return result
+  if (currentLine) segments.push(currentLine)
+
+  return segments.join('\r\n ')
 }
 
 export function generateIcal(events: CalEvent[], calName: string): string {
