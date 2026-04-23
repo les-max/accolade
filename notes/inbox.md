@@ -36,3 +36,7 @@ We need to be able to create signup lists that are connected to specific shows. 
 ## 2026-04-20 — User dashboard for parents/students
 
 Also need for users to be able to sign up and see a dashboard of all the sign ups for any show they or their kids are in. Also payments they need to make, t shirt orders, rehearsal dates, other show notes.
+
+## 2026-04-20 — Photographer upload to Google Photos
+
+Also need a place where photographers can upload pictures that will land in our Google Photos.
