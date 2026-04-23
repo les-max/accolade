@@ -24,12 +24,22 @@ function foldLine(line: string): string {
   const encoder = new TextEncoder()
   if (encoder.encode(line).length <= 75) return line
   let result = ''
-  let i = 0
-  while (i < line.length) {
-    const chunk = line.slice(i, i + 75)
-    result += (i === 0 ? '' : '\r\n ') + chunk
-    i += 75
+  let currentLine = ''
+  let byteCount = 0
+  const isFirst = { v: true }
+  for (const char of line) {
+    const charBytes = encoder.encode(char).length
+    if (byteCount + charBytes > 75) {
+      result += (isFirst.v ? '' : '\r\n ') + currentLine
+      isFirst.v = false
+      currentLine = char
+      byteCount = charBytes
+    } else {
+      currentLine += char
+      byteCount += charBytes
+    }
   }
+  if (currentLine) result += (isFirst.v ? '' : '\r\n ') + currentLine
   return result
 }
 
