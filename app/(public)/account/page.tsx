@@ -28,6 +28,24 @@ export default async function AccountPage() {
     .order('created_at', { ascending: false })
     .limit(5)
 
+  type UpcomingItem = { id: string; label: string; type: string; date: string }
+  const upcoming: UpcomingItem[] = []
+  const nowIso = new Date().toISOString()
+
+  for (const a of auditions ?? []) {
+    const slot = a.audition_slots as unknown as { label: string; start_time: string | null } | null
+    const show = a.shows as unknown as { title: string; slug: string } | null
+    if (!slot?.start_time || slot.start_time < nowIso) continue
+    upcoming.push({
+      id:    `a-${a.id}`,
+      label: show?.title ?? 'Audition',
+      type:  'Audition',
+      date:  slot.start_time,
+    })
+  }
+  upcoming.sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime())
+  const nextThree = upcoming.slice(0, 3)
+
   return (
     <section style={{ padding: 'clamp(40px, 8vw, 72px) clamp(20px, 5vw, 48px)' }}>
       <div style={{ maxWidth: '1100px', margin: '0 auto' }}>
@@ -78,6 +96,49 @@ export default async function AccountPage() {
                 <div style={{ padding: '14px 24px', borderTop: '1px solid var(--border)' }}>
                   <Link href="/account/family" style={{ fontSize: '0.72rem', color: 'var(--gold)', textDecoration: 'none' }}>
                     + Add another child
+                  </Link>
+                </div>
+              </div>
+            )}
+          </div>
+
+          {/* Upcoming events card */}
+          <div style={{ background: 'var(--layer)', border: '1px solid var(--border)', borderRadius: '4px', overflow: 'hidden' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '20px 24px', borderBottom: '1px solid var(--border)' }}>
+              <p style={{ fontSize: '0.65rem', letterSpacing: '0.25em', textTransform: 'uppercase', color: 'var(--muted)' }}>
+                Upcoming
+              </p>
+              <Link href="/account/calendar" style={{ fontSize: '0.65rem', color: 'var(--gold)', textDecoration: 'none', letterSpacing: '0.1em' }}>
+                Calendar →
+              </Link>
+            </div>
+            {nextThree.length === 0 ? (
+              <div style={{ padding: '32px 24px', textAlign: 'center' }}>
+                <p style={{ color: 'var(--muted)', fontSize: '0.85rem', marginBottom: '16px' }}>No upcoming events.</p>
+                <Link href="/account/calendar" style={{ fontSize: '0.72rem', color: 'var(--gold)', textDecoration: 'none' }}>
+                  Subscribe to calendar →
+                </Link>
+              </div>
+            ) : (
+              <div>
+                {nextThree.map((item, i) => (
+                  <div key={item.id} style={{
+                    display: 'flex', justifyContent: 'space-between', alignItems: 'center',
+                    padding: '14px 24px',
+                    borderBottom: i < nextThree.length - 1 ? '1px solid var(--border)' : 'none',
+                  }}>
+                    <div>
+                      <p style={{ fontSize: '0.88rem', fontWeight: 500 }}>{item.label}</p>
+                      <p style={{ fontSize: '0.72rem', color: 'var(--muted)', marginTop: '2px' }}>{item.type}</p>
+                    </div>
+                    <p style={{ fontSize: '0.75rem', color: 'var(--muted)', whiteSpace: 'nowrap' }}>
+                      {new Date(item.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
+                    </p>
+                  </div>
+                ))}
+                <div style={{ padding: '14px 24px', borderTop: '1px solid var(--border)' }}>
+                  <Link href="/account/calendar" style={{ fontSize: '0.72rem', color: 'var(--gold)', textDecoration: 'none' }}>
+                    View calendar + subscribe →
                   </Link>
                 </div>
               </div>

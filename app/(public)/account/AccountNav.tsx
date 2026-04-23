@@ -8,6 +8,7 @@ const navItems = [
   { label: 'Dashboard',  href: '/account' },
   { label: 'My Family',  href: '/account/family' },
   { label: 'Auditions',  href: '/account/auditions' },
+  { label: 'Calendar',   href: '/account/calendar' },
 ]
 
 export default function AccountNav({ hasFamily }: { hasFamily: boolean }) {
