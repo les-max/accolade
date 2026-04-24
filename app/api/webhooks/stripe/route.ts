@@ -4,8 +4,6 @@ import { createServiceClient } from '@/lib/supabase/service'
 import { sendTicketConfirmation } from '@/lib/email/ticket-emails'
 import { sendFeeConfirmation } from '@/lib/email/fee-emails'
 
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!)
-
 function formatDate(d: string) {
   return new Date(d).toLocaleDateString('en-US', {
     weekday: 'long', month: 'long', day: 'numeric', year: 'numeric', timeZone: 'UTC',
@@ -20,6 +18,7 @@ function formatTime(t: string) {
 }
 
 export async function POST(req: NextRequest) {
+  const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!)
   const body = await req.text()
   const sig = req.headers.get('stripe-signature')
 

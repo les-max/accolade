@@ -2,8 +2,6 @@ import { NextRequest, NextResponse } from 'next/server'
 import Stripe from 'stripe'
 import { createServiceClient } from '@/lib/supabase/service'
 
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!)
-
 function formatDate(d: string) {
   return new Date(d).toLocaleDateString('en-US', {
     weekday: 'short', month: 'short', day: 'numeric', year: 'numeric', timeZone: 'UTC',
@@ -103,6 +101,7 @@ export async function POST(req: NextRequest) {
 
   // Create Stripe Checkout session
   const origin = req.headers.get('origin') ?? 'https://accoladetheatre.org'
+  const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!)
   const session = await stripe.checkout.sessions.create({
     mode: 'payment',
     customer_email: buyer_email,

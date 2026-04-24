@@ -8,8 +8,6 @@ import {
   type AdSize, type ShirtSize,
 } from '@/lib/fees-constants'
 
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!)
-
 function centsOf(dollars: number): number {
   return Math.round(dollars * 100)
 }
@@ -236,6 +234,7 @@ export async function POST(req: NextRequest) {
       quantity: l.quantity,
     }))
 
+  const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!)
   const session = await stripe.checkout.sessions.create({
     mode: 'payment',
     customer_email: family.email,
