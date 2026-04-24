@@ -1,5 +1,6 @@
 'use server'
 import { createServiceClient } from '@/lib/supabase/service'
+import { createClient } from '@/lib/supabase/server'
 
 export async function validateCoupon(showId: string, code: string): Promise<{
   valid: boolean
@@ -7,6 +8,11 @@ export async function validateCoupon(showId: string, code: string): Promise<{
   waiveShirts: boolean
   error?: string
 }> {
+  // Require auth to prevent unauthenticated coupon fishing
+  const authSupabase = await createClient()
+  const { data: { user } } = await authSupabase.auth.getUser()
+  if (!user) return { valid: false, waiveTuition: false, waiveShirts: false, error: 'Not authenticated' }
+
   const supabase = createServiceClient()
   const { data } = await supabase
     .from('show_coupon_codes')

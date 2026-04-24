@@ -44,20 +44,20 @@ export default async function FeesPage({
     )
   }
 
-  // Check for existing paid order
-  const { data: paidOrder } = await supabase
-    .from('show_fee_orders')
-    .select('id, total_amount, created_at, show_fee_order_items ( label, unit_price, quantity, shirt_size )')
-    .eq('show_id', show.id)
-    .eq('family_id', family.id)
-    .eq('status', 'paid')
-    .maybeSingle()
-
-  const { data: membersData } = await supabase
-    .from('family_members')
-    .select('id, first_name, last_name')
-    .eq('family_id', family.id)
-    .order('first_name')
+  const [{ data: paidOrder }, { data: membersData }] = await Promise.all([
+    supabase
+      .from('show_fee_orders')
+      .select('id, total_amount, created_at, show_fee_order_items ( label, unit_price, quantity, shirt_size )')
+      .eq('show_id', show.id)
+      .eq('family_id', family.id)
+      .eq('status', 'paid')
+      .maybeSingle(),
+    supabase
+      .from('family_members')
+      .select('id, first_name, last_name')
+      .eq('family_id', family.id)
+      .order('first_name'),
+  ])
 
   const members = (membersData ?? []) as { id: string; first_name: string; last_name: string }[]
 
