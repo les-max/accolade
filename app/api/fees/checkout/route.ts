@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import Stripe from 'stripe'
 import { createServiceClient } from '@/lib/supabase/service'
 import { createClient } from '@/lib/supabase/server'
+import { sendFeeConfirmation } from '@/lib/email/fee-emails'
 import {
   ACCOLADE_AD_PRICES, AD_LABELS, SHIRT_SIZES, SHOW_TUITION_TIER_1, SHOW_TUITION_TIER_2,
   type AdSize, type ShirtSize,
@@ -206,6 +207,20 @@ export async function POST(req: NextRequest) {
   // $0 order: skip Stripe, mark paid immediately
   if (totalDollars === 0) {
     await supabase.from('show_fee_orders').update({ status: 'paid' }).eq('id', order.id)
+    try {
+      await sendFeeConfirmation({
+        to: family.email,
+        parentName: family.parent_name,
+        showTitle: show.title,
+        items: lineItems
+          .filter(l => l.unit_price > 0)
+          .map(l => ({ label: l.label, amount: Math.round(l.unit_price * l.quantity * 100) })),
+        totalAmount: 0,
+        orderId: order.id,
+      })
+    } catch (emailErr) {
+      console.error('Free order confirmation email failed', emailErr)
+    }
     return NextResponse.json({ url: `${origin}/account/shows/${show_slug}/fees/success?free=1` })
   }
 

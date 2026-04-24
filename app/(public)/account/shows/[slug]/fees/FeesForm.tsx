@@ -138,7 +138,7 @@ export default function FeesForm({ showId, showSlug, showTitle, eventType, feesC
                         style={SELECT}
                         onClick={e => e.stopPropagation()}
                       >
-                        <option value="">Select size{isCamp ? ' (required)' : ' (optional)'}</option>
+                        <option value="">Select size (optional)</option>
                         {SHIRT_SIZES.map(s => <option key={s} value={s}>{s}</option>)}
                       </select>
                     </div>
