@@ -7,6 +7,8 @@ import StatusControl from './StatusControl'
 import CustomQuestionsManager from './CustomQuestionsManager'
 import EventDetailsManager from './EventDetailsManager'
 import PerformancesManager from './PerformancesManager'
+import TicketManager from './TicketManager'
+import RosterManager from './RosterManager'
 
 export default async function ShowDetailPage({
   params,
@@ -20,14 +22,24 @@ export default async function ShowDetailPage({
 
   if (!show) notFound()
 
-  const [{ data: slotsData }, { data: rolesData }, { data: regCounts }, { data: performancesData }, { data: venuesData }, { data: parentShowsData }] = await Promise.all([
+  const [{ data: slotsData }, { data: rolesData }, { data: regCounts }, { data: performancesData }, { data: venuesData }, { data: parentShowsData }, { data: membersData }] = await Promise.all([
     supabase.from('audition_slots').select('*').eq('show_id', show.id).order('start_time', { ascending: true }),
     supabase.from('show_roles').select('*').eq('show_id', show.id).order('sort_order', { ascending: true }),
     supabase.from('auditions').select('slot_id').eq('show_id', show.id).eq('status', 'registered'),
     supabase.from('show_performances').select('id, type, date, start_time, label').eq('show_id', show.id).order('date').order('start_time'),
     supabase.from('venues').select('id, name, address, city, state').order('name'),
     supabase.from('shows').select('id, title, show_image, show_image_wide, venue_id, season').eq('event_type', 'show').eq('archived', false).order('title'),
+    supabase.from('show_members')
+      .select('id, show_role, families(parent_name, email)')
+      .eq('show_id', show.id)
+      .order('show_role'),
   ])
+
+  // Ticket config for shows
+  const showPerformanceIds = (performancesData ?? []).filter(p => p.type === 'performance').map(p => p.id)
+  const { data: ticketConfigData } = showPerformanceIds.length > 0
+    ? await supabase.from('ticket_performances').select('show_performance_id, capacity, price, sales_enabled').in('show_performance_id', showPerformanceIds)
+    : { data: [] }
 
   // Count registrations per slot
   const countBySlot: Record<string, number> = {}
@@ -140,6 +152,46 @@ export default async function ShowDetailPage({
       />
 
       <PerformancesManager showId={show.id} slug={slug} performances={performancesData ?? []} eventType={show.event_type ?? 'show'} />
+
+      {show.event_type === 'show' && (
+        <TicketManager
+          showId={show.id}
+          slug={slug}
+          performances={(performancesData ?? []).filter(p => p.type === 'performance')}
+          ticketConfig={ticketConfigData ?? []}
+        />
+      )}
+
+      {show.event_type === 'show' && (
+        <RosterManager
+          showId={show.id}
+          slug={slug}
+          members={(membersData ?? []) as unknown as {
+            id: string
+            show_role: string
+            families: { parent_name: string; email: string }
+          }[]}
+        />
+      )}
+
+      {show.event_type === 'show' && (
+        <div style={{ marginBottom: '32px' }}>
+          <Link
+            href={`/admin/events/${slug}/communications`}
+            style={{
+              display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+              padding: '20px 24px',
+              background: 'var(--layer)', border: '1px solid var(--border)', borderRadius: '4px',
+              textDecoration: 'none',
+            }}
+          >
+            <p style={{ fontSize: '0.65rem', letterSpacing: '0.25em', textTransform: 'uppercase', color: 'var(--muted)' }}>
+              Communications
+            </p>
+            <span style={{ fontSize: '0.72rem', color: 'var(--gold)' }}>Send Email →</span>
+          </Link>
+        </div>
+      )}
 
       {show.event_type === 'audition' && (
         <SlotManager show={show} slots={slotsData ?? []} countBySlot={countBySlot} slug={slug} />
