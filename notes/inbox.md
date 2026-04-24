@@ -11,3 +11,7 @@ Merch order page.
 ## 2026-04-20 — Tickets inherit from show
 
 For ticket page - tickets should inherit qualities from a specific show they are associated with - performances, venue, images, etc.
+
+## 2026-04-20 — Ticket creation workflow
+
+Ticket creation workflow should be something like Create tickets > select show > for each performance set total number of tickets for sale > for each performance set price of tickets.
