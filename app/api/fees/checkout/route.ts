@@ -3,7 +3,7 @@ import Stripe from 'stripe'
 import { createServiceClient } from '@/lib/supabase/service'
 import { createClient } from '@/lib/supabase/server'
 import {
-  ACCOLADE_AD_PRICES, AD_LABELS, SHIRT_SIZES, computeShowTuition,
+  ACCOLADE_AD_PRICES, AD_LABELS, SHIRT_SIZES, SHOW_TUITION_TIER_1, SHOW_TUITION_TIER_2,
   type AdSize, type ShirtSize,
 } from '@/lib/fees-constants'
 
@@ -65,7 +65,7 @@ export async function POST(req: NextRequest) {
   // Validate family_member_ids belong to this family
   const { data: allMembers } = await supabase
     .from('family_members')
-    .select('id, first_name, last_name, grade')
+    .select('id, first_name, last_name')
     .eq('family_id', family.id)
   const memberMap = new Map((allMembers ?? []).map(m => [m.id, m]))
   const validMemberIds = family_member_ids.filter(id => memberMap.has(id))
@@ -116,7 +116,7 @@ export async function POST(req: NextRequest) {
     if (isCamp) {
       tuitionPrice = feesConfig.tuition_amount ?? 0
     } else {
-      tuitionPrice = i < 2 ? 50 : 25
+      tuitionPrice = i < 2 ? SHOW_TUITION_TIER_1 : SHOW_TUITION_TIER_2
     }
 
     lineItems.push({
@@ -185,9 +185,13 @@ export async function POST(req: NextRequest) {
   }
 
   // Insert line items
-  await supabase.from('show_fee_order_items').insert(
+  const { error: itemsErr } = await supabase.from('show_fee_order_items').insert(
     lineItems.map(l => ({ order_id: order.id, ...l }))
   )
+  if (itemsErr) {
+    console.error('Failed to insert fee order items', itemsErr)
+    return NextResponse.json({ error: 'Failed to create order items' }, { status: 500 })
+  }
 
   // Mark coupon used (reserve it at checkout time)
   if (coupon) {
