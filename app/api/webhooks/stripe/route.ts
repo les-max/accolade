@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import Stripe from 'stripe'
 import { createServiceClient } from '@/lib/supabase/service'
 import { sendTicketConfirmation } from '@/lib/email/ticket-emails'
+import { sendFeeConfirmation } from '@/lib/email/fee-emails'
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!)
 
@@ -45,12 +46,53 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: 'No order_id in metadata' }, { status: 400 })
   }
 
+  const supabase = createServiceClient()
+
   if (orderType === 'show_fees') {
-    // Filled in Task 7
+    const { data: feeOrder, error: feeErr } = await supabase
+      .from('show_fee_orders')
+      .update({ status: 'paid' })
+      .eq('id', orderId)
+      .select('id, total_amount, show_id, family_id')
+      .single()
+
+    if (feeErr || !feeOrder) {
+      console.error('Failed to update fee order', orderId, feeErr)
+      return NextResponse.json({ error: 'Fee order update failed' }, { status: 500 })
+    }
+
+    const { data: feeItems } = await supabase
+      .from('show_fee_order_items')
+      .select('label, unit_price, quantity')
+      .eq('order_id', orderId)
+
+    const { data: feeShow } = await supabase
+      .from('shows')
+      .select('title')
+      .eq('id', feeOrder.show_id)
+      .single()
+
+    const { data: family } = await supabase
+      .from('families')
+      .select('parent_name, email')
+      .eq('id', feeOrder.family_id)
+      .single()
+
+    if (feeItems && feeShow && family) {
+      await sendFeeConfirmation({
+        to: family.email,
+        parentName: family.parent_name,
+        showTitle: feeShow.title,
+        items: feeItems
+          .filter(i => i.unit_price > 0)
+          .map(i => ({ label: i.label, amount: Math.round(i.unit_price * i.quantity * 100) })),
+        totalAmount: Math.round(feeOrder.total_amount * 100),
+        orderId: feeOrder.id,
+      })
+    }
+
     return NextResponse.json({ received: true })
   }
-
-  const supabase = createServiceClient()
 
   // Mark order as paid
   const { data: order, error: orderErr } = await supabase
