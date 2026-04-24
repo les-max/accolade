@@ -193,6 +193,25 @@ export default async function ShowDetailPage({
         </div>
       )}
 
+      {show.event_type === 'show' && (
+        <div style={{ marginBottom: '32px' }}>
+          <Link
+            href={`/admin/events/${slug}/bios`}
+            style={{
+              display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+              padding: '20px 24px',
+              background: 'var(--layer)', border: '1px solid var(--border)', borderRadius: '4px',
+              textDecoration: 'none',
+            }}
+          >
+            <p style={{ fontSize: '0.65rem', letterSpacing: '0.25em', textTransform: 'uppercase', color: 'var(--muted)' }}>
+              Playbill Bios
+            </p>
+            <span style={{ fontSize: '0.72rem', color: 'var(--gold)' }}>View Bios →</span>
+          </Link>
+        </div>
+      )}
+
       {show.event_type === 'audition' && (
         <SlotManager show={show} slots={slotsData ?? []} countBySlot={countBySlot} slug={slug} />
       )}
