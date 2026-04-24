@@ -4,6 +4,7 @@ import { useState, useTransition } from 'react'
 import { useRouter } from 'next/navigation'
 import ConflictPicker from './ConflictPicker'
 import { submitAudition } from './actions'
+import { computeAge } from '@/lib/utils/age'
 
 const inputStyle: React.CSSProperties = {
   width: '100%',
@@ -54,27 +55,71 @@ type FieldConfig = {
   custom_questions?: CustomQuestion[]
 }
 
+type FamilyMember = {
+  id: string
+  name: string
+  birthdate: string | null
+  age: number | null
+  grade: string | null
+}
+
+type Family = {
+  id: string
+  parent_name: string
+  email: string
+  phone: string | null
+}
+
 export default function AuditionForm({
   showId,
   showSlug,
   slots,
   roles,
   fieldConfig,
+  family,
+  familyMembers = [],
 }: {
   showId: string
   showSlug: string
   slots: Slot[]
   roles: Role[]
   fieldConfig: FieldConfig
+  family?: Family
+  familyMembers?: FamilyMember[]
 }) {
   const router = useRouter()
   const [isPending, startTransition] = useTransition()
   const [selectedSlot, setSelectedSlot] = useState<string>('')
-  const [age, setAge] = useState<string>('')
   const [error, setError] = useState('')
   const [customAnswers, setCustomAnswers] = useState<Record<string, string | boolean>>(() =>
     Object.fromEntries((fieldConfig.custom_questions ?? []).map(q => [q.id, q.type === 'checkbox' ? false : '']))
   )
+
+  function memberAge(m: FamilyMember): string {
+    if (m.birthdate) return String(computeAge(m.birthdate))
+    return m.age != null ? String(m.age) : ''
+  }
+
+  const initialMember = familyMembers[0] ?? null
+  const [selectedMemberId, setSelectedMemberId] = useState<string | null>(initialMember?.id ?? null)
+  const [auditionerName, setAuditionerName] = useState(initialMember?.name ?? '')
+  const [age, setAge] = useState(initialMember ? memberAge(initialMember) : '')
+  const [auditionerGrade, setAuditionerGrade] = useState(initialMember?.grade ?? '')
+
+  function handleMemberSelect(memberId: string) {
+    if (!memberId) {
+      setSelectedMemberId(null)
+      setAuditionerName('')
+      setAge('')
+      setAuditionerGrade('')
+    } else {
+      const member = familyMembers.find(m => m.id === memberId)!
+      setSelectedMemberId(member.id)
+      setAuditionerName(member.name)
+      setAge(memberAge(member))
+      setAuditionerGrade(member.grade ?? '')
+    }
+  }
 
   const isAdult = Number(age) >= 18
 
@@ -90,6 +135,10 @@ export default function AuditionForm({
     data.set('slot_id', selectedSlot)
     data.set('is_adult', String(isAdult))
     data.set('extra_fields', JSON.stringify(customAnswers))
+    if (family && selectedMemberId) {
+      data.set('family_id', family.id)
+      data.set('family_member_id', selectedMemberId)
+    }
 
     startTransition(async () => {
       const result = await submitAudition(data)
@@ -103,6 +152,27 @@ export default function AuditionForm({
 
   return (
     <form onSubmit={handleSubmit}>
+      {/* ── Child Selector (signed-in parents) ──────── */}
+      {familyMembers.length > 0 && (
+        <div style={{ marginBottom: '32px' }}>
+          <label>
+            <span style={labelStyle}>Who is auditioning?</span>
+            <select
+              value={selectedMemberId ?? ''}
+              onChange={e => handleMemberSelect(e.target.value)}
+              style={{ ...inputStyle, appearance: 'none' }}
+              onFocus={e => e.target.style.borderColor = 'rgba(212,168,83,0.5)'}
+              onBlur={e => e.target.style.borderColor = 'rgba(255,255,255,0.1)'}
+            >
+              {familyMembers.map(m => (
+                <option key={m.id} value={m.id}>{m.name}</option>
+              ))}
+              <option value="">Someone else</option>
+            </select>
+          </label>
+        </div>
+      )}
+
       {/* ── Slot Selection ─────────────────────────── */}
       <div style={{ marginBottom: '40px' }}>
         <p style={{ ...labelStyle, marginBottom: '16px' }}>Choose Your Slot</p>
@@ -171,6 +241,7 @@ export default function AuditionForm({
             <label>
               <span style={labelStyle}>Full Name</span>
               <input name="auditioner_name" type="text" required placeholder="First and last name" style={inputStyle}
+                value={auditionerName} onChange={e => setAuditionerName(e.target.value)}
                 onFocus={e => e.target.style.borderColor = 'rgba(212,168,83,0.5)'}
                 onBlur={e => e.target.style.borderColor = 'rgba(255,255,255,0.1)'}
               />
@@ -192,6 +263,7 @@ export default function AuditionForm({
               <label>
                 <span style={labelStyle}>Grade in School</span>
                 <input name="auditioner_grade" type="text" placeholder="e.g. 7th" style={inputStyle}
+                  value={auditionerGrade} onChange={e => setAuditionerGrade(e.target.value)}
                   onFocus={e => e.target.style.borderColor = 'rgba(212,168,83,0.5)'}
                   onBlur={e => e.target.style.borderColor = 'rgba(255,255,255,0.1)'}
                 />
@@ -212,6 +284,7 @@ export default function AuditionForm({
               <label>
                 <span style={labelStyle}>Parent / Guardian Name</span>
                 <input name="parent_name" type="text" required placeholder="Full name" style={inputStyle}
+                  defaultValue={family?.parent_name ?? ''}
                   onFocus={e => e.target.style.borderColor = 'rgba(212,168,83,0.5)'}
                   onBlur={e => e.target.style.borderColor = 'rgba(255,255,255,0.1)'}
                 />
@@ -221,6 +294,7 @@ export default function AuditionForm({
               <label>
                 <span style={labelStyle}>Email</span>
                 <input name="parent_email" type="email" required placeholder="email@example.com" style={inputStyle}
+                  defaultValue={family?.email ?? ''}
                   onFocus={e => e.target.style.borderColor = 'rgba(212,168,83,0.5)'}
                   onBlur={e => e.target.style.borderColor = 'rgba(255,255,255,0.1)'}
                 />
@@ -230,6 +304,7 @@ export default function AuditionForm({
               <label>
                 <span style={labelStyle}>Phone</span>
                 <input name="parent_phone" type="tel" placeholder="(555) 555-5555" style={inputStyle}
+                  defaultValue={family?.phone ?? ''}
                   onFocus={e => e.target.style.borderColor = 'rgba(212,168,83,0.5)'}
                   onBlur={e => e.target.style.borderColor = 'rgba(255,255,255,0.1)'}
                 />
@@ -382,7 +457,7 @@ export default function AuditionForm({
         <p style={{ fontSize: '0.82rem', color: 'var(--muted)', marginBottom: '20px', lineHeight: 1.6 }}>
           List any dates you are unavailable for rehearsals, tech week, or performances. Being upfront helps the director plan.
         </p>
-        <ConflictPicker name="conflicts" />
+        <ConflictPicker key={selectedMemberId ?? 'guest'} name="conflicts" />
       </div>
 
       {error && (

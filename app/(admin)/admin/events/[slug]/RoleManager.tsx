@@ -45,10 +45,11 @@ export default function RoleManager({
         background: 'var(--layer)', border: '1px solid var(--border)',
         borderRadius: '4px', overflow: 'hidden',
       }}>
-        <div style={{ padding: '20px 24px', borderBottom: '1px solid var(--border)' }}>
+        <div style={{ padding: '20px 24px', borderBottom: '1px solid var(--border)', display: 'flex', alignItems: 'baseline', gap: '12px' }}>
           <p style={{ fontSize: '0.65rem', letterSpacing: '0.25em', textTransform: 'uppercase', color: 'var(--muted)' }}>
             Roles
           </p>
+          <p style={{ fontSize: '0.7rem', color: 'var(--muted)', opacity: 0.6 }}>optional — registrants can select a preference</p>
         </div>
 
         {/* Role list */}

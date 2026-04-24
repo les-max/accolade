@@ -43,7 +43,7 @@ export default function HeroPhotoLayer({ photos }: { photos: string[] }) {
         zIndex: 0,
         display: 'flex',
         gap: '5px',
-        opacity: 0.38,
+        opacity: 0.65,
         willChange: 'transform',
       }}
     >
@@ -68,7 +68,7 @@ export default function HeroPhotoLayer({ photos }: { photos: string[] }) {
                   position: 'relative',
                   overflow: 'hidden',
                   borderRadius: '2px',
-                  filter: 'grayscale(0.8) brightness(0.55) saturate(0.4)',
+                  filter: 'grayscale(0.8) brightness(0.8) saturate(0.4)',
                 }}
               >
                 <Image

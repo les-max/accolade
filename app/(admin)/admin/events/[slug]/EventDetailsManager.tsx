@@ -14,6 +14,7 @@ const inputStyle: React.CSSProperties = {
   fontSize: '0.88rem',
   outline: 'none',
   boxSizing: 'border-box',
+  colorScheme: 'dark',
 }
 
 const labelStyle: React.CSSProperties = {
@@ -24,6 +25,21 @@ const labelStyle: React.CSSProperties = {
   color: 'var(--gold)',
   fontWeight: 600,
   marginBottom: '6px',
+}
+
+const sectionStyle: React.CSSProperties = {
+  paddingTop: '20px',
+  marginTop: '20px',
+  borderTop: '1px solid var(--border)',
+}
+
+const sectionLabel: React.CSSProperties = {
+  fontSize: '0.58rem',
+  letterSpacing: '0.25em',
+  textTransform: 'uppercase',
+  color: 'var(--muted)',
+  marginBottom: '16px',
+  display: 'block',
 }
 
 function Toggle({ on, onChange }: { on: boolean; onChange: (v: boolean) => void }) {
@@ -47,9 +63,6 @@ function Toggle({ on, onChange }: { on: boolean; onChange: (v: boolean) => void 
   )
 }
 
-const EVENT_TYPES = ['show', 'audition', 'camp', 'workshop', 'event']
-
-// Accepts full YouTube URLs or bare IDs; stores just the 11-char ID.
 function extractYoutubeId(input: string): string | null {
   const trimmed = input.trim()
   if (!trimmed) return null
@@ -57,6 +70,18 @@ function extractYoutubeId(input: string): string | null {
   if (match) return match[1]
   if (/^[A-Za-z0-9_-]{11}$/.test(trimmed)) return trimmed
   return trimmed
+}
+
+const TYPE_COLORS: Record<string, string> = {
+  show:     'var(--teal)',
+  audition: 'var(--gold)',
+  camp:     'var(--rose)',
+  workshop: 'var(--amber, #c87941)',
+  event:    'var(--muted)',
+}
+
+const TYPE_LABELS: Record<string, string> = {
+  show: 'Show', audition: 'Audition', camp: 'Camp', workshop: 'Workshop', event: 'Event',
 }
 
 type Props = {
@@ -67,7 +92,6 @@ type Props = {
     start_date: string | null
     end_date: string | null
     featured: boolean
-    homepage_visible: boolean
     cta_label: string | null
     cta_url: string | null
     show_image: string | null
@@ -79,16 +103,23 @@ type Props = {
     age_max: number | null
     show_grade: boolean
     show_headshot_upload: boolean
+    show_resume_upload: boolean
+    venue_id: string | null
+    season: number | null
+    parent_show_id: string | null
   }
+  venues: { id: string; name: string; address: string | null; city: string | null; state: string | null }[]
+  parentShows: { id: string; title: string; show_image: string | null; show_image_wide: string | null; venue_id: string | null; season: number | null }[]
 }
 
-export default function EventDetailsManager({ showId, slug, show }: Props) {
+export default function EventDetailsManager({ showId, slug, show, venues, parentShows }: Props) {
   const [isPending, startTransition] = useTransition()
-  const [eventType, setEventType] = useState(show.event_type ?? 'show')
+  const eventType = show.event_type ?? 'show'
+  const is = (types: string[]) => types.includes(eventType)
+
   const [startDate, setStartDate] = useState(show.start_date ?? '')
   const [endDate, setEndDate] = useState(show.end_date ?? '')
   const [featured, setFeatured] = useState(show.featured ?? false)
-  const [homepageVisible, setHomepageVisible] = useState(show.homepage_visible ?? false)
   const [ctaLabel, setCtaLabel] = useState(show.cta_label ?? '')
   const [ctaUrl, setCtaUrl] = useState(show.cta_url ?? '')
   const [auditionType, setAuditionType] = useState<'slot' | 'window'>(
@@ -98,12 +129,16 @@ export default function EventDetailsManager({ showId, slug, show }: Props) {
   const [ageMax, setAgeMax] = useState<number | null>(show.age_max)
   const [showGrade, setShowGrade] = useState(show.show_grade ?? false)
   const [showHeadshot, setShowHeadshot] = useState(show.show_headshot_upload ?? false)
+  const [showResume, setShowResume] = useState(show.show_resume_upload ?? false)
   const [imageFile, setImageFile] = useState<File | null>(null)
   const [imagePreview, setImagePreview] = useState<string | null>(show.show_image)
   const [imageWideFile, setImageWideFile] = useState<File | null>(null)
   const [imageWidePreview, setImageWidePreview] = useState<string | null>(show.show_image_wide)
   const [pastShowsVisible, setPastShowsVisible] = useState(show.past_shows_visible ?? false)
   const [youtubeVideoId, setYoutubeVideoId] = useState(show.youtube_video_id ?? '')
+  const [venueId, setVenueId] = useState<string | null>(show.venue_id)
+  const [season, setSeason] = useState<number | null>(show.season)
+  const [parentShowId, setParentShowId] = useState<string | null>(show.parent_show_id)
   const [saved, setSaved] = useState(false)
   const [error, setError] = useState('')
 
@@ -134,9 +169,11 @@ export default function EventDetailsManager({ showId, slug, show }: Props) {
           start_date: startDate || null,
           end_date: endDate || null,
           featured,
-          homepage_visible: homepageVisible,
+          parent_show_id: parentShowId,
           cta_label: ctaLabel || null,
           cta_url: ctaUrl || null,
+          venue_id: venueId || null,
+          season,
           show_image: imageUrl,
           show_image_wide: imageWideUrl,
           past_shows_visible: pastShowsVisible,
@@ -146,6 +183,7 @@ export default function EventDetailsManager({ showId, slug, show }: Props) {
           age_max: ageMax,
           show_grade: showGrade,
           show_headshot_upload: showHeadshot,
+          show_resume_upload: showResume,
         })
         setSaved(true)
         setTimeout(() => setSaved(false), 3000)
@@ -155,40 +193,84 @@ export default function EventDetailsManager({ showId, slug, show }: Props) {
     })
   }
 
+  const typeColor = TYPE_COLORS[eventType] ?? 'var(--muted)'
+
   return (
     <div style={{ background: 'var(--layer)', border: '1px solid var(--border)', borderRadius: '4px', padding: '28px', marginBottom: '24px' }}>
-      <p style={{ fontSize: '0.62rem', letterSpacing: '0.25em', textTransform: 'uppercase', color: 'var(--muted)', marginBottom: '24px' }}>
-        Event Details
-      </p>
 
-      {/* Event type */}
-      <div style={{ marginBottom: '20px' }}>
-        <span style={labelStyle}>Event Type</span>
-        <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
-          {EVENT_TYPES.map(type => (
-            <button
-              key={type} type="button"
-              onClick={() => setEventType(type)}
-              style={{
-                padding: '7px 14px',
-                border: `1px solid ${eventType === type ? 'var(--gold)' : 'var(--border)'}`,
-                borderRadius: '2px',
-                background: eventType === type ? 'rgba(212,168,83,0.1)' : 'transparent',
-                color: eventType === type ? 'var(--gold)' : 'var(--muted)',
-                fontSize: '0.7rem',
-                letterSpacing: '0.1em',
-                textTransform: 'capitalize',
-                cursor: 'pointer',
-                transition: 'all 0.2s',
-              }}
-            >
-              {type}
-            </button>
-          ))}
-        </div>
+      {/* Header with type badge */}
+      <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '24px' }}>
+        <p style={{ fontSize: '0.62rem', letterSpacing: '0.25em', textTransform: 'uppercase', color: 'var(--muted)' }}>
+          Event Details
+        </p>
+        <span style={{
+          padding: '3px 10px',
+          border: `1px solid ${typeColor}`,
+          borderRadius: '2px',
+          fontSize: '0.58rem',
+          letterSpacing: '0.15em',
+          textTransform: 'uppercase',
+          color: typeColor,
+        }}>
+          {TYPE_LABELS[eventType] ?? eventType}
+        </span>
       </div>
 
-      {/* Dates */}
+      {/* ── Connected Show (audition only) ── */}
+      {is(['audition']) && (
+        <div style={{ marginBottom: '20px', paddingBottom: '20px', borderBottom: '1px solid var(--border)' }}>
+          <label>
+            <span style={labelStyle}>Connected Show</span>
+            <select
+              value={parentShowId ?? ''}
+              onChange={e => {
+                const id = e.target.value || null
+                setParentShowId(id)
+                if (id) {
+                  const s = parentShows.find(p => p.id === id)
+                  if (s) {
+                    if (s.show_image)      setImagePreview(s.show_image)
+                    if (s.show_image_wide) setImageWidePreview(s.show_image_wide)
+                    if (s.season != null)  setSeason(s.season)
+                  }
+                }
+              }}
+              style={{ ...inputStyle, appearance: 'none' }}
+            >
+              <option value="">— Not linked to a show —</option>
+              {parentShows.map(s => (
+                <option key={s.id} value={s.id}>{s.title}</option>
+              ))}
+            </select>
+          </label>
+          {parentShowId && (
+            <p style={{ fontSize: '0.7rem', color: 'var(--muted)', marginTop: '8px' }}>
+              Images, venue, and season pulled from connected show. Override below if needed.
+            </p>
+          )}
+        </div>
+      )}
+
+      {/* ── Season (show, audition, camp) ── */}
+      {is(['show', 'audition', 'camp']) && (
+        <div style={{ marginBottom: '20px' }}>
+          <label>
+            <span style={labelStyle}>Season <span style={{ color: 'var(--muted)', fontWeight: 400 }}>(optional)</span></span>
+            <select
+              value={season ?? ''}
+              onChange={e => setSeason(e.target.value ? Number(e.target.value) : null)}
+              style={{ ...inputStyle, appearance: 'none' }}
+            >
+              <option value="">— Unassigned —</option>
+              {Array.from({ length: 25 }, (_, i) => i + 1).map(n => (
+                <option key={n} value={n}>Season {n}</option>
+              ))}
+            </select>
+          </label>
+        </div>
+      )}
+
+      {/* ── Dates ── */}
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px', marginBottom: '20px' }}>
         <label>
           <span style={labelStyle}>Start Date</span>
@@ -200,173 +282,189 @@ export default function EventDetailsManager({ showId, slug, show }: Props) {
         </label>
       </div>
 
-      {/* Audition Settings — audition type only */}
-      {eventType === 'audition' && (
-        <div style={{ marginBottom: '20px' }}>
-          <span style={labelStyle}>Audition Type</span>
-          <div style={{ display: 'flex', gap: '12px', marginBottom: '8px' }}>
-            {(['slot', 'window'] as const).map(type => (
-              <button
-                key={type} type="button"
-                onClick={() => setAuditionType(type)}
-                style={{
-                  padding: '8px 16px',
-                  border: `1px solid ${auditionType === type ? 'var(--gold)' : 'var(--border)'}`,
-                  borderRadius: '2px',
-                  background: auditionType === type ? 'rgba(212,168,83,0.1)' : 'transparent',
-                  color: auditionType === type ? 'var(--gold)' : 'var(--muted)',
-                  fontSize: '0.72rem',
-                  letterSpacing: '0.1em',
-                  cursor: 'pointer',
-                  transition: 'all 0.2s',
-                }}
-              >
-                {type === 'slot' ? 'Specific Time Slots' : 'Audition Windows'}
-              </button>
+      {/* ── Venue ── */}
+      <div style={{ marginBottom: '20px' }}>
+        <label>
+          <span style={labelStyle}>{eventType === 'audition' ? 'Audition Venue' : 'Venue'} <span style={{ color: 'var(--muted)', fontWeight: 400 }}>(optional)</span></span>
+          <select
+            value={venueId ?? ''}
+            onChange={e => setVenueId(e.target.value || null)}
+            style={{ ...inputStyle, appearance: 'none' }}
+          >
+            <option value="">— No venue —</option>
+            {venues.map(v => (
+              <option key={v.id} value={v.id}>
+                {v.name}{v.city ? ` — ${v.city}${v.state ? `, ${v.state}` : ''}` : ''}
+              </option>
             ))}
+          </select>
+        </label>
+      </div>
+
+      {/* ── Audition Settings (audition only) ── */}
+      {is(['audition']) && (
+        <div style={sectionStyle}>
+          <span style={sectionLabel}>Audition Settings</span>
+          <div style={{ marginBottom: '16px' }}>
+            <span style={labelStyle}>Registration Type</span>
+            <div style={{ display: 'flex', gap: '12px', marginBottom: '8px' }}>
+              {(['slot', 'window'] as const).map(type => (
+                <button
+                  key={type} type="button"
+                  onClick={() => setAuditionType(type)}
+                  style={{
+                    padding: '8px 16px',
+                    border: `1px solid ${auditionType === type ? 'var(--gold)' : 'var(--border)'}`,
+                    borderRadius: '2px',
+                    background: auditionType === type ? 'rgba(212,168,83,0.1)' : 'transparent',
+                    color: auditionType === type ? 'var(--gold)' : 'var(--muted)',
+                    fontSize: '0.72rem',
+                    letterSpacing: '0.1em',
+                    cursor: 'pointer',
+                    transition: 'all 0.2s',
+                  }}
+                >
+                  {type === 'slot' ? 'Specific Time Slots' : 'Audition Windows'}
+                </button>
+              ))}
+            </div>
           </div>
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px', marginTop: '12px' }}>
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
             <label>
-              <span style={labelStyle}>Min Age</span>
-              <input
-                type="number" min={1} max={99}
-                value={ageMin ?? ''}
-                onChange={e => setAgeMin(e.target.value ? Number(e.target.value) : null)}
-                placeholder="e.g. 8"
-                style={inputStyle}
-              />
+              <span style={labelStyle}>Min Age <span style={{ color: 'var(--muted)', fontWeight: 400 }}>(optional)</span></span>
+              <input type="number" min={1} max={99} value={ageMin ?? ''} onChange={e => setAgeMin(e.target.value ? Number(e.target.value) : null)} placeholder="e.g. 8" style={inputStyle} />
             </label>
             <label>
-              <span style={labelStyle}>Max Age</span>
-              <input
-                type="number" min={1} max={99}
-                value={ageMax ?? ''}
-                onChange={e => setAgeMax(e.target.value ? Number(e.target.value) : null)}
-                placeholder="e.g. 18"
-                style={inputStyle}
-              />
+              <span style={labelStyle}>Max Age <span style={{ color: 'var(--muted)', fontWeight: 400 }}>(optional)</span></span>
+              <input type="number" min={1} max={99} value={ageMax ?? ''} onChange={e => setAgeMax(e.target.value ? Number(e.target.value) : null)} placeholder="e.g. 18" style={inputStyle} />
             </label>
           </div>
         </div>
       )}
 
-      {/* Portrait image 2:3 */}
-      <div style={{ marginBottom: '16px' }}>
-        <span style={labelStyle}>Portrait Image — 2:3 ratio · 1200 × 1800 px (tickets, past shows)</span>
-        <label style={{
-          display: 'flex', alignItems: 'center', gap: '16px',
-          border: '1px dashed var(--border)', borderRadius: '2px',
-          padding: '14px', cursor: 'pointer',
-          background: 'rgba(255,255,255,0.02)',
-        }}>
-          <input type="file" accept="image/*" onChange={handleImageChange} style={{ display: 'none' }} />
-          {imagePreview ? (
-            // eslint-disable-next-line @next/next/no-img-element
-            <img src={imagePreview} alt="preview" style={{ width: '36px', height: '54px', objectFit: 'cover', borderRadius: '2px' }} />
-          ) : (
-            <div style={{ width: '36px', height: '54px', background: 'rgba(255,255,255,0.05)', borderRadius: '2px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-              <span style={{ fontSize: '1.2rem', opacity: 0.4 }}>+</span>
-            </div>
-          )}
-          <div>
-            <p style={{ fontSize: '0.8rem', color: 'var(--warm-white)', marginBottom: '3px' }}>
-              {imageFile ? imageFile.name : imagePreview ? 'Click to replace' : 'Click to upload portrait image'}
-            </p>
-            <p style={{ fontSize: '0.7rem', color: 'var(--muted)' }}>JPG, PNG, WebP · portrait orientation</p>
-          </div>
-        </label>
-      </div>
-
-      {/* Wide image 16:9 */}
-      <div style={{ marginBottom: '20px' }}>
-        <span style={labelStyle}>Wide Image — 16:9 ratio · 1920 × 1080 px (homepage, current season)</span>
-        <label style={{
-          display: 'flex', alignItems: 'center', gap: '16px',
-          border: '1px dashed var(--border)', borderRadius: '2px',
-          padding: '14px', cursor: 'pointer',
-          background: 'rgba(255,255,255,0.02)',
-        }}>
-          <input type="file" accept="image/*" onChange={handleImageWideChange} style={{ display: 'none' }} />
-          {imageWidePreview ? (
-            // eslint-disable-next-line @next/next/no-img-element
-            <img src={imageWidePreview} alt="preview" style={{ width: '72px', height: '40px', objectFit: 'cover', borderRadius: '2px' }} />
-          ) : (
-            <div style={{ width: '72px', height: '40px', background: 'rgba(255,255,255,0.05)', borderRadius: '2px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-              <span style={{ fontSize: '1.2rem', opacity: 0.4 }}>+</span>
-            </div>
-          )}
-          <div>
-            <p style={{ fontSize: '0.8rem', color: 'var(--warm-white)', marginBottom: '3px' }}>
-              {imageWideFile ? imageWideFile.name : imageWidePreview ? 'Click to replace' : 'Click to upload wide image'}
-            </p>
-            <p style={{ fontSize: '0.7rem', color: 'var(--muted)' }}>JPG, PNG, WebP · landscape orientation</p>
-          </div>
-        </label>
-      </div>
-
-      {/* Homepage toggles */}
-      <div style={{ marginBottom: '20px' }}>
-        <span style={labelStyle}>Homepage Display</span>
-        {[
-          { label: 'Show on homepage', sub: 'Appears in the Now Showing section', state: homepageVisible, set: setHomepageVisible },
-          { label: 'Featured', sub: 'Displays as the large card on the left', state: featured, set: setFeatured },
-        ].map(({ label, sub, state, set }) => (
-          <div key={label} style={{ display: 'flex', alignItems: 'center', gap: '14px', marginBottom: '14px' }}>
-            <Toggle on={state} onChange={set} />
-            <div>
-              <p style={{ fontSize: '0.82rem', color: 'var(--warm-white)', marginBottom: '1px' }}>{label}</p>
-              <p style={{ fontSize: '0.7rem', color: 'var(--muted)' }}>{sub}</p>
-            </div>
-          </div>
-        ))}
-      </div>
-
-      {/* Past Productions */}
-      <div style={{ marginBottom: '20px', paddingTop: '16px', borderTop: '1px solid var(--border)' }}>
-        <span style={labelStyle}>Past Productions</span>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '14px', marginBottom: '16px' }}>
-          <Toggle on={pastShowsVisible} onChange={setPastShowsVisible} />
-          <div>
-            <p style={{ fontSize: '0.82rem', color: 'var(--warm-white)', marginBottom: '1px' }}>Show in past productions</p>
-            <p style={{ fontSize: '0.7rem', color: 'var(--muted)' }}>Appears in the Past Productions archive</p>
+      {/* ── Age Range (camp, workshop) ── */}
+      {is(['camp', 'workshop']) && (
+        <div style={sectionStyle}>
+          <span style={sectionLabel}>Age Range</span>
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
+            <label>
+              <span style={labelStyle}>Min Age <span style={{ color: 'var(--muted)', fontWeight: 400 }}>(optional)</span></span>
+              <input type="number" min={1} max={99} value={ageMin ?? ''} onChange={e => setAgeMin(e.target.value ? Number(e.target.value) : null)} placeholder="e.g. 8" style={inputStyle} />
+            </label>
+            <label>
+              <span style={labelStyle}>Max Age <span style={{ color: 'var(--muted)', fontWeight: 400 }}>(optional)</span></span>
+              <input type="number" min={1} max={99} value={ageMax ?? ''} onChange={e => setAgeMax(e.target.value ? Number(e.target.value) : null)} placeholder="e.g. 18" style={inputStyle} />
+            </label>
           </div>
         </div>
-        <label>
-          <span style={labelStyle}>YouTube Video <span style={{ color: 'var(--muted)', fontWeight: 400 }}>(optional)</span></span>
-          <input
-            type="text"
-            value={youtubeVideoId}
-            onChange={e => setYoutubeVideoId(e.target.value)}
-            placeholder="https://youtu.be/dQw4w9WgXcQ  or  dQw4w9WgXcQ"
-            style={inputStyle}
-          />
-          <p style={{ fontSize: '0.7rem', color: 'var(--muted)', marginTop: '6px' }}>
-            Paste a YouTube URL or the 11-character video ID. Leave blank to hide the video player.
-          </p>
-        </label>
+      )}
+
+      {/* ── Images ── */}
+      <div style={sectionStyle}>
+        <span style={sectionLabel}>Images</span>
+
+        {/* Audition with connected show: show inherited previews, no upload */}
+        {is(['audition']) && parentShowId ? (
+          <div style={{ display: 'flex', gap: '16px', alignItems: 'center', padding: '14px', background: 'rgba(255,255,255,0.02)', border: '1px solid var(--border)', borderRadius: '2px' }}>
+            {imagePreview && (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img src={imagePreview} alt="portrait" style={{ width: '36px', height: '54px', objectFit: 'cover', borderRadius: '2px', flexShrink: 0 }} />
+            )}
+            {imageWidePreview && (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img src={imageWidePreview} alt="wide" style={{ width: '72px', height: '40px', objectFit: 'cover', borderRadius: '2px', flexShrink: 0 }} />
+            )}
+            <p style={{ fontSize: '0.78rem', color: 'var(--muted)' }}>
+              Using images from connected show.
+            </p>
+          </div>
+        ) : (
+          <>
+            <div style={{ marginBottom: '14px' }}>
+              <span style={labelStyle}>Portrait — 2:3 ratio · 1200 × 1800 px</span>
+              <label style={{ display: 'flex', alignItems: 'center', gap: '16px', border: '1px dashed var(--border)', borderRadius: '2px', padding: '14px', cursor: 'pointer', background: 'rgba(255,255,255,0.02)' }}>
+                <input type="file" accept="image/*" onChange={handleImageChange} style={{ display: 'none' }} />
+                {imagePreview ? (
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <img src={imagePreview} alt="preview" style={{ width: '36px', height: '54px', objectFit: 'cover', borderRadius: '2px' }} />
+                ) : (
+                  <div style={{ width: '36px', height: '54px', background: 'rgba(255,255,255,0.05)', borderRadius: '2px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                    <span style={{ fontSize: '1.2rem', opacity: 0.4 }}>+</span>
+                  </div>
+                )}
+                <div>
+                  <p style={{ fontSize: '0.8rem', color: 'var(--warm-white)', marginBottom: '3px' }}>
+                    {imageFile ? imageFile.name : imagePreview ? 'Click to replace' : 'Click to upload portrait image'}
+                  </p>
+                  <p style={{ fontSize: '0.7rem', color: 'var(--muted)' }}>JPG, PNG, WebP · portrait orientation</p>
+                </div>
+              </label>
+            </div>
+            <div>
+              <span style={labelStyle}>Wide — 16:9 ratio · 1920 × 1080 px</span>
+              <label style={{ display: 'flex', alignItems: 'center', gap: '16px', border: '1px dashed var(--border)', borderRadius: '2px', padding: '14px', cursor: 'pointer', background: 'rgba(255,255,255,0.02)' }}>
+                <input type="file" accept="image/*" onChange={handleImageWideChange} style={{ display: 'none' }} />
+                {imageWidePreview ? (
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <img src={imageWidePreview} alt="preview" style={{ width: '72px', height: '40px', objectFit: 'cover', borderRadius: '2px' }} />
+                ) : (
+                  <div style={{ width: '72px', height: '40px', background: 'rgba(255,255,255,0.05)', borderRadius: '2px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                    <span style={{ fontSize: '1.2rem', opacity: 0.4 }}>+</span>
+                  </div>
+                )}
+                <div>
+                  <p style={{ fontSize: '0.8rem', color: 'var(--warm-white)', marginBottom: '3px' }}>
+                    {imageWideFile ? imageWideFile.name : imageWidePreview ? 'Click to replace' : 'Click to upload wide image'}
+                  </p>
+                  <p style={{ fontSize: '0.7rem', color: 'var(--muted)' }}>JPG, PNG, WebP · landscape orientation</p>
+                </div>
+              </label>
+            </div>
+          </>
+        )}
       </div>
 
-      {/* CTA */}
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px', marginBottom: '24px' }}>
-        <label>
-          <span style={labelStyle}>CTA Button Label</span>
-          <input type="text" value={ctaLabel} onChange={e => setCtaLabel(e.target.value)} placeholder="Get Tickets" style={inputStyle} />
-        </label>
-        <label>
-          <span style={labelStyle}>CTA Link</span>
-          <input type="text" value={ctaUrl} onChange={e => setCtaUrl(e.target.value)} placeholder="/tickets" style={inputStyle} />
-        </label>
-      </div>
+      {/* ── Featured (show, camp, event) ── */}
+      {is(['show', 'camp', 'event']) && (
+        <div style={sectionStyle}>
+          <span style={sectionLabel}>Homepage Display</span>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
+            <Toggle on={featured} onChange={setFeatured} />
+            <div>
+              <p style={{ fontSize: '0.82rem', color: 'var(--warm-white)', marginBottom: '1px' }}>Featured</p>
+              <p style={{ fontSize: '0.7rem', color: 'var(--muted)' }}>Displays as the featured event on the home page</p>
+            </div>
+          </div>
+        </div>
+      )}
 
-      {/* Registration Fields — audition, camp, workshop */}
-      {['audition', 'camp', 'workshop'].includes(eventType) && (
-        <div style={{ marginBottom: '20px' }}>
-          <span style={labelStyle}>Registration Form Fields</span>
-          {[
-            { label: 'Ask for grade in school', state: showGrade, set: setShowGrade },
-            { label: 'Allow headshot / resume upload', state: showHeadshot, set: setShowHeadshot },
-          ].map(({ label, state, set }) => (
-            <div key={label} style={{ display: 'flex', alignItems: 'center', gap: '12px', marginTop: '12px', cursor: 'pointer' }}
+      {/* ── CTA (show, camp, workshop, event) ── */}
+      {is(['show', 'camp', 'workshop', 'event']) && (
+        <div style={sectionStyle}>
+          <span style={sectionLabel}>{eventType === 'show' ? 'Tickets' : 'Call to Action'}</span>
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
+            <label>
+              <span style={labelStyle}>Button Label</span>
+              <input type="text" value={ctaLabel} onChange={e => setCtaLabel(e.target.value)} placeholder={eventType === 'show' ? 'Get Tickets' : 'Register Now'} style={inputStyle} />
+            </label>
+            <label>
+              <span style={labelStyle}>Link</span>
+              <input type="text" value={ctaUrl} onChange={e => setCtaUrl(e.target.value)} placeholder="/tickets" style={inputStyle} />
+            </label>
+          </div>
+        </div>
+      )}
+
+      {/* ── Registration Form Fields (audition, camp, workshop) ── */}
+      {is(['audition', 'camp', 'workshop']) && (
+        <div style={sectionStyle}>
+          <span style={sectionLabel}>Registration Form Fields</span>
+          {([
+            { label: 'Ask for grade in school',    state: showGrade,    set: setShowGrade    },
+            { label: 'Require headshot upload',    state: showHeadshot, set: setShowHeadshot },
+            { label: 'Require résumé upload',      state: showResume,   set: setShowResume   },
+          ] as { label: string; state: boolean; set: (v: boolean) => void }[]).map(({ label, state, set }) => (
+            <div key={label} style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '12px', cursor: 'pointer' }}
               onClick={() => set(!state)}
             >
               <Toggle on={state} onChange={set} />
@@ -376,9 +474,38 @@ export default function EventDetailsManager({ showId, slug, show }: Props) {
         </div>
       )}
 
-      {error && <p style={{ color: 'var(--rose)', fontSize: '0.8rem', marginBottom: '12px' }}>{error}</p>}
+      {/* ── Past Productions (show only) ── */}
+      {is(['show']) && (
+        <div style={sectionStyle}>
+          <span style={sectionLabel}>Past Productions</span>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '14px', marginBottom: '16px', cursor: 'pointer' }}
+            onClick={() => setPastShowsVisible(v => !v)}
+          >
+            <Toggle on={pastShowsVisible} onChange={setPastShowsVisible} />
+            <div>
+              <p style={{ fontSize: '0.82rem', color: 'var(--warm-white)', marginBottom: '1px' }}>Show in past productions</p>
+              <p style={{ fontSize: '0.7rem', color: 'var(--muted)' }}>Appears in the Past Productions archive</p>
+            </div>
+          </div>
+          <label>
+            <span style={labelStyle}>YouTube Video <span style={{ color: 'var(--muted)', fontWeight: 400 }}>(optional)</span></span>
+            <input
+              type="text"
+              value={youtubeVideoId}
+              onChange={e => setYoutubeVideoId(e.target.value)}
+              placeholder="https://youtu.be/dQw4w9WgXcQ  or  dQw4w9WgXcQ"
+              style={inputStyle}
+            />
+            <p style={{ fontSize: '0.7rem', color: 'var(--muted)', marginTop: '6px' }}>
+              Paste a YouTube URL or the 11-character video ID.
+            </p>
+          </label>
+        </div>
+      )}
 
-      <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+      {error && <p style={{ color: 'var(--rose)', fontSize: '0.8rem', marginTop: '20px' }}>{error}</p>}
+
+      <div style={{ display: 'flex', alignItems: 'center', gap: '16px', marginTop: '24px' }}>
         <button
           onClick={handleSave}
           disabled={isPending}

@@ -1,22 +1,41 @@
 import { createClient } from '@/lib/supabase/server'
 import Link from 'next/link'
+import EventRowActions from './EventRowActions'
+
+const TYPE_COLORS: Record<string, string> = {
+  show:     'var(--teal)',
+  audition: 'var(--gold)',
+  camp:     'var(--rose)',
+  workshop: 'var(--amber)',
+  event:    'var(--muted)',
+}
 
 const STATUS_STYLES: Record<string, { color: string; border: string }> = {
-  draft:  { color: 'var(--muted)',      border: 'rgba(160,160,181,0.3)' },
-  active: { color: 'var(--gold)',       border: 'rgba(212,168,83,0.4)'  },
+  draft:  { color: 'var(--muted)',      border: 'rgba(160,160,181,0.3)'  },
+  active: { color: 'var(--gold)',       border: 'rgba(212,168,83,0.4)'   },
   closed: { color: 'var(--muted-dim)',  border: 'rgba(160,160,181,0.15)' },
 }
 
-export default async function ShowsPage() {
+export default async function EventsPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ archived?: string }>
+}) {
+  const { archived: showArchived } = await searchParams
+  const includeArchived = showArchived === '1'
+
   const supabase = await createClient()
-  const { data: shows } = await supabase
+  const query = supabase
     .from('shows')
-    .select('id, slug, title, audition_type, age_min, age_max, status')
-    .order('created_at', { ascending: false })
+    .select('id, slug, title, event_type, start_date, status, archived')
+    .order('start_date', { ascending: false })
+
+  const { data: shows } = includeArchived
+    ? await query
+    : await query.eq('archived', false)
 
   return (
     <div style={{ maxWidth: '900px' }}>
-      {/* Header */}
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '40px' }}>
         <div>
           <p style={{ fontSize: '0.65rem', letterSpacing: '0.3em', textTransform: 'uppercase', color: 'var(--gold)', marginBottom: '8px' }}>
@@ -24,78 +43,92 @@ export default async function ShowsPage() {
           </p>
           <h1 style={{ fontFamily: "'Playfair Display', serif", fontSize: '2rem', fontWeight: 700 }}>Events</h1>
         </div>
-        <Link href="/admin/events/new" className="btn-primary">
-          <span>New Event</span>
-        </Link>
+        <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
+          <Link
+            href={includeArchived ? '/admin/events' : '/admin/events?archived=1'}
+            style={{ fontSize: '0.68rem', letterSpacing: '0.1em', textTransform: 'uppercase', color: includeArchived ? 'var(--gold)' : 'var(--muted)', textDecoration: 'none' }}
+          >
+            {includeArchived ? 'Hide Archived' : 'Show Archived'}
+          </Link>
+          <Link href="/admin/events/new" className="btn-primary">
+            <span>New Event</span>
+          </Link>
+        </div>
       </div>
 
-      {/* Table */}
       {shows && shows.length > 0 ? (
         <div style={{ border: '1px solid var(--border)', borderRadius: '4px', overflow: 'hidden' }}>
-          {/* Table header */}
           <div style={{
             display: 'grid',
-            gridTemplateColumns: '1fr 140px 120px 100px 120px',
-            gap: '0',
+            gridTemplateColumns: '1fr 120px 140px 100px 200px',
             background: 'var(--layer)',
             borderBottom: '1px solid var(--border)',
             padding: '12px 24px',
           }}>
-            {['Show', 'Audition Type', 'Age Range', 'Status', ''].map(col => (
+            {['Title', 'Type', 'Date', 'Status', ''].map(col => (
               <span key={col} style={{ fontSize: '0.6rem', letterSpacing: '0.2em', textTransform: 'uppercase', color: 'var(--muted)' }}>
                 {col}
               </span>
             ))}
           </div>
 
-          {/* Rows */}
           {shows.map((show, i) => {
-            const badge = STATUS_STYLES[show.status] ?? STATUS_STYLES.draft
-            const isLast = i === shows.length - 1
+            const statusBadge = STATUS_STYLES[show.status] ?? STATUS_STYLES.draft
+            const typeColor   = TYPE_COLORS[show.event_type] ?? 'var(--muted)'
+            const isLast      = i === shows.length - 1
+            const dateStr     = show.start_date
+              ? new Date(show.start_date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric', timeZone: 'UTC' })
+              : '—'
             return (
               <div key={show.id} style={{
                 display: 'grid',
-                gridTemplateColumns: '1fr 140px 120px 100px 120px',
-                gap: '0',
+                gridTemplateColumns: '1fr 120px 140px 100px 200px',
                 padding: '18px 24px',
                 alignItems: 'center',
                 borderBottom: isLast ? 'none' : '1px solid var(--border)',
-                background: 'transparent',
-              }}
-              >
-                <p style={{ fontWeight: 500, fontSize: '0.9rem' }}>{show.title}</p>
-                <p style={{ fontSize: '0.78rem', color: 'var(--muted)', textTransform: 'capitalize' }}>{show.audition_type}</p>
-                <p style={{ fontSize: '0.78rem', color: 'var(--muted)' }}>
-                  {show.age_min && show.age_max ? `${show.age_min}–${show.age_max}` : show.age_min ? `${show.age_min}+` : '—'}
+                opacity: show.archived ? 0.5 : 1,
+              }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                  <p style={{ fontWeight: 500, fontSize: '0.9rem' }}>{show.title}</p>
+                  {show.archived && (
+                    <span style={{ fontSize: '0.55rem', letterSpacing: '0.2em', textTransform: 'uppercase', color: 'var(--muted)', border: '1px solid var(--border)', borderRadius: '2px', padding: '2px 6px' }}>
+                      Archived
+                    </span>
+                  )}
+                </div>
+                <p style={{ fontSize: '0.72rem', color: typeColor, textTransform: 'capitalize', fontWeight: 500 }}>
+                  {show.event_type}
                 </p>
+                <p style={{ fontSize: '0.78rem', color: 'var(--muted)' }}>{dateStr}</p>
                 <span style={{
                   display: 'inline-block',
                   padding: '4px 10px',
-                  border: `1px solid ${badge.border}`,
+                  border: `1px solid ${statusBadge.border}`,
                   borderRadius: '2px',
                   fontSize: '0.6rem',
                   letterSpacing: '0.15em',
                   textTransform: 'uppercase',
-                  color: badge.color,
+                  color: statusBadge.color,
                 }}>
                   {show.status}
                 </span>
-                <div style={{ textAlign: 'right' }}>
+                <div style={{ display: 'flex', gap: '16px', justifyContent: 'flex-end', alignItems: 'center' }}>
                   <Link href={`/admin/events/${show.slug}`} style={{
-                    fontSize: '0.72rem',
+                    fontSize: '0.68rem',
                     color: 'var(--gold)',
                     textDecoration: 'none',
                     letterSpacing: '0.1em',
+                    textTransform: 'uppercase',
                   }}>
-                    Manage →
+                    Manage
                   </Link>
+                  <EventRowActions id={show.id} archived={show.archived} />
                 </div>
               </div>
             )
           })}
         </div>
       ) : (
-        /* Empty state */
         <div style={{
           border: '1px solid var(--border)',
           borderRadius: '4px',
@@ -107,7 +140,7 @@ export default async function ShowsPage() {
             No events yet
           </p>
           <p style={{ color: 'var(--muted)', fontSize: '0.85rem', marginBottom: '32px' }}>
-            Create your first event to start accepting audition registrations.
+            Create your first event to get started.
           </p>
           <Link href="/admin/events/new" className="btn-primary">
             <span>Create First Event</span>

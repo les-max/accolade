@@ -2,8 +2,9 @@
 
 import { useState, useTransition } from 'react'
 import { addFamilyMember, deleteFamilyMember, updateFamilyMember, updateFamilyContact } from './actions'
+import { computeAge } from '@/lib/utils/age'
 
-type Member = { id: string; name: string; age: number | null; grade: string | null; gender: string | null }
+type Member = { id: string; name: string; birthdate: string | null; age: number | null; grade: string | null; gender: string | null }
 type Family = { id: string; parent_name: string; email: string; phone: string | null; gender: string | null; spouse_name: string | null; spouse_email: string | null; spouse_phone: string | null; spouse_gender: string | null }
 
 function GenderSelect({ name, defaultValue }: { name: string; defaultValue?: string | null }) {
@@ -61,14 +62,14 @@ function MemberRow({ member, onDelete }: { member: Member; onDelete: (id: string
   if (editing) {
     return (
       <form onSubmit={handleUpdate} style={{ padding: '16px 24px', background: 'rgba(212,168,83,0.03)', borderBottom: '1px solid var(--border)' }}>
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 80px 100px', gap: '12px', marginBottom: '12px' }}>
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 100px', gap: '12px', marginBottom: '12px' }}>
           <label>
             <span style={labelStyle}>Name</span>
             <input name="name" type="text" required defaultValue={member.name} style={inputStyle} />
           </label>
           <label>
-            <span style={labelStyle}>Age</span>
-            <input name="age" type="number" min={1} max={99} defaultValue={member.age ?? ''} style={inputStyle} />
+            <span style={labelStyle}>Birthdate</span>
+            <input name="birthdate" type="date" defaultValue={member.birthdate ?? ''} style={inputStyle} />
           </label>
           <label>
             <span style={labelStyle}>Grade</span>
@@ -96,7 +97,13 @@ function MemberRow({ member, onDelete }: { member: Member; onDelete: (id: string
       <div>
         <p style={{ fontSize: '0.9rem', fontWeight: 500 }}>{member.name}</p>
         <p style={{ fontSize: '0.75rem', color: 'var(--muted)', marginTop: '2px' }}>
-          {[member.gender, member.age ? `Age ${member.age}` : null, member.grade].filter(Boolean).map((v, i) => i === 0 && member.gender ? (v as string).charAt(0).toUpperCase() + (v as string).slice(1) : v).join(' · ') || 'No details added'}
+          {(() => {
+            const age = member.birthdate ? computeAge(member.birthdate) : member.age
+            return [member.gender, age != null ? `Age ${age}` : null, member.grade]
+              .filter(Boolean)
+              .map((v, i) => i === 0 && member.gender ? (v as string).charAt(0).toUpperCase() + (v as string).slice(1) : v)
+              .join(' · ') || 'No details added'
+          })()}
         </p>
       </div>
       <div style={{ display: 'flex', gap: '8px' }}>
@@ -111,7 +118,7 @@ function MemberRow({ member, onDelete }: { member: Member; onDelete: (id: string
   )
 }
 
-export default function FamilyManager({ family, members }: { family: Family; members: Member[] }) {
+export default function FamilyManager({ family, members, showGradePrompt }: { family: Family; members: Member[]; showGradePrompt: boolean }) {
   const [showAddForm, setShowAddForm] = useState(false)
   const [editingContact, setEditingContact] = useState(false)
   const [isPending, startTransition] = useTransition()
@@ -142,6 +149,15 @@ export default function FamilyManager({ family, members }: { family: Family; mem
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '32px' }}>
+
+      {showGradePrompt && members.length > 0 && (
+        <div style={{ padding: '16px 20px', background: 'rgba(212,168,83,0.06)', border: '1px solid rgba(212,168,83,0.25)', borderRadius: '4px' }}>
+          <p style={{ fontSize: '0.75rem', fontWeight: 600, color: 'var(--gold)', letterSpacing: '0.05em', marginBottom: '4px' }}>Time to check grade levels</p>
+          <p style={{ fontSize: '0.82rem', color: 'var(--muted)', lineHeight: 1.6 }}>
+            A new school year is starting. Double-check that your kids' grade levels are still accurate before audition season.
+          </p>
+        </div>
+      )}
 
       {/* Contact info */}
       <div style={{ background: 'var(--layer)', border: '1px solid var(--border)', borderRadius: '4px', overflow: 'hidden' }}>
@@ -261,14 +277,14 @@ export default function FamilyManager({ family, members }: { family: Family; mem
         {showAddForm && (
           <form onSubmit={handleAdd} style={{ padding: '20px 24px', background: 'rgba(212,168,83,0.03)', borderTop: members.length > 0 ? '1px solid var(--border)' : 'none' }}>
             <p style={{ fontSize: '0.62rem', letterSpacing: '0.2em', textTransform: 'uppercase', color: 'var(--gold)', marginBottom: '16px' }}>Add Child</p>
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 80px 100px', gap: '12px', marginBottom: '12px' }}>
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 100px', gap: '12px', marginBottom: '12px' }}>
               <label>
                 <span style={labelStyle}>Name</span>
                 <input name="name" type="text" required placeholder="Child's full name" style={inputStyle} />
               </label>
               <label>
-                <span style={labelStyle}>Age</span>
-                <input name="age" type="number" min={1} max={99} placeholder="e.g. 12" style={inputStyle} />
+                <span style={labelStyle}>Birthdate</span>
+                <input name="birthdate" type="date" style={inputStyle} />
               </label>
               <label>
                 <span style={labelStyle}>Grade</span>

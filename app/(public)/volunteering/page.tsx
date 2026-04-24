@@ -11,25 +11,6 @@ const volunteerRoles = [
   { category: 'Production Support', color: 'var(--teal)', roles: ['Publicity & Marketing', 'Photography', 'Videography', 'Program Design', 'Concessions'] },
 ];
 
-const openPositions = [
-  {
-    show: 'Newsies',
-    season: '2025–26 Season',
-    roles: [
-      { title: 'Stage Manager', category: 'On Stage', color: 'var(--gold)' },
-      { title: 'Spotlight Operator', category: 'Technical', color: 'var(--teal)' },
-      { title: 'Set Construction', category: 'Technical', color: 'var(--teal)' },
-      { title: 'Set Painting', category: 'Technical', color: 'var(--teal)' },
-      { title: 'Wardrobe Crew', category: 'Costumes & Design', color: 'var(--rose)' },
-      { title: 'Hair & Makeup', category: 'Costumes & Design', color: 'var(--rose)' },
-      { title: 'House Manager', category: 'Front of House', color: 'var(--amber)' },
-      { title: 'Usher', category: 'Front of House', color: 'var(--amber)' },
-      { title: 'Box Office', category: 'Front of House', color: 'var(--amber)' },
-      { title: 'Photography', category: 'Production Support', color: 'var(--teal)' },
-      { title: 'Concessions', category: 'Production Support', color: 'var(--teal)' },
-    ],
-  },
-];
 
 const photoPlaceholders = [
   { bg: 'linear-gradient(160deg, #1a2a3e, #0d1a2a)', label: 'Set Construction' },
@@ -114,13 +95,8 @@ export default function VolunteeringPage() {
                     background: cell.bg,
                     borderRadius: '4px',
                     overflow: 'hidden',
-                    position: 'relative',
                   }}
-                >
-                  <div style={{ position: 'absolute', bottom: '10px', left: '12px' }}>
-                    <p style={{ fontSize: '0.55rem', letterSpacing: '0.2em', textTransform: 'uppercase', color: 'rgba(255,255,255,0.35)', fontWeight: 500 }}>{cell.label}</p>
-                  </div>
-                </div>
+                />
               ))}
             </div>
           ))}
@@ -136,7 +112,7 @@ export default function VolunteeringPage() {
               <div key={category} style={{ background: 'var(--layer)', border: '1px solid var(--border)', borderRadius: '4px', padding: '32px' }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '24px' }}>
                   <div style={{ width: '3px', height: '28px', background: color, flexShrink: 0 }} />
-                  <h3 style={{ fontFamily: "'Playfair Display', serif", fontSize: '1.2rem', fontWeight: 700 }}>{category}</h3>
+                  <h3 style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: '1.6rem' }}>{category}</h3>
                 </div>
                 <ul style={{ listStyle: 'none', padding: 0, margin: 0 }}>
                   {roles.map((role) => (
@@ -152,35 +128,29 @@ export default function VolunteeringPage() {
         </div>
       </section>
 
-      {/* ── Claim a Role Form ─────────────────────────────── */}
-      <section style={{ padding: 'clamp(40px, 8vw, 80px) clamp(20px, 5vw, 48px)', background: 'var(--layer)', borderTop: '1px solid var(--border)', borderBottom: '1px solid var(--border)' }}>
+      {/* ── Ready to Help Out ─────────────────────────────── */}
+      <section style={{ padding: 'clamp(40px, 8vw, 80px) clamp(20px, 5vw, 48px) clamp(60px, 12vw, 120px)', background: 'var(--layer)', borderTop: '1px solid var(--border)', borderBottom: '1px solid var(--border)' }}>
         <div className="g-2" style={{ maxWidth: '1200px', margin: '0 auto', display: 'grid', gap: '80px', alignItems: 'start' }}>
           <div>
-            <p className="section-label">Claim a Role</p>
+            <p className="section-label">Ready to Help Out?</p>
             <h2 style={{ fontFamily: "'Playfair Display', serif", fontSize: 'clamp(2rem, 3vw, 2.8rem)', fontWeight: 900, lineHeight: 1.1, marginBottom: '20px' }}>
               Find your place<br />on our crew
             </h2>
             <p style={{ color: 'var(--muted)', lineHeight: 1.75, fontSize: '0.9rem' }}>
-              Tell us which show you&apos;re interested in and the role you&apos;d like to fill. Our production team will reach out with details and scheduling.
+              Not sure which role fits you yet? Fill this out and we&apos;ll add you to our volunteer roster. You&apos;ll hear from us when a show needs your skills.
             </p>
           </div>
 
-          <form
-            action={`mailto:info@accoladetheatre.org`}
-            method="POST"
-            encType="text/plain"
-            style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}
-          >
+          <form action="mailto:info@accoladetheatre.org" method="POST" style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
             {[
-              { label: 'Full Name', name: 'name', type: 'text', placeholder: 'Your name' },
-              { label: 'Email Address', name: 'email', type: 'email', placeholder: 'your@email.com' },
-              { label: 'Phone', name: 'phone', type: 'tel', placeholder: '(555) 555-5555' },
-            ].map(({ label, name, type, placeholder }) => (
-              <div key={name}>
+              { label: 'Full Name', type: 'text', placeholder: 'Your name' },
+              { label: 'Email Address', type: 'email', placeholder: 'your@email.com' },
+              { label: 'Phone (optional)', type: 'tel', placeholder: '(555) 555-5555' },
+            ].map(({ label, type, placeholder }) => (
+              <div key={label}>
                 <label style={{ display: 'block', fontSize: '0.72rem', letterSpacing: '0.18em', textTransform: 'uppercase', color: 'var(--gold)', marginBottom: '8px', fontWeight: 600 }}>{label}</label>
                 <input
                   type={type}
-                  name={name}
                   placeholder={placeholder}
                   style={{
                     width: '100%',
@@ -199,138 +169,13 @@ export default function VolunteeringPage() {
             ))}
 
             <div>
-              <label style={{ display: 'block', fontSize: '0.72rem', letterSpacing: '0.18em', textTransform: 'uppercase', color: 'var(--gold)', marginBottom: '8px', fontWeight: 600 }}>Show</label>
-              <select
-                name="show"
-                defaultValue=""
-                style={{
-                  width: '100%',
-                  background: 'var(--deep)',
-                  border: '1px solid var(--border)',
-                  borderRadius: '2px',
-                  padding: '14px 16px',
-                  color: 'var(--warm-white)',
-                  fontSize: '0.9rem',
-                  outline: 'none',
-                  fontFamily: 'Inter, sans-serif',
-                  appearance: 'none',
-                  cursor: 'pointer',
-                }}
-              >
-                <option value="" disabled>Select a show</option>
-                {openPositions.map(({ show, season }) => (
-                  <option key={show} value={show}>{show} — {season}</option>
-                ))}
-              </select>
-            </div>
-
-            <div>
-              <label style={{ display: 'block', fontSize: '0.72rem', letterSpacing: '0.18em', textTransform: 'uppercase', color: 'var(--gold)', marginBottom: '8px', fontWeight: 600 }}>Volunteer Position</label>
-              <select
-                name="position"
-                defaultValue=""
-                style={{
-                  width: '100%',
-                  background: 'var(--deep)',
-                  border: '1px solid var(--border)',
-                  borderRadius: '2px',
-                  padding: '14px 16px',
-                  color: 'var(--warm-white)',
-                  fontSize: '0.9rem',
-                  outline: 'none',
-                  fontFamily: 'Inter, sans-serif',
-                  appearance: 'none',
-                  cursor: 'pointer',
-                }}
-              >
-                <option value="" disabled>Select a position</option>
-                {volunteerRoles.map(({ category, roles }) => (
-                  <optgroup key={category} label={category}>
-                    {roles.map((role) => (
-                      <option key={role} value={role}>{role}</option>
-                    ))}
-                  </optgroup>
-                ))}
-              </select>
-            </div>
-
-            <button type="submit" className="btn-primary" style={{ alignSelf: 'flex-start', marginTop: '4px' }}>
-              <span>Express Interest</span>
-            </button>
-            <p style={{ fontSize: '0.75rem', color: 'var(--muted)' }}>
-              We&apos;ll follow up within a week. Questions? Email{' '}
-              <a href="mailto:info@accoladetheatre.org" style={{ color: 'var(--gold)', textDecoration: 'none' }}>info@accoladetheatre.org</a>
-            </p>
-          </form>
-        </div>
-      </section>
-
-      {/* ── How It Works ──────────────────────────── */}
-      <section style={{ padding: 'clamp(40px, 8vw, 80px) clamp(20px, 5vw, 48px)', borderBottom: '1px solid var(--border)' }}>
-        <div style={{ maxWidth: '1200px', margin: '0 auto' }}>
-          <p className="section-label">How It Works</p>
-          <div className="g-4" style={{ display: 'grid', gap: '40px' }}>
-            {[
-              { step: '01', title: 'Express Interest', body: 'Click a role above or fill out the general signup form. Tell us your availability and what you love doing.' },
-              { step: '02', title: 'Get Matched', body: 'Our production team reaches out when a show needs crew in your area.' },
-              { step: '03', title: 'Show Up', body: 'Attend the production meetings and rehearsals relevant to your role. Most crew joins 2–4 weeks before opening.' },
-              { step: '04', title: 'Take a Bow', body: 'Your name goes in the playbill and you get to be part of something the whole community is proud of.' },
-            ].map(({ step, title, body }) => (
-              <div key={step}>
-                <div style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: '4rem', color: 'rgba(61,158,140,0.15)', lineHeight: 1, marginBottom: '16px' }}>{step}</div>
-                <h3 style={{ fontFamily: "'Playfair Display', serif", fontSize: '1.2rem', fontWeight: 700, marginBottom: '10px' }}>{title}</h3>
-                <p style={{ color: 'var(--muted)', lineHeight: 1.7, fontSize: '0.85rem' }}>{body}</p>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* ── Signup Form ────────────────────────────── */}
-      <section style={{ padding: 'clamp(48px, 10vw, 100px) clamp(20px, 5vw, 48px) clamp(60px, 12vw, 120px)' }}>
-        <div style={{ maxWidth: '640px', margin: '0 auto' }}>
-          <p className="section-label">General Signup</p>
-          <h2 style={{ fontFamily: "'Playfair Display', serif", fontSize: 'clamp(2rem, 3vw, 3rem)', fontWeight: 900, marginBottom: '16px' }}>
-            Ready to help out?
-          </h2>
-          <p style={{ color: 'var(--muted)', lineHeight: 1.75, marginBottom: '40px' }}>
-            Not sure which role fits you yet? Fill this out and we&apos;ll add you to our volunteer roster. You&apos;ll hear from us when a show needs your skills.
-          </p>
-
-          <form action="mailto:info@accoladetheatre.org" method="POST" style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
-            {[
-              { label: 'Full Name', type: 'text', placeholder: 'Your name' },
-              { label: 'Email Address', type: 'email', placeholder: 'your@email.com' },
-              { label: 'Phone (optional)', type: 'tel', placeholder: '(555) 555-5555' },
-            ].map(({ label, type, placeholder }) => (
-              <div key={label}>
-                <label style={{ display: 'block', fontSize: '0.72rem', letterSpacing: '0.18em', textTransform: 'uppercase', color: 'var(--gold)', marginBottom: '8px', fontWeight: 600 }}>{label}</label>
-                <input
-                  type={type}
-                  placeholder={placeholder}
-                  style={{
-                    width: '100%',
-                    background: 'var(--layer)',
-                    border: '1px solid var(--border)',
-                    borderRadius: '2px',
-                    padding: '14px 16px',
-                    color: 'var(--warm-white)',
-                    fontSize: '0.9rem',
-                    outline: 'none',
-                    fontFamily: 'Inter, sans-serif',
-                  }}
-                />
-              </div>
-            ))}
-
-            <div>
               <label style={{ display: 'block', fontSize: '0.72rem', letterSpacing: '0.18em', textTransform: 'uppercase', color: 'var(--gold)', marginBottom: '8px', fontWeight: 600 }}>Areas of Interest</label>
               <textarea
                 placeholder="Tell us what you're interested in helping with — stage management, costumes, lighting, front of house, etc."
                 rows={4}
                 style={{
                   width: '100%',
-                  background: 'var(--layer)',
+                  background: 'var(--deep)',
                   border: '1px solid var(--border)',
                   borderRadius: '2px',
                   padding: '14px 16px',
@@ -339,11 +184,12 @@ export default function VolunteeringPage() {
                   outline: 'none',
                   fontFamily: 'Inter, sans-serif',
                   resize: 'vertical',
+                  boxSizing: 'border-box',
                 }}
               />
             </div>
 
-            <button type="submit" className="btn-primary" style={{ alignSelf: 'flex-start' }}>
+            <button type="submit" className="btn-primary" style={{ alignSelf: 'flex-start', marginTop: '4px' }}>
               <span>Submit Interest Form</span>
             </button>
             <p style={{ fontSize: '0.75rem', color: 'var(--muted)' }}>

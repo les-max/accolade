@@ -3,6 +3,24 @@
 import { createClient } from '@/lib/supabase/server'
 import { revalidatePath } from 'next/cache'
 
+export async function addPerformance(showId: string, slug: string, formData: FormData) {
+  const supabase = await createClient()
+  const type       = formData.get('type') as string
+  const date       = formData.get('date') as string
+  const start_time = formData.get('start_time') as string || null
+  const label      = formData.get('label') as string || null
+  const { error } = await supabase.from('show_performances').insert({ show_id: showId, type, date, start_time, label })
+  if (error) throw new Error(error.message)
+  revalidatePath(`/admin/events/${slug}`)
+}
+
+export async function deletePerformance(id: string, slug: string) {
+  const supabase = await createClient()
+  const { error } = await supabase.from('show_performances').delete().eq('id', id)
+  if (error) throw new Error(error.message)
+  revalidatePath(`/admin/events/${slug}`)
+}
+
 export async function addSlot(showId: string, formData: FormData) {
   const supabase = await createClient()
 
@@ -23,6 +41,34 @@ export async function addSlot(showId: string, formData: FormData) {
 
   if (error) throw new Error(error.message)
   revalidatePath('/admin/events/[slug]', 'page')
+}
+
+export async function updateSlot(slotId: string, slug: string, formData: FormData) {
+  const supabase = await createClient()
+
+  const label = formData.get('label') as string
+  const start_time = formData.get('start_time') as string || null
+  const end_time = formData.get('end_time') as string || null
+  const capacity = Number(formData.get('capacity')) || 1
+  const waitlist_enabled = formData.get('waitlist_enabled') === 'true'
+
+  const { error } = await supabase.from('audition_slots').update({
+    label,
+    start_time,
+    end_time,
+    capacity,
+    waitlist_enabled,
+  }).eq('id', slotId)
+
+  if (error) throw new Error(error.message)
+  revalidatePath(`/admin/events/${slug}`)
+}
+
+export async function setWaitlistForAllSlots(showId: string, slug: string, waitlist_enabled: boolean) {
+  const supabase = await createClient()
+  const { error } = await supabase.from('audition_slots').update({ waitlist_enabled }).eq('show_id', showId)
+  if (error) throw new Error(error.message)
+  revalidatePath(`/admin/events/${slug}`)
 }
 
 export async function deleteSlot(slotId: string, slug: string) {
@@ -65,7 +111,7 @@ export async function updateShowDetails(
     start_date: string | null
     end_date: string | null
     featured: boolean
-    homepage_visible: boolean
+    parent_show_id?: string | null
     cta_label: string | null
     cta_url: string | null
     show_image: string | null
@@ -77,14 +123,17 @@ export async function updateShowDetails(
     age_max?: number | null
     show_grade?: boolean
     show_headshot_upload?: boolean
+    show_resume_upload?: boolean
+    venue_id?: string | null
+    season?: number | null
   }
 ) {
   const supabase = await createClient()
 
-  const { show_grade, show_headshot_upload, ...coreFields } = fields
+  const { show_grade, show_headshot_upload, show_resume_upload, ...coreFields } = fields
   const update: Record<string, unknown> = { ...coreFields }
 
-  if (show_grade !== undefined || show_headshot_upload !== undefined) {
+  if (show_grade !== undefined || show_headshot_upload !== undefined || show_resume_upload !== undefined) {
     const { data: existing } = await supabase
       .from('shows')
       .select('field_config')
@@ -95,6 +144,7 @@ export async function updateShowDetails(
       ...existingConfig,
       ...(show_grade !== undefined && { show_grade }),
       ...(show_headshot_upload !== undefined && { show_headshot_upload }),
+      ...(show_resume_upload !== undefined && { show_resume_upload }),
     }
   }
 

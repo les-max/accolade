@@ -11,7 +11,7 @@ const navItems = [
   { label: 'Calendar',   href: '/account/calendar' },
 ]
 
-export default function AccountNav({ hasFamily }: { hasFamily: boolean }) {
+export default function AccountNav({ hasFamily, isAdmin }: { hasFamily: boolean; isAdmin: boolean }) {
   const pathname = usePathname()
   const router = useRouter()
 
@@ -65,6 +65,25 @@ export default function AccountNav({ hasFamily }: { hasFamily: boolean }) {
           )
         })}
         </div>
+        {isAdmin && (
+          <Link
+            href="/admin"
+            style={{
+              display: 'inline-block',
+              padding: '18px 20px',
+              fontSize: '0.72rem',
+              letterSpacing: '0.15em',
+              textTransform: 'uppercase',
+              fontWeight: 500,
+              textDecoration: 'none',
+              color: 'var(--rose)',
+              borderBottom: '2px solid transparent',
+              whiteSpace: 'nowrap',
+            }}
+          >
+            Admin
+          </Link>
+        )}
         <button
           onClick={handleSignOut}
           style={{

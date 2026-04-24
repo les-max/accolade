@@ -19,7 +19,7 @@ export async function addFamilyMember(formData: FormData) {
   const { error } = await supabase.from('family_members').insert({
     family_id: family.id,
     name:      formData.get('name') as string,
-    age:       formData.get('age') ? Number(formData.get('age')) : null,
+    birthdate: formData.get('birthdate') as string || null,
     grade:     formData.get('grade') as string || null,
     gender:    formData.get('gender') as string || null,
   })
@@ -33,10 +33,10 @@ export async function updateFamilyMember(memberId: string, formData: FormData) {
   const { supabase } = await getFamily()
 
   const { error } = await supabase.from('family_members').update({
-    name:   formData.get('name') as string,
-    age:    formData.get('age') ? Number(formData.get('age')) : null,
-    grade:  formData.get('grade') as string || null,
-    gender: formData.get('gender') as string || null,
+    name:      formData.get('name') as string,
+    birthdate: formData.get('birthdate') as string || null,
+    grade:     formData.get('grade') as string || null,
+    gender:    formData.get('gender') as string || null,
   }).eq('id', memberId)
 
   if (error) throw new Error(error.message)

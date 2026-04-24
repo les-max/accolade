@@ -91,7 +91,7 @@ export default function TicketsPage() {
             <a href="mailto:info@accoladetheatre.org" className="btn-ghost"><span>Contact for Group Sales</span></a>
           </div>
           <div style={{ background: 'var(--deep)', border: '1px solid var(--border)', borderRadius: '4px', padding: '40px' }}>
-            <h3 style={{ fontFamily: "'Playfair Display', serif", fontSize: '1.4rem', fontWeight: 700, marginBottom: '24px' }}>Group Perks</h3>
+            <h3 style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: '1.8rem', marginBottom: '24px' }}>Group Perks</h3>
             {[
               'Discounted ticket pricing for 10+ guests',
               'Reserved seating blocks',

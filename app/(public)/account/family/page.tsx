@@ -17,6 +17,11 @@ export default async function FamilyPage() {
 
   if (!family) redirect('/account/setup')
 
+  const now = new Date()
+  const month = now.getMonth() + 1
+  const day = now.getDate()
+  const showGradePrompt = (month === 6 && day >= 1) || month === 7 || month === 8
+
   return (
     <section style={{ padding: 'clamp(40px, 8vw, 72px) clamp(20px, 5vw, 48px)' }}>
       <div style={{ maxWidth: '760px', margin: '0 auto' }}>
@@ -26,7 +31,7 @@ export default async function FamilyPage() {
         <h1 style={{ fontFamily: "'Playfair Display', serif", fontSize: 'clamp(1.8rem, 4vw, 2.4rem)', fontWeight: 700, marginBottom: '40px' }}>
           My Family
         </h1>
-        <FamilyManager family={family} members={family.family_members ?? []} />
+        <FamilyManager family={family} members={family.family_members ?? []} showGradePrompt={showGradePrompt} />
       </div>
     </section>
   )

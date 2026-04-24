@@ -124,8 +124,8 @@ export default function PartnersPage() {
                   <span style={{ position: 'absolute', top: '-12px', right: '16px', background: 'var(--gold)', color: 'var(--ink)', fontSize: '0.55rem', letterSpacing: '0.2em', textTransform: 'uppercase', fontWeight: 700, padding: '4px 10px', borderRadius: '2px' }}>Top Level</span>
                 )}
                 <div style={{ width: '3px', height: '28px', background: color, marginBottom: '20px' }} />
-                <h3 style={{ fontFamily: "'Playfair Display', serif", fontSize: '1.4rem', fontWeight: 700, marginBottom: '6px' }}>{name}</h3>
-                <p style={{ fontSize: '1.5rem', fontFamily: "'Playfair Display', serif", fontWeight: 900, color, marginBottom: '24px' }}>{price}</p>
+                <h3 style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: '1.8rem', marginBottom: '6px' }}>{name}</h3>
+                <p style={{ fontSize: '1.8rem', fontFamily: "'Bebas Neue', sans-serif", color, marginBottom: '24px' }}>{price}</p>
                 <ul style={{ listStyle: 'none', padding: 0, margin: '0 0 32px', flex: 1 }}>
                   {benefits.map((b) => (
                     <li key={b} style={{ display: 'flex', alignItems: 'flex-start', gap: '10px', marginBottom: '12px', fontSize: '0.82rem', color: 'var(--muted)', lineHeight: 1.5 }}>

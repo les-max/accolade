@@ -67,6 +67,27 @@ export default async function AuditionRegistrationPage({
     registeredCount: countBySlot[s.id] ?? 0,
   }))
 
+  const { data: { user } } = await supabase.auth.getUser()
+  let family: { id: string; parent_name: string; email: string; phone: string | null } | null = null
+  let familyMembers: { id: string; name: string; birthdate: string | null; age: number | null; grade: string | null }[] = []
+
+  if (user) {
+    const { data: fam } = await supabase
+      .from('families')
+      .select('id, parent_name, email, phone')
+      .eq('user_id', user.id)
+      .single()
+    if (fam) {
+      family = fam
+      const { data: members } = await supabase
+        .from('family_members')
+        .select('id, name, birthdate, age, grade')
+        .eq('family_id', fam.id)
+        .order('name')
+      familyMembers = members ?? []
+    }
+  }
+
   const ageRange = show.age_min && show.age_max
     ? `Ages ${show.age_min}–${show.age_max}`
     : show.age_min ? `Ages ${show.age_min}+` : null
@@ -96,6 +117,8 @@ export default async function AuditionRegistrationPage({
               slots={slots}
               roles={roles ?? []}
               fieldConfig={show.field_config ?? { show_grade: false, show_headshot_upload: false }}
+              family={family ?? undefined}
+              familyMembers={familyMembers}
             />
           )}
         </div>

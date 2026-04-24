@@ -30,7 +30,7 @@ export default function DonatePage() {
               { amount: '$1,000', label: 'Co-sponsors a full production from start to close', color: 'var(--gold)' },
             ].map(({ amount, label, color }) => (
               <div key={amount} style={{ background: 'var(--layer)', border: '1px solid var(--border)', borderRadius: '4px', padding: '32px' }}>
-                <div style={{ fontFamily: "'Playfair Display', serif", fontSize: '2rem', fontWeight: 900, color, marginBottom: '12px' }}>{amount}</div>
+                <div style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: '2.4rem', color, marginBottom: '12px' }}>{amount}</div>
                 <p style={{ color: 'var(--muted)', fontSize: '0.88rem', lineHeight: 1.65 }}>{label}</p>
               </div>
             ))}
@@ -66,7 +66,7 @@ export default function DonatePage() {
               { title: 'Spread the Word', body: 'Tell your friends. Share our shows. Buy an extra ticket for someone who can\'t afford one. Community is the best fundraiser.', href: '/tickets', cta: 'See Shows' },
             ].map(({ title, body, href, cta }) => (
               <div key={title}>
-                <h3 style={{ fontFamily: "'Playfair Display', serif", fontSize: '1.4rem', fontWeight: 700, marginBottom: '16px' }}>{title}</h3>
+                <h3 style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: '1.8rem', marginBottom: '16px' }}>{title}</h3>
                 <p style={{ color: 'var(--muted)', lineHeight: 1.75, marginBottom: '24px', fontSize: '0.88rem' }}>{body}</p>
                 <Link href={href} style={{ fontSize: '0.7rem', letterSpacing: '0.18em', textTransform: 'uppercase', color: 'var(--gold)', textDecoration: 'none', fontWeight: 600 }}>
                   {cta} →

@@ -3,32 +3,29 @@
 ## Quick Wins (no blockers, ready to implement)
 
 ### Homepage
-- [ ] **Stats band under "Now Showing"** — replace inaccurate stats with funny/clever copy. *Waiting on copy from Les.*
+- [x] **Stats band under "Now Showing"** — updated to accurate stats.
 - [ ] **"There's a place here for you" cards** — wire in photos once provided (structure already built, `image: null` in `app/(public)/page.tsx` ~line 204)
 
 ### Current Season Page
-- [ ] **Card title font** → Bebas Neue (match Now Showing cards)
+- [x] **Card title font** → Bebas Neue (match Now Showing cards)
 
 ### Nav
-- [ ] Rename "Shows" → "Upcoming"
-- [ ] "Upcoming" dropdown: Current Season, Auditions, Camps, Workshops, Events
-- [ ] Move "Past Shows" to top-level nav item
-
-### Sponsors Ribbon
-- [ ] Make Greystone logo larger
+- [x] Rename "Shows" → "Upcoming"
+- [x] Move "Past Shows" to top-level nav item
+- [ ] "Upcoming" dropdown: add Camps, Workshops, Events (pages don't exist yet)
 
 ### Auditions Page
-- [ ] Remove title text overlaid on audition card images (titles baked into images)
+- [x] Remove title text overlaid on audition card images (titles baked into images)
 - [ ] Add two buttons per card: "Register to Audition" + "Audition Announcement" (modal)
 - [ ] **Audition Announcement modal**: add rich text field in admin → Audition tab; render in modal on public page
-- [ ] FAQ — update "Is there a fee?": $50/child (first 2), $25/child (3rd+), scholarships available
-- [ ] FAQ — add/update: auditions announced ~30 days prior to audition date
+- [x] FAQ — update "Is there a fee?": $50/child (first 2), $25/child (3rd+), scholarships available
+- [x] FAQ — add/update: auditions announced ~30 days prior to audition date
 - [ ] **"What to Expect" section** — rewrite with new copy. *Waiting on copy from Les.*
 
 ### Volunteer Page
-- [ ] Remove "How it Works" section entirely
-- [ ] Consolidate forms: keep "Ready to help out", move it into "Claim a Role" section, delete the other form
-- [ ] Scrolling photo bento: remove titles/labels from items
+- [x] Remove "How it Works" section entirely
+- [x] Consolidate forms: keep "Ready to help out", move it into "Claim a Role" section, delete the other form
+- [x] Scrolling photo bento: remove titles/labels from items
 - [ ] Bento photos: *waiting on photos from Les*
 
 ### About Page
@@ -45,6 +42,18 @@
 ---
 
 ## Larger Features (plan before building)
+
+### User Portal + Authenticated Features
+Full plan at `notes/plans/user-portal.md`. Four layers — build in order:
+1. **Auth + Roles** (4 levels: User, Organizer, Business, Admin) — blocks everything else
+2. **Portal shell** — dashboard for cast/crew/parents (show info, schedule, signups, payments, orders, photos)
+3. **Show modules** — Volunteer signups (no Stripe needed), then Merch, Tuition, Ticketing (all need Stripe)
+4. **Photographer upload** — full plan at `notes/plans/photographer-photos.md`. Uses Google Drive. Blocked on Resend + Drive API setup.
+
+Open questions before starting: auth provider, account creation flow, photographer login vs. token URL.
+
+### Family Member Invites
+Adult family members (spouse, etc.) get their own account linked to the family. Flow: invite by email → they create account → linked to same family. Requires Resend SMTP setup first, then: `family_invites` table, invite UI in FamilyManager, `/join?token=` page, callback handler.
 
 ### Stripe Payments
 Build in this order: Partner sponsorships → Tuition (tiered: $50 x2, $25 after) → Ticketing → Accolade ads.

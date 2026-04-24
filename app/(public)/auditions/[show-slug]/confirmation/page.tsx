@@ -125,8 +125,8 @@ export default async function ConfirmationPage({
                 <span>Add to Calendar</span>
               </a>
             )}
-            <Link href="/auditions" className="btn-ghost">
-              <span>Back to Auditions</span>
+            <Link href={`/auditions/${slug}`} className="btn-ghost">
+              <span>Back to Registration</span>
             </Link>
           </div>
         </div>

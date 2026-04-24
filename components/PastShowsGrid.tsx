@@ -114,7 +114,7 @@ export default function PastShowsGrid({ shows }: { shows: PastShow[] }) {
                         {show.event_type}
                       </span>
                     )}
-                    <h3 style={{ fontFamily: "'Playfair Display', serif", fontSize: '1.4rem', fontWeight: 700, lineHeight: 1.15, marginBottom: '6px' }}>
+                    <h3 style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: '1.8rem', lineHeight: 1.05, marginBottom: '6px' }}>
                       {show.title}
                     </h3>
                     {show.end_date && (

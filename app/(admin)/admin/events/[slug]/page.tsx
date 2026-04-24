@@ -6,6 +6,7 @@ import RoleManager from './RoleManager'
 import StatusControl from './StatusControl'
 import CustomQuestionsManager from './CustomQuestionsManager'
 import EventDetailsManager from './EventDetailsManager'
+import PerformancesManager from './PerformancesManager'
 
 export default async function ShowDetailPage({
   params,
@@ -19,10 +20,13 @@ export default async function ShowDetailPage({
 
   if (!show) notFound()
 
-  const [{ data: slotsData }, { data: rolesData }, { data: regCounts }] = await Promise.all([
+  const [{ data: slotsData }, { data: rolesData }, { data: regCounts }, { data: performancesData }, { data: venuesData }, { data: parentShowsData }] = await Promise.all([
     supabase.from('audition_slots').select('*').eq('show_id', show.id).order('start_time', { ascending: true }),
     supabase.from('show_roles').select('*').eq('show_id', show.id).order('sort_order', { ascending: true }),
     supabase.from('auditions').select('slot_id').eq('show_id', show.id).eq('status', 'registered'),
+    supabase.from('show_performances').select('id, type, date, start_time, label').eq('show_id', show.id).order('date').order('start_time'),
+    supabase.from('venues').select('id, name, address, city, state').order('name'),
+    supabase.from('shows').select('id, title, show_image, show_image_wide, venue_id, season').eq('event_type', 'show').eq('archived', false).order('title'),
   ])
 
   // Count registrations per slot
@@ -68,44 +72,54 @@ export default async function ShowDetailPage({
               </p>
             )}
           </div>
-          <StatusControl showId={show.id} currentStatus={show.status} slug={slug} />
+          {show.event_type === 'audition' && (
+            <StatusControl showId={show.id} currentStatus={show.status} slug={slug} />
+          )}
         </div>
       </div>
 
       {/* Public link */}
-      <div style={{
-        background: 'var(--layer)', border: '1px solid var(--border)', borderRadius: '4px',
-        padding: '16px 20px', marginBottom: '32px',
-        display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '16px',
-      }}>
-        <div>
-          <span style={{ fontSize: '0.62rem', letterSpacing: '0.2em', textTransform: 'uppercase', color: 'var(--muted)' }}>
-            Public Registration URL
-          </span>
-          <p style={{ fontSize: '0.85rem', color: show.status === 'active' ? 'var(--warm-white)' : 'var(--muted)', marginTop: '4px' }}>
-            /auditions/{slug}
-            {show.status !== 'active' && <span style={{ color: 'var(--muted-dim)', marginLeft: '8px', fontSize: '0.72rem' }}>(not active)</span>}
-          </p>
-        </div>
-        <Link
-          href={`/auditions/${slug}`}
-          target="_blank"
-          style={{ fontSize: '0.72rem', color: 'var(--gold)', textDecoration: 'none', whiteSpace: 'nowrap' }}
-        >
-          Preview →
-        </Link>
-      </div>
+      {(() => {
+        const isAudition = show.event_type === 'audition'
+        const publicPath = isAudition ? `/auditions/${slug}` : `/shows/${slug}`
+        const label      = isAudition ? 'Public Registration URL' : 'Public Event URL'
+        return (
+          <div style={{
+            background: 'var(--layer)', border: '1px solid var(--border)', borderRadius: '4px',
+            padding: '16px 20px', marginBottom: '32px',
+            display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '16px',
+          }}>
+            <div>
+              <span style={{ fontSize: '0.62rem', letterSpacing: '0.2em', textTransform: 'uppercase', color: 'var(--muted)' }}>
+                {label}
+              </span>
+              <p style={{ fontSize: '0.85rem', color: 'var(--warm-white)', marginTop: '4px' }}>
+                {publicPath}
+              </p>
+            </div>
+            <Link
+              href={publicPath}
+              target="_blank"
+              style={{ fontSize: '0.72rem', color: 'var(--gold)', textDecoration: 'none', whiteSpace: 'nowrap' }}
+            >
+              Preview →
+            </Link>
+          </div>
+        )
+      })()}
 
       {/* Slots */}
       <EventDetailsManager
         showId={show.id}
         slug={slug}
+        venues={venuesData ?? []}
+        parentShows={parentShowsData ?? []}
         show={{
           event_type:           show.event_type ?? 'show',
           start_date:           show.start_date ?? null,
           end_date:             show.end_date ?? null,
           featured:             show.featured ?? false,
-          homepage_visible:     show.homepage_visible ?? false,
+          parent_show_id:       show.parent_show_id ?? null,
           cta_label:            show.cta_label ?? null,
           cta_url:              show.cta_url ?? null,
           show_image:           show.show_image ?? null,
@@ -117,8 +131,13 @@ export default async function ShowDetailPage({
           age_max:              show.age_max ?? null,
           show_grade:           (show.field_config as Record<string, unknown>)?.show_grade === true,
           show_headshot_upload: (show.field_config as Record<string, unknown>)?.show_headshot_upload === true,
+          show_resume_upload:   (show.field_config as Record<string, unknown>)?.show_resume_upload === true,
+          venue_id:             show.venue_id ?? null,
+          season:               show.season ?? null,
         }}
       />
+
+      <PerformancesManager showId={show.id} slug={slug} performances={performancesData ?? []} eventType={show.event_type ?? 'show'} />
 
       {show.event_type === 'audition' && (
         <SlotManager show={show} slots={slotsData ?? []} countBySlot={countBySlot} slug={slug} />
@@ -135,12 +154,14 @@ export default async function ShowDetailPage({
         />
       )}
 
-      {/* Registrations link */}
-      <div style={{ marginTop: '16px' }}>
-        <Link href={`/admin/events/${slug}/registrations`} className="btn-ghost" style={{ fontSize: '0.72rem' }}>
-          <span>View Registrations</span>
-        </Link>
-      </div>
+      {/* Registrations link — auditions only */}
+      {show.event_type !== 'show' && (
+        <div style={{ marginTop: '16px' }}>
+          <Link href={`/admin/events/${slug}/registrations`} className="btn-ghost" style={{ fontSize: '0.72rem' }}>
+            <span>View Registrations</span>
+          </Link>
+        </div>
+      )}
     </div>
   )
 }

@@ -14,13 +14,13 @@ const NAV_ITEMS: NavItem[] = [
   { type: 'link', href: '/about', label: 'About' },
   {
     type: 'dropdown',
-    label: 'Shows',
+    label: 'Upcoming',
     items: [
       { href: '/current-season', label: 'Current Season' },
       { href: '/auditions',      label: 'Auditions' },
-      { href: '/past-shows',     label: 'Past Shows' },
     ],
   },
+  { type: 'link', href: '/past-shows', label: 'Past Shows' },
   {
     type: 'dropdown',
     label: 'Join Us',
@@ -49,6 +49,7 @@ export default function Nav() {
   const [scrolled, setScrolled]         = useState(false);
   const [menuOpen, setMenuOpen]         = useState(false);
   const [openDropdown, setOpenDropdown] = useState<string | null>(null);
+  const [signedIn, setSignedIn]         = useState(false);
   const pathname                        = usePathname();
   const navRef                          = useRef<HTMLElement>(null);
 
@@ -76,10 +77,11 @@ export default function Nav() {
   useEffect(() => {
     const supabase = createClient();
     supabase.auth.getSession().then(({ data: { session } }) => {
-      // session used only for future member features
-      void session;
+      setSignedIn(!!session);
     });
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(() => {});
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      setSignedIn(!!session);
+    });
     return () => subscription.unsubscribe();
   }, []);
 
@@ -153,9 +155,10 @@ export default function Nav() {
                   cursor: 'pointer',
                   padding: 0,
                   lineHeight: 'inherit',
-                  display: 'flex',
+                  display: 'inline-flex',
                   alignItems: 'center',
                   gap: '6px',
+                  verticalAlign: 'middle',
                 }}
                 aria-haspopup="true"
                 aria-expanded={isOpen}
@@ -234,6 +237,14 @@ export default function Nav() {
             </li>
           );
         })}
+
+        {signedIn && (
+          <li key="dashboard">
+            <Link href="/account" style={{ ...baseLinkStyle, color: pathname.startsWith('/account') ? 'var(--gold)' : 'var(--warm-white)' }}>
+              Dashboard
+            </Link>
+          </li>
+        )}
       </ul>
     </nav>
   );

@@ -13,8 +13,15 @@ export default async function AdminLayout({
 
   if (!user) redirect('/admin-login')
 
-  const ALLOWED_EMAILS = ['les@lesbrowndesign.com']
-  if (!ALLOWED_EMAILS.includes(user.email ?? '')) redirect('/')
+  const { data: adminUser } = await supabase
+    .from('admin_users')
+    .select('id')
+    .eq('user_id', user.id)
+    .single()
+
+  // Bootstrap fallback — remove once admin_users is populated for all staff
+  const BOOTSTRAP_EMAILS = ['les@lesbrowndesign.com']
+  if (!adminUser && !BOOTSTRAP_EMAILS.includes(user.email ?? '')) redirect('/')
 
   return (
     <>

@@ -7,7 +7,7 @@ type Status = 'draft' | 'active' | 'closed'
 
 const TRANSITIONS: Record<Status, { next: Status; label: string; color: string }> = {
   draft:  { next: 'active', label: 'Set Active',  color: 'var(--gold)' },
-  active: { next: 'closed', label: 'Close Show',  color: 'var(--rose)' },
+  active: { next: 'closed', label: 'Close Auditions', color: 'var(--rose)' },
   closed: { next: 'draft',  label: 'Reopen Draft', color: 'var(--muted)' },
 }
 

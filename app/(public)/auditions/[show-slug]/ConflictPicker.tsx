@@ -37,6 +37,7 @@ export default function ConflictPicker({ name = 'conflicts' }: { name?: string }
   const [rangeEnd, setRangeEnd] = useState('')
   const [entries, setEntries] = useState<ConflictEntry[]>([])
   const [error, setError] = useState('')
+  const [inputKey, setInputKey] = useState(0)
 
   function handleAdd() {
     setError('')
@@ -44,12 +45,14 @@ export default function ConflictPicker({ name = 'conflicts' }: { name?: string }
       if (!singleDate) return
       setEntries(prev => [...prev, { type: 'single', date: singleDate }])
       setSingleDate('')
+      setInputKey(k => k + 1)
     } else {
       if (!rangeStart || !rangeEnd) return
       if (rangeEnd < rangeStart) { setError('End date must be after start date.'); return }
       setEntries(prev => [...prev, { type: 'range', start: rangeStart, end: rangeEnd }])
       setRangeStart('')
       setRangeEnd('')
+      setInputKey(k => k + 1)
     }
   }
 
@@ -92,8 +95,9 @@ export default function ConflictPicker({ name = 'conflicts' }: { name?: string }
       <div style={{ display: 'flex', gap: '12px', alignItems: 'flex-end', marginBottom: '12px', flexWrap: 'wrap' }}>
         {mode === 'single' ? (
           <input
+            key={`single-${inputKey}`}
             type="date"
-            value={singleDate}
+            defaultValue=""
             onChange={e => setSingleDate(e.target.value)}
             style={{ ...inputStyle, flex: '1', minWidth: '160px' }}
           />
@@ -101,11 +105,11 @@ export default function ConflictPicker({ name = 'conflicts' }: { name?: string }
           <>
             <div style={{ flex: '1', minWidth: '140px' }}>
               <label style={{ display: 'block', fontSize: '0.6rem', letterSpacing: '0.18em', textTransform: 'uppercase', color: 'var(--muted)', marginBottom: '6px' }}>Start</label>
-              <input type="date" value={rangeStart} onChange={e => setRangeStart(e.target.value)} style={{ ...inputStyle, width: '100%', boxSizing: 'border-box' }} />
+              <input key={`start-${inputKey}`} type="date" defaultValue="" onChange={e => setRangeStart(e.target.value)} style={{ ...inputStyle, width: '100%', boxSizing: 'border-box' }} />
             </div>
             <div style={{ flex: '1', minWidth: '140px' }}>
               <label style={{ display: 'block', fontSize: '0.6rem', letterSpacing: '0.18em', textTransform: 'uppercase', color: 'var(--muted)', marginBottom: '6px' }}>End</label>
-              <input type="date" value={rangeEnd} onChange={e => setRangeEnd(e.target.value)} min={rangeStart} style={{ ...inputStyle, width: '100%', boxSizing: 'border-box' }} />
+              <input key={`end-${inputKey}`} type="date" defaultValue="" onChange={e => setRangeEnd(e.target.value)} min={rangeStart} style={{ ...inputStyle, width: '100%', boxSizing: 'border-box' }} />
             </div>
           </>
         )}

@@ -37,11 +37,8 @@ export default async function AuditionsPage() {
                   <div className="g-2s" style={{ display: 'grid' }}>
                     <div style={{
                       background: show.show_image ? `url(${show.show_image}) center/cover` : 'linear-gradient(160deg, #2d1b4e, #1b0a2e)',
-                      display: 'flex', alignItems: 'center', justifyContent: 'center',
-                      padding: 'clamp(32px, 5vw, 60px) clamp(20px, 4vw, 40px)', minHeight: '200px',
-                    }}>
-                      <h2 style={{ fontFamily: "'Playfair Display', serif", fontSize: 'clamp(1.8rem, 4vw, 2.5rem)', fontWeight: 900, textAlign: 'center' }}>{show.title}</h2>
-                    </div>
+                      minHeight: '200px',
+                    }} />
                     <div style={{ padding: 'clamp(24px, 4vw, 48px)' }}>
                       <div style={{ display: 'flex', gap: '12px', marginBottom: '24px', flexWrap: 'wrap' }}>
                         <span style={{ padding: '6px 14px', border: '1px solid rgba(212,168,83,0.3)', fontSize: '0.6rem', letterSpacing: '0.2em', textTransform: 'uppercase', color: 'var(--gold-light)' }}>
@@ -70,9 +67,7 @@ export default async function AuditionsPage() {
             /* No active shows — keep the placeholder Newsies card */
             <div style={{ border: '1px solid var(--border)', borderRadius: '4px', background: 'var(--layer)', overflow: 'hidden', marginBottom: '24px' }}>
             <div className="g-2s" style={{ display: 'grid' }}>
-              <div style={{ background: 'linear-gradient(160deg, #2d1b4e, #1b0a2e)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 'clamp(32px, 5vw, 60px) clamp(20px, 4vw, 40px)', minHeight: '200px' }}>
-                <h2 style={{ fontFamily: "'Playfair Display', serif", fontSize: 'clamp(1.8rem, 4vw, 2.5rem)', fontWeight: 900, textAlign: 'center' }}>Newsies</h2>
-              </div>
+              <div style={{ background: 'linear-gradient(160deg, #2d1b4e, #1b0a2e)', minHeight: '200px' }} />
               <div style={{ padding: 'clamp(24px, 4vw, 48px)' }}>
                 <div style={{ display: 'flex', gap: '12px', marginBottom: '24px', flexWrap: 'wrap' }}>
                   <span style={{ padding: '6px 14px', border: '1px solid rgba(212,168,83,0.3)', fontSize: '0.6rem', letterSpacing: '0.2em', textTransform: 'uppercase', color: 'var(--gold-light)' }}>Musical</span>
@@ -163,8 +158,8 @@ export default async function AuditionsPage() {
           {[
             { q: 'Do I need prior experience to audition?', a: 'Not at all. Accolade welcomes first-time performers. The director will always consider enthusiasm and commitment alongside skill.' },
             { q: 'What age ranges do you cast?', a: 'We are a youth theatre — our productions are cast with performers ages 5–19. Adults are welcome to be part of the community as volunteers and crew.' },
-            { q: 'Is there a fee to participate?', a: 'Some productions have a participation fee (tuition) to help cover costs. This is always disclosed during the audition process. Financial hardship waivers are available — just ask.' },
-            { q: 'How do I know when auditions are announced?', a: 'Join our mailing list or follow us on social media. Audition announcements go out 4–6 weeks before the audition date.' },
+            { q: 'Is there a fee to participate?', a: 'Most productions have a participation fee: $50 per child for the first two children in a family, and $25 per child for the third and beyond. Scholarship assistance is available — just reach out and ask.' },
+            { q: 'How do I know when auditions are announced?', a: 'Join our mailing list or follow us on social media. Audition announcements typically go out about 30 days before the audition date.' },
           ].map(({ q, a }, i) => (
             <div key={i} style={{ borderBottom: '1px solid var(--border)', padding: '28px 0' }}>
               <h3 style={{ fontFamily: "'Playfair Display', serif", fontSize: '1.15rem', fontWeight: 700, marginBottom: '12px' }}>{q}</h3>

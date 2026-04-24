@@ -22,6 +22,8 @@ export async function submitAudition(formData: FormData): Promise<SubmitResult> 
   const role_preference      = formData.get('role_preference') as string || null
   const accept_other_roles   = formData.get('accept_other_roles') === 'true'
   const conflicts     = formData.get('conflicts') as string || null
+  const family_id     = formData.get('family_id') as string || null
+  const family_member_id = formData.get('family_member_id') as string || null
 
   let extra_fields: Record<string, unknown> = {}
   try {
@@ -85,6 +87,8 @@ export async function submitAudition(formData: FormData): Promise<SubmitResult> 
       accept_other_roles,
       conflicts,
       extra_fields,
+      family_id,
+      family_member_id,
     })
     .select('id')
     .single()

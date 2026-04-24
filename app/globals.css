@@ -453,3 +453,10 @@ footer.site-footer {
   .photo-marquee { padding: 12px 0; }
 }
 
+/* ── Native date/time inputs — force dark chrome ── */
+input[type="date"],
+input[type="time"],
+input[type="datetime-local"] {
+  color-scheme: dark;
+}
+

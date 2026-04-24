@@ -38,45 +38,33 @@ export default async function SponsorsRibbon() {
           alignItems: 'center',
           justifyContent: 'center',
         }}>
-          {sponsors.map(sponsor => sponsor.website_url ? (
-            <a
-              key={sponsor.id}
-              href={sponsor.website_url}
-              target="_blank"
-              rel="noopener noreferrer"
-              title={sponsor.name}
-              style={{ display: 'block', lineHeight: 0 }}
-              className="sponsor-logo-link"
-            >
-              {/* eslint-disable-next-line @next/next/no-img-element */}
+          {sponsors.map(sponsor => {
+            const logo = (
+              // eslint-disable-next-line @next/next/no-img-element
               <img
                 src={sponsor.logo_url}
                 alt={sponsor.name}
-                style={{
-                  height: '72px',
-                  width: 'auto',
-                  maxWidth: '200px',
-                  objectFit: 'contain',
-                  display: 'block',
-                }}
+                style={{ display: 'block', height: '48px', width: 'auto' }}
               />
-            </a>
-          ) : (
-            <div key={sponsor.id} title={sponsor.name} style={{ lineHeight: 0 }}>
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img
-                src={sponsor.logo_url}
-                alt={sponsor.name}
-                style={{
-                  height: '72px',
-                  width: 'auto',
-                  maxWidth: '200px',
-                  objectFit: 'contain',
-                  display: 'block',
-                }}
-              />
-            </div>
-          ))}
+            )
+            return sponsor.website_url ? (
+              <a
+                key={sponsor.id}
+                href={sponsor.website_url}
+                target="_blank"
+                rel="noopener noreferrer"
+                title={sponsor.name}
+                style={{ display: 'block', lineHeight: 0 }}
+                className="sponsor-logo-link"
+              >
+                {logo}
+              </a>
+            ) : (
+              <div key={sponsor.id} title={sponsor.name} style={{ lineHeight: 0 }}>
+                {logo}
+              </div>
+            )
+          })}
         </div>
       </div>
     </section>

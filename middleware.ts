@@ -26,19 +26,21 @@ export async function middleware(request: NextRequest) {
   // Refresh session — required for Supabase SSR auth to stay alive
   const { data: { user } } = await supabase.auth.getUser()
 
-  // Protect /account routes
-  if (!user && request.nextUrl.pathname.startsWith('/account')) {
+  // Protect /account and /member routes — portal users
+  if (!user && (
+    request.nextUrl.pathname.startsWith('/account') ||
+    request.nextUrl.pathname.startsWith('/member')
+  )) {
     const url = request.nextUrl.clone()
     url.pathname = '/login'
     url.searchParams.set('redirect', request.nextUrl.pathname)
     return NextResponse.redirect(url)
   }
 
-  // Protect /admin routes (but not /admin-login)
+  // Protect /admin routes — staff only, separate login
   if (!user && request.nextUrl.pathname.startsWith('/admin/')) {
     const url = request.nextUrl.clone()
-    url.pathname = '/login'
-    url.searchParams.set('redirect', request.nextUrl.pathname)
+    url.pathname = '/admin-login'
     return NextResponse.redirect(url)
   }
 
