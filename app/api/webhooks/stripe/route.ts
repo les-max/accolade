@@ -79,16 +79,21 @@ export async function POST(req: NextRequest) {
       .single()
 
     if (feeItems && feeShow && family) {
-      await sendFeeConfirmation({
-        to: family.email,
-        parentName: family.parent_name,
-        showTitle: feeShow.title,
-        items: feeItems
-          .filter(i => i.unit_price > 0)
-          .map(i => ({ label: i.label, amount: Math.round(i.unit_price * i.quantity * 100) })),
-        totalAmount: Math.round(feeOrder.total_amount * 100),
-        orderId: feeOrder.id,
-      })
+      try {
+        await sendFeeConfirmation({
+          to: family.email,
+          parentName: family.parent_name,
+          showTitle: feeShow.title,
+          items: feeItems
+            .filter(i => i.unit_price > 0)
+            .map(i => ({ label: i.label, amount: Math.round(i.unit_price * i.quantity * 100) })),
+          totalAmount: Math.round(feeOrder.total_amount * 100),
+          orderId: feeOrder.id,
+        })
+      } catch (emailErr) {
+        console.error('Fee confirmation email failed', emailErr)
+        // Order is paid; do not fail the webhook
+      }
     }
 
     return NextResponse.json({ received: true })
