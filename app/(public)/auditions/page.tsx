@@ -1,3 +1,4 @@
+import Image from 'next/image';
 import PageHero from '@/components/PageHero';
 import Link from 'next/link';
 import { createClient } from '@/lib/supabase/server';
@@ -10,9 +11,11 @@ export default async function AuditionsPage() {
   const supabase = await createClient();
   const { data: activeShows } = await supabase
     .from('shows')
-    .select('id, slug, title, description, age_min, age_max, audition_type, show_image')
+    .select('id, slug, title, description, age_min, age_max, audition_type, show_image, show_image_wide, start_date, end_date, field_config, parent_show:parent_show_id(show_image, show_image_wide)')
+    .eq('event_type', 'audition')
     .eq('status', 'active')
-    .order('created_at', { ascending: false });
+    .eq('archived', false)
+    .order('start_date', { ascending: true });
 
   return (
     <>
@@ -27,22 +30,38 @@ export default async function AuditionsPage() {
       {/* ── Upcoming Auditions ────────────────────── */}
       <section style={{ padding: 'clamp(48px, 10vw, 100px) clamp(20px, 5vw, 48px)' }}>
         <div style={{ maxWidth: '1200px', margin: '0 auto' }}>
-          <p className="section-label">Upcoming Auditions</p>
+          <p className="section-label">Open Auditions</p>
 
           {activeShows && activeShows.length > 0 ? (
             activeShows.map(show => {
-              const ageLabel = show.age_min && show.age_max ? `Ages ${show.age_min}–${show.age_max}` : show.age_min ? `Ages ${show.age_min}+` : null;
+              const ageLabel = show.age_min && show.age_max
+                ? `Ages ${show.age_min}–${show.age_max}`
+                : show.age_min ? `Ages ${show.age_min}+` : null;
+              const parent = Array.isArray(show.parent_show) ? show.parent_show[0] : show.parent_show;
+              const allowCrewSignup = (show.field_config as Record<string, unknown> | null)?.allow_crew_signup === true;
+              const heroImage =
+                show.show_image_wide ?? show.show_image ??
+                parent?.show_image_wide ?? parent?.show_image ?? null;
               return (
                 <div key={show.id} style={{ border: '1px solid var(--border)', borderRadius: '4px', background: 'var(--layer)', overflow: 'hidden', marginBottom: '24px' }}>
                   <div className="g-2s" style={{ display: 'grid' }}>
-                    <div style={{
-                      background: show.show_image ? `url(${show.show_image}) center/cover` : 'linear-gradient(160deg, #2d1b4e, #1b0a2e)',
-                      minHeight: '200px',
-                    }} />
+                    <div style={{ position: 'relative', aspectRatio: '16/9' }}>
+                      {heroImage ? (
+                        <Image
+                          src={heroImage}
+                          alt={show.title}
+                          fill
+                          style={{ objectFit: 'cover' }}
+                          sizes="(max-width: 640px) 100vw, 50vw"
+                        />
+                      ) : (
+                        <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(160deg, #2d1b4e, #1b0a2e)' }} />
+                      )}
+                    </div>
                     <div style={{ padding: 'clamp(24px, 4vw, 48px)' }}>
-                      <div style={{ display: 'flex', gap: '12px', marginBottom: '24px', flexWrap: 'wrap' }}>
-                        <span style={{ padding: '6px 14px', border: '1px solid rgba(212,168,83,0.3)', fontSize: '0.6rem', letterSpacing: '0.2em', textTransform: 'uppercase', color: 'var(--gold-light)' }}>
-                          {show.audition_type === 'slot' ? 'Time Slots' : 'Open Windows'}
+                      <div style={{ display: 'flex', gap: '12px', marginBottom: '16px', flexWrap: 'wrap' }}>
+                        <span style={{ padding: '6px 14px', border: '1px solid rgba(212,168,83,0.3)', fontSize: '0.6rem', letterSpacing: '0.2em', textTransform: 'uppercase', color: 'var(--gold)' }}>
+                          {show.audition_type === 'slot' ? 'Time Slots' : 'Auditions Open'}
                         </span>
                         {ageLabel && (
                           <span style={{ padding: '6px 14px', border: '1px solid rgba(61,158,140,0.3)', fontSize: '0.6rem', letterSpacing: '0.2em', textTransform: 'uppercase', color: 'var(--teal)' }}>
@@ -50,53 +69,38 @@ export default async function AuditionsPage() {
                           </span>
                         )}
                       </div>
+                      <h2 style={{ fontFamily: "'Playfair Display', serif", fontSize: 'clamp(1.6rem, 3vw, 2.4rem)', fontWeight: 700, marginBottom: '12px' }}>
+                        {show.title}
+                      </h2>
                       {show.description && (
                         <p style={{ color: 'var(--muted)', lineHeight: 1.75, marginBottom: '32px', maxWidth: '520px' }}>
                           {show.description}
                         </p>
                       )}
-                      <Link href={`/auditions/${show.slug}`} className="btn-primary">
-                        <span>Register to Audition</span>
-                      </Link>
+                      <div style={{ display: 'flex', gap: '16px', flexWrap: 'wrap' }}>
+                        <Link href={`/auditions/${show.slug}`} className="btn-primary">
+                          <span>Register to Audition</span>
+                        </Link>
+                        {allowCrewSignup && (
+                          <Link href={`/auditions/${show.slug}?crew=1`} className="btn-ghost">
+                            <span>Join the Crew</span>
+                          </Link>
+                        )}
+                      </div>
                     </div>
                   </div>
                 </div>
               );
             })
           ) : (
-            /* No active shows — keep the placeholder Newsies card */
-            <div style={{ border: '1px solid var(--border)', borderRadius: '4px', background: 'var(--layer)', overflow: 'hidden', marginBottom: '24px' }}>
-            <div className="g-2s" style={{ display: 'grid' }}>
-              <div style={{ background: 'linear-gradient(160deg, #2d1b4e, #1b0a2e)', minHeight: '200px' }} />
-              <div style={{ padding: 'clamp(24px, 4vw, 48px)' }}>
-                <div style={{ display: 'flex', gap: '12px', marginBottom: '24px', flexWrap: 'wrap' }}>
-                  <span style={{ padding: '6px 14px', border: '1px solid rgba(212,168,83,0.3)', fontSize: '0.6rem', letterSpacing: '0.2em', textTransform: 'uppercase', color: 'var(--gold-light)' }}>Musical</span>
-                  <span style={{ padding: '6px 14px', border: '1px solid rgba(61,158,140,0.3)', fontSize: '0.6rem', letterSpacing: '0.2em', textTransform: 'uppercase', color: 'var(--teal)' }}>Ages 10+</span>
-                </div>
-                <p style={{ color: 'var(--muted)', lineHeight: 1.75, marginBottom: '32px', maxWidth: '520px' }}>
-                  The rousing musical based on the 1899 newsboy strike in New York City. We&apos;re casting a large ensemble — singers, dancers, and actors all welcome. Auditions include a brief song (16–32 bars) and a movement call.
-                </p>
-                <div className="g-3" style={{ display: 'grid', gap: '24px', marginBottom: '32px' }}>
-                  {[
-                    { label: 'Audition Dates', value: 'TBD — Summer 2025' },
-                    { label: 'Show Dates', value: 'TBD — Summer 2025' },
-                    { label: 'Rehearsals', value: 'Weeknights & Weekends' },
-                  ].map(({ label, value }) => (
-                    <div key={label}>
-                      <p style={{ fontSize: '0.62rem', letterSpacing: '0.25em', textTransform: 'uppercase', color: 'var(--gold)', marginBottom: '6px', fontWeight: 600 }}>{label}</p>
-                      <p style={{ fontSize: '0.9rem', color: 'var(--warm-white)' }}>{value}</p>
-                    </div>
-                  ))}
-                </div>
-                <p style={{ fontSize: '0.82rem', color: 'var(--muted)', marginBottom: '24px', fontStyle: 'italic' }}>
-                  Registration opens when dates are confirmed. Check back soon or join our mailing list for updates.
-                </p>
-                <button className="btn-primary" disabled style={{ opacity: 0.5, cursor: 'not-allowed' }}>
-                  <span>Registration Coming Soon</span>
-                </button>
-              </div>
+            <div style={{ padding: '60px 0', textAlign: 'center' }}>
+              <p style={{ fontFamily: "'Playfair Display', serif", fontSize: '1.3rem', marginBottom: '12px' }}>
+                No auditions open right now
+              </p>
+              <p style={{ color: 'var(--muted)', fontSize: '0.9rem' }}>
+                Check back soon or follow us on social media for announcements.
+              </p>
             </div>
-          </div>
           )}
         </div>
       </section>
@@ -142,7 +146,7 @@ export default async function AuditionsPage() {
                   </li>
                 ))}
               </ul>
-              <Link href="/volunteering" className="btn-ghost"><span>Volunteer for Crew</span></Link>
+
             </div>
             <div style={{ aspectRatio: '4/3', borderRadius: '4px', background: 'linear-gradient(160deg, #0d2a28, #061514)', position: 'relative', overflow: 'hidden' }}>
               <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(0deg, rgba(14,13,20,0.4) 0%, transparent 60%)' }} />

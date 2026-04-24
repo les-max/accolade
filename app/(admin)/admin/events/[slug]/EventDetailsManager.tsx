@@ -104,6 +104,8 @@ type Props = {
     show_grade: boolean
     show_headshot_upload: boolean
     show_resume_upload: boolean
+    allow_crew_signup: boolean
+    crew_positions: number | null
     venue_id: string | null
     season: number | null
     parent_show_id: string | null
@@ -130,6 +132,8 @@ export default function EventDetailsManager({ showId, slug, show, venues, parent
   const [showGrade, setShowGrade] = useState(show.show_grade ?? false)
   const [showHeadshot, setShowHeadshot] = useState(show.show_headshot_upload ?? false)
   const [showResume, setShowResume] = useState(show.show_resume_upload ?? false)
+  const [allowCrewSignup, setAllowCrewSignup] = useState(show.allow_crew_signup ?? false)
+  const [crewPositions, setCrewPositions] = useState<number | null>(show.crew_positions)
   const [imageFile, setImageFile] = useState<File | null>(null)
   const [imagePreview, setImagePreview] = useState<string | null>(show.show_image)
   const [imageWideFile, setImageWideFile] = useState<File | null>(null)
@@ -184,6 +188,8 @@ export default function EventDetailsManager({ showId, slug, show, venues, parent
           show_grade: showGrade,
           show_headshot_upload: showHeadshot,
           show_resume_upload: showResume,
+          allow_crew_signup: allowCrewSignup,
+          crew_positions: allowCrewSignup ? crewPositions : null,
         })
         setSaved(true)
         setTimeout(() => setSaved(false), 3000)
@@ -471,6 +477,31 @@ export default function EventDetailsManager({ showId, slug, show, venues, parent
               <span style={{ fontSize: '0.82rem', color: 'var(--warm-white)' }}>{label}</span>
             </div>
           ))}
+          {is(['audition']) && (
+            <>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '12px', cursor: 'pointer' }}
+                onClick={() => setAllowCrewSignup(v => !v)}
+              >
+                <Toggle on={allowCrewSignup} onChange={setAllowCrewSignup} />
+                <span style={{ fontSize: '0.82rem', color: 'var(--warm-white)' }}>Allow crew signup on this page</span>
+              </div>
+              {allowCrewSignup && (
+                <div style={{ marginLeft: '52px', marginBottom: '4px' }}>
+                  <label>
+                    <span style={labelStyle}>Crew positions available</span>
+                    <input
+                      type="number"
+                      min={1}
+                      value={crewPositions ?? ''}
+                      onChange={e => setCrewPositions(e.target.value ? Number(e.target.value) : null)}
+                      placeholder="e.g. 10"
+                      style={{ ...inputStyle, maxWidth: '120px' }}
+                    />
+                  </label>
+                </div>
+              )}
+            </>
+          )}
         </div>
       )}
 

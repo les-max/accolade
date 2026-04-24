@@ -132,6 +132,8 @@ export default async function ShowDetailPage({
           show_grade:           (show.field_config as Record<string, unknown>)?.show_grade === true,
           show_headshot_upload: (show.field_config as Record<string, unknown>)?.show_headshot_upload === true,
           show_resume_upload:   (show.field_config as Record<string, unknown>)?.show_resume_upload === true,
+          allow_crew_signup:    (show.field_config as Record<string, unknown>)?.allow_crew_signup === true,
+          crew_positions:       ((show.field_config as Record<string, unknown>)?.crew_positions as number) ?? null,
           venue_id:             show.venue_id ?? null,
           season:               show.season ?? null,
         }}

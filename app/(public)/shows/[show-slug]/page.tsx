@@ -19,11 +19,6 @@ const TYPE_LABELS: Record<string, string> = {
   event:    'Event',
 };
 
-const PERF_TYPE_LABELS: Record<string, string> = {
-  performance: 'Performance',
-  audition:    'Audition',
-  callback:    'Callback',
-};
 
 function formatDate(date: string): string {
   return new Date(date).toLocaleDateString('en-US', {
@@ -72,15 +67,8 @@ export default async function ShowDetailPage({ params }: { params: Promise<{ 'sh
   const heroImage = show.show_image_wide ?? show.show_image;
   const dateRange = formatDateRange(show.start_date, show.end_date);
 
-  // Group performances by type
-  const perfGroups = (performances ?? []).reduce((acc, p) => {
-    const key = p.type;
-    if (!acc[key]) acc[key] = [];
-    acc[key].push(p);
-    return acc;
-  }, {} as Record<string, typeof performances>);
-
-  const showPerformances = (performances ?? []).filter(p => p.type === 'performance');
+  const showPerformances  = (performances ?? []).filter(p => p.type === 'performance');
+  const auditionDates     = (performances ?? []).filter(p => p.type === 'audition');
 
   return (
     <>
@@ -155,47 +143,6 @@ export default async function ShowDetailPage({ params }: { params: Promise<{ 'sh
                 </div>
               )}
 
-              {/* Performances schedule */}
-              {Object.keys(perfGroups).length > 0 && (
-                <div>
-                  <p style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: '0.7rem', letterSpacing: '0.35em', color: 'var(--muted)', textTransform: 'uppercase', marginBottom: '20px' }}>Schedule</p>
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: '32px' }}>
-                    {(['performance', 'audition', 'callback'] as const).filter(t => perfGroups[t]?.length).map(type => (
-                      <div key={type}>
-                        <p style={{ fontSize: '0.62rem', letterSpacing: '0.28em', textTransform: 'uppercase', color: accentColor, fontWeight: 600, marginBottom: '12px' }}>
-                          {PERF_TYPE_LABELS[type]}s
-                        </p>
-                        <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-                          {perfGroups[type]!.map(p => (
-                            <div key={p.id} style={{
-                              display: 'flex',
-                              justifyContent: 'space-between',
-                              alignItems: 'center',
-                              padding: '14px 20px',
-                              background: 'var(--layer)',
-                              border: '1px solid var(--border)',
-                              borderRadius: '3px',
-                              gap: '12px',
-                              flexWrap: 'wrap',
-                            }}>
-                              <span style={{ fontSize: '0.88rem', color: 'var(--cream)' }}>{formatDate(p.date)}</span>
-                              <div style={{ display: 'flex', gap: '16px', alignItems: 'center' }}>
-                                {p.start_time && (
-                                  <span style={{ fontSize: '0.82rem', color: 'var(--muted)' }}>{formatTime(p.start_time)}</span>
-                                )}
-                                {p.label && (
-                                  <span style={{ fontSize: '0.72rem', letterSpacing: '0.12em', textTransform: 'uppercase', color: accentColor }}>{p.label}</span>
-                                )}
-                              </div>
-                            </div>
-                          ))}
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              )}
-
               {/* YouTube embed */}
               {show.youtube_video_id && (
                 <div>
@@ -250,6 +197,27 @@ export default async function ShowDetailPage({ params }: { params: Promise<{ 'sh
                         <p style={{ fontSize: '0.88rem', color: 'var(--cream)' }}>{dateRange}</p>
                       </div>
                     ) : null}
+
+                    {/* Audition dates */}
+                    {auditionDates.length > 0 && (
+                      <div>
+                        <p style={{ fontSize: '0.6rem', letterSpacing: '0.25em', textTransform: 'uppercase', color: 'var(--muted)', marginBottom: '10px' }}>Auditions</p>
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+                          {auditionDates.map(p => (
+                            <div key={p.id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', gap: '8px' }}>
+                              <span style={{ fontSize: '0.88rem', color: 'var(--cream)' }}>
+                                {new Date(p.date).toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric', timeZone: 'UTC' })}
+                              </span>
+                              {p.start_time && (
+                                <span style={{ fontSize: '0.82rem', color: 'var(--muted)', whiteSpace: 'nowrap' }}>
+                                  {formatTime(p.start_time)}
+                                </span>
+                              )}
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    )}
 
                     {/* Location */}
                     {show.venues && (() => {
