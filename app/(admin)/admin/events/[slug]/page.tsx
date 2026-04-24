@@ -9,6 +9,7 @@ import EventDetailsManager from './EventDetailsManager'
 import PerformancesManager from './PerformancesManager'
 import TicketManager from './TicketManager'
 import RosterManager from './RosterManager'
+import FeesManager from './FeesManager'
 
 export default async function ShowDetailPage({
   params,
@@ -22,7 +23,7 @@ export default async function ShowDetailPage({
 
   if (!show) notFound()
 
-  const [{ data: slotsData }, { data: rolesData }, { data: regCounts }, { data: performancesData }, { data: venuesData }, { data: parentShowsData }, { data: membersData }] = await Promise.all([
+  const [{ data: slotsData }, { data: rolesData }, { data: regCounts }, { data: performancesData }, { data: venuesData }, { data: parentShowsData }, { data: membersData }, { data: feesConfigData }, { data: couponsData }] = await Promise.all([
     supabase.from('audition_slots').select('*').eq('show_id', show.id).order('start_time', { ascending: true }),
     supabase.from('show_roles').select('*').eq('show_id', show.id).order('sort_order', { ascending: true }),
     supabase.from('auditions').select('slot_id').eq('show_id', show.id).eq('status', 'registered'),
@@ -33,6 +34,8 @@ export default async function ShowDetailPage({
       .select('id, show_role, families(parent_name, email)')
       .eq('show_id', show.id)
       .order('show_role'),
+    supabase.from('show_fees_config').select('shirt_price, tuition_amount, fees_enabled').eq('show_id', show.id).maybeSingle(),
+    supabase.from('show_coupon_codes').select('id, code, waive_tuition, waive_shirts, used_by_family_id').eq('show_id', show.id).order('created_at'),
   ])
 
   // Ticket config for shows
@@ -228,6 +231,41 @@ export default async function ShowDetailPage({
           <span style={{ fontSize: '0.72rem', color: 'var(--gold)' }}>View Signatures →</span>
         </Link>
       </div>
+
+      {['show', 'camp', 'workshop'].includes(show.event_type ?? '') && (
+        <FeesManager
+          showId={show.id}
+          slug={slug}
+          eventType={show.event_type ?? 'show'}
+          config={feesConfigData ?? null}
+          coupons={(couponsData ?? []) as {
+            id: string
+            code: string
+            waive_tuition: boolean
+            waive_shirts: boolean
+            used_by_family_id: string | null
+          }[]}
+        />
+      )}
+
+      {['show', 'camp', 'workshop'].includes(show.event_type ?? '') && (
+        <div style={{ marginBottom: '32px' }}>
+          <Link
+            href={`/admin/events/${slug}/fees`}
+            style={{
+              display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+              padding: '20px 24px',
+              background: 'var(--layer)', border: '1px solid var(--border)', borderRadius: '4px',
+              textDecoration: 'none',
+            }}
+          >
+            <p style={{ fontSize: '0.65rem', letterSpacing: '0.25em', textTransform: 'uppercase', color: 'var(--muted)' }}>
+              Fee Orders
+            </p>
+            <span style={{ fontSize: '0.72rem', color: 'var(--gold)' }}>View Orders →</span>
+          </Link>
+        </div>
+      )}
 
       {show.event_type === 'audition' && (
         <SlotManager show={show} slots={slotsData ?? []} countBySlot={countBySlot} slug={slug} />
