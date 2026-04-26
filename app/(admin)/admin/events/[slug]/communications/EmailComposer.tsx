@@ -84,7 +84,7 @@ export default function EmailComposer({
         <span style={labelStyle}>Send To</span>
         {allGroups.length === 1 ? (
           <p style={{ fontSize: '0.82rem', color: 'var(--muted)' }}>
-            No roster members yet. Add cast/crew in the Roster section, or send to Auditioners.
+            No roster members yet. Add members in the Roster section, or send to Auditioners.
           </p>
         ) : null}
         <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap' }}>

@@ -8,7 +8,7 @@ const TABS: { id: ShowTab; label: string }[] = [
   { id: 'details',   label: 'Details' },
   { id: 'schedule',  label: 'Schedule' },
   { id: 'tickets',   label: 'Tickets' },
-  { id: 'people',    label: 'Cast & Crew' },
+  { id: 'people',    label: 'Roster' },
   { id: 'finances',  label: 'Show Fees' },
   { id: 'comms',     label: 'Comms & Waivers' },
 ]

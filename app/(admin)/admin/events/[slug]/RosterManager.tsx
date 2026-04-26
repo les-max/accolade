@@ -21,7 +21,7 @@ const inputStyle: React.CSSProperties = {
   boxSizing: 'border-box',
 }
 
-const ROLE_SUGGESTIONS = ['Cast A', 'Cast B', 'Crew', 'Pit Band', 'Orchestra', 'Parent Volunteer', 'Stage Crew', 'Light/Sound']
+const ROLE_SUGGESTIONS = ['Cast A', 'Cast B', 'Crew', 'Pit Band', 'Orchestra', 'Volunteer', 'Stage Crew', 'Light/Sound']
 
 export default function RosterManager({
   showId,
@@ -67,7 +67,7 @@ export default function RosterManager({
 
         <div style={{ padding: '20px 24px', borderBottom: '1px solid var(--border)' }}>
           <p style={{ fontSize: '0.65rem', letterSpacing: '0.25em', textTransform: 'uppercase', color: 'var(--muted)' }}>
-            Cast &amp; Crew Roster
+            Roster
           </p>
         </div>
 

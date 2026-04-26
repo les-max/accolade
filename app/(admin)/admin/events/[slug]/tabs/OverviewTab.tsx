@@ -46,7 +46,7 @@ export default function OverviewTab({ show, slug, role, performancesData, member
       {/* Stats row */}
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px', marginBottom: '32px' }}>
         {[
-          { label: 'Cast & Crew', value: memberCount },
+          { label: 'Roster', value: memberCount },
           { label: 'Performances', value: performanceCount },
         ].map(stat => (
           <div key={stat.label} style={{
