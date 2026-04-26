@@ -460,3 +460,30 @@ input[type="datetime-local"] {
   color-scheme: dark;
 }
 
+/* ── Admin UI — reusable link cards ─────────────── */
+.admin-link-card {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  text-decoration: none;
+  border-radius: 4px;
+  border: 1px solid var(--border);
+  background: var(--layer);
+  transition: border-color 0.15s, background 0.15s;
+  cursor: pointer;
+}
+.admin-link-card:hover {
+  border-color: rgba(212,168,83,0.4);
+  background: rgba(212,168,83,0.04);
+}
+
+/* ── Admin UI — tab nav links ───────────────────── */
+.admin-tab-link {
+  text-decoration: none;
+  white-space: nowrap;
+  transition: color 0.15s, border-color 0.15s;
+}
+.admin-tab-link:not(.admin-tab-link--active):hover {
+  color: var(--warm-white) !important;
+}
+

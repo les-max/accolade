@@ -34,18 +34,16 @@ export default function ShowTabNav({
           <Link
             key={tab.id}
             href={`/admin/events/${slug}?tab=${tab.id}`}
+            className={`admin-tab-link${isActive ? ' admin-tab-link--active' : ''}`}
             style={{
               padding: '12px 20px',
               fontSize: '0.68rem',
               letterSpacing: '0.15em',
               textTransform: 'uppercase',
               fontWeight: 500,
-              textDecoration: 'none',
-              whiteSpace: 'nowrap',
               color: isActive ? 'var(--gold)' : 'var(--muted)',
               borderBottom: `2px solid ${isActive ? 'var(--gold)' : 'transparent'}`,
               marginBottom: '-1px',
-              transition: 'color 0.15s',
             }}
           >
             {tab.label}

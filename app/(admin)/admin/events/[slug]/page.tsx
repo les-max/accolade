@@ -278,15 +278,7 @@ export default async function ShowDetailPage({
 
       {['camp', 'workshop'].includes(show.event_type ?? '') && (
         <div style={{ marginBottom: '32px' }}>
-          <Link
-            href={`/admin/events/${slug}/fees`}
-            style={{
-              display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-              padding: '20px 24px',
-              background: 'var(--layer)', border: '1px solid var(--border)', borderRadius: '4px',
-              textDecoration: 'none',
-            }}
-          >
+          <Link href={`/admin/events/${slug}/fees`} className="admin-link-card" style={{ padding: '20px 24px' }}>
             <p style={{ fontSize: '0.65rem', letterSpacing: '0.25em', textTransform: 'uppercase', color: 'var(--muted)' }}>
               Fee Orders
             </p>
@@ -296,15 +288,7 @@ export default async function ShowDetailPage({
       )}
 
       <div style={{ marginBottom: '32px' }}>
-        <Link
-          href={`/admin/events/${slug}/waivers`}
-          style={{
-            display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-            padding: '20px 24px',
-            background: 'var(--layer)', border: '1px solid var(--border)', borderRadius: '4px',
-            textDecoration: 'none',
-          }}
-        >
+        <Link href={`/admin/events/${slug}/waivers`} className="admin-link-card" style={{ padding: '20px 24px' }}>
           <p style={{ fontSize: '0.65rem', letterSpacing: '0.25em', textTransform: 'uppercase', color: 'var(--muted)' }}>
             Waivers
           </p>

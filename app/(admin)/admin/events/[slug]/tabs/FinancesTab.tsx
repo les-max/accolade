@@ -23,15 +23,7 @@ export default function FinancesTab({ show, slug, role, feesConfigData, couponsD
       />
 
       <div style={{ marginTop: '16px' }}>
-        <Link
-          href={`/admin/events/${slug}/fees`}
-          style={{
-            display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-            padding: '18px 20px',
-            background: 'var(--layer)', border: '1px solid var(--border)', borderRadius: '4px',
-            textDecoration: 'none',
-          }}
-        >
+        <Link href={`/admin/events/${slug}/fees`} className="admin-link-card" style={{ padding: '18px 20px' }}>
           <p style={{ fontSize: '0.65rem', letterSpacing: '0.2em', textTransform: 'uppercase', color: 'var(--muted)' }}>
             Fee Orders
           </p>

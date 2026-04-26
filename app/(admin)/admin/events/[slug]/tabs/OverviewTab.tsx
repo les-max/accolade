@@ -66,12 +66,7 @@ export default function OverviewTab({ show, slug, role, performancesData, member
       {/* Quick-action links */}
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px', marginBottom: '32px' }}>
         {quickLinks.map(link => (
-          <Link key={link.href} href={link.href} style={{
-            display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-            padding: '18px 20px',
-            background: 'var(--layer)', border: '1px solid var(--border)', borderRadius: '4px',
-            textDecoration: 'none',
-          }}>
+          <Link key={link.href} href={link.href} className="admin-link-card" style={{ padding: '18px 20px' }}>
             <p style={{ fontSize: '0.65rem', letterSpacing: '0.2em', textTransform: 'uppercase', color: 'var(--muted)' }}>
               {link.label}
             </p>
