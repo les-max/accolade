@@ -21,6 +21,33 @@ export async function deletePerformance(id: string, slug: string) {
   revalidatePath(`/admin/events/${slug}`)
 }
 
+export async function addShowEvent(showId: string, slug: string, formData: FormData) {
+  const supabase = await createClient()
+  const event_type = formData.get('event_type') as string
+  const title      = formData.get('title') as string
+  const date       = formData.get('date') as string
+  const start_val  = formData.get('start_time') as string
+  const end_val    = formData.get('end_time') as string
+  const location   = (formData.get('location') as string) || null
+  const notes      = (formData.get('notes') as string) || null
+
+  const start_time = start_val ? `${date}T${start_val}:00` : `${date}T00:00:00`
+  const end_time   = end_val   ? `${date}T${end_val}:00`   : null
+
+  const { error } = await supabase.from('show_events').insert({
+    show_id: showId, event_type, title, start_time, end_time, location, notes,
+  })
+  if (error) throw new Error(error.message)
+  revalidatePath(`/admin/events/${slug}`)
+}
+
+export async function deleteShowEvent(id: string, slug: string) {
+  const supabase = await createClient()
+  const { error } = await supabase.from('show_events').delete().eq('id', id)
+  if (error) throw new Error(error.message)
+  revalidatePath(`/admin/events/${slug}`)
+}
+
 export async function addSlot(showId: string, formData: FormData) {
   const supabase = await createClient()
 

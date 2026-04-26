@@ -34,7 +34,7 @@ export default async function ShowDetailPage({
   const role = await getShowRole(show.id)
   if (!role) redirect('/admin/events')
 
-  const [{ data: slotsData }, { data: rolesData }, { data: regCounts }, { data: performancesData }, { data: venuesData }, { data: parentShowsData }, { data: membersData }, { data: feesConfigData }, { data: couponsData }] = await Promise.all([
+  const [{ data: slotsData }, { data: rolesData }, { data: regCounts }, { data: performancesData }, { data: venuesData }, { data: parentShowsData }, { data: membersData }, { data: feesConfigData }, { data: couponsData }, { data: showEventsData }] = await Promise.all([
     supabase.from('audition_slots').select('*').eq('show_id', show.id).order('start_time', { ascending: true }),
     supabase.from('show_roles').select('*').eq('show_id', show.id).order('sort_order', { ascending: true }),
     supabase.from('auditions').select('slot_id').eq('show_id', show.id).eq('status', 'registered'),
@@ -47,6 +47,7 @@ export default async function ShowDetailPage({
       .order('show_role'),
     supabase.from('show_fees_config').select('shirt_price, tuition_amount, fees_enabled').eq('show_id', show.id).maybeSingle(),
     supabase.from('show_coupon_codes').select('id, code, waive_tuition, waive_shirts, used_by_family_id').eq('show_id', show.id).order('created_at'),
+    supabase.from('show_events').select('id, event_type, title, start_time, end_time, location, notes').eq('show_id', show.id).order('start_time'),
   ])
 
   const showPerformanceIds = (performancesData ?? []).filter(p => p.type === 'performance').map(p => p.id)
@@ -161,6 +162,7 @@ export default async function ShowDetailPage({
             role={role}
             performancesData={performancesData ?? []}
             ticketConfigData={ticketConfigData ?? []}
+            showEventsData={showEventsData ?? []}
           />
         )}
         {activeTab === 'people' && (
