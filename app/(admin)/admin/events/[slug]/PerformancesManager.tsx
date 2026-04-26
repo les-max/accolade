@@ -212,7 +212,7 @@ export default function PerformancesManager({
           borderBottom: sorted.length > 0 || showForm ? '1px solid var(--border)' : 'none',
         }}>
           <p style={{ fontSize: '0.65rem', letterSpacing: '0.25em', textTransform: 'uppercase', color: 'var(--muted)' }}>
-            Dates &amp; Schedule
+            Performances
           </p>
           {!showForm && !readOnly && (
             <button
@@ -267,7 +267,7 @@ export default function PerformancesManager({
 
         {sorted.length === 0 && !showForm && (
           <div style={{ padding: '32px 24px', textAlign: 'center' }}>
-            <p style={{ color: 'var(--muted)', fontSize: '0.85rem' }}>No dates scheduled yet.</p>
+            <p style={{ color: 'var(--muted)', fontSize: '0.85rem' }}>No performances scheduled yet.</p>
           </div>
         )}
 
