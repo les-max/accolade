@@ -4,14 +4,3 @@ Drop thoughts, ideas, bugs, copy changes, or plans here as they hit you. Next Cl
 
 ---
 
-## 2026-04-24 — Admin page layout needs help
-
-I want to look at the layout of the admin page. I think it could use some help. Functionality is good but it's kind of a mess.
-
-## 2026-04-24 — Floating effect on cards/boxes/photos
-
-For the accolade site, I want to see if we can give some elements like cards, boxes, and photos a sort of floating effect.
-
-## 2026-04-24 — Itemized email receipts for any payment
-
-I want to make sure that when people buy tickets or spend any money through the site that they get an itemized receipt via email.

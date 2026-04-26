@@ -15,7 +15,7 @@ export default async function AdminLayout({
 
   const { data: adminUser } = await supabase
     .from('admin_users')
-    .select('id')
+    .select('id, role')
     .eq('user_id', user.id)
     .single()
 
@@ -23,11 +23,13 @@ export default async function AdminLayout({
   const BOOTSTRAP_EMAILS = ['les@lesbrowndesign.com']
   if (!adminUser && !BOOTSTRAP_EMAILS.includes(user.email ?? '')) redirect('/')
 
+  const role = adminUser?.role ?? 'admin'
+
   return (
     <>
       <Nav />
       <div style={{ display: 'flex', height: '100vh', overflow: 'hidden', background: 'var(--ink)', paddingTop: '64px' }}>
-        <AdminNav userEmail={user.email ?? ''} />
+        <AdminNav userEmail={user.email ?? ''} role={role} />
         <div style={{ flex: 1, overflowY: 'auto', minWidth: 0 }}>
           <main style={{ padding: 'clamp(24px, 4vw, 48px)' }}>
             {children}

@@ -4,7 +4,7 @@ import Link from 'next/link'
 import { usePathname, useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
 
-export default function AdminNav({ userEmail }: { userEmail: string }) {
+export default function AdminNav({ userEmail, role }: { userEmail: string; role: string }) {
   const pathname = usePathname()
   const router = useRouter()
 
@@ -14,12 +14,16 @@ export default function AdminNav({ userEmail }: { userEmail: string }) {
     router.push('/login')
   }
 
-  const navItems = [
-    { label: 'Events',   href: '/admin/events' },
-    { label: 'Venues',   href: '/admin/venues' },
-    { label: 'Sponsors', href: '/admin/sponsors' },
-    { label: 'Users',    href: '/admin/users' },
-  ]
+  const navItems = role === 'admin'
+    ? [
+        { label: 'Events',   href: '/admin/events' },
+        { label: 'Venues',   href: '/admin/venues' },
+        { label: 'Sponsors', href: '/admin/sponsors' },
+        { label: 'Users',    href: '/admin/users' },
+      ]
+    : [
+        { label: 'Events', href: '/admin/events' },
+      ]
 
   return (
     <aside style={{

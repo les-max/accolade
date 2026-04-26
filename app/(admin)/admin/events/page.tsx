@@ -1,6 +1,7 @@
 import { createClient } from '@/lib/supabase/server'
 import Link from 'next/link'
 import EventRowActions from './EventRowActions'
+import { getSessionStaff } from '@/lib/staff'
 
 const TYPE_COLORS: Record<string, string> = {
   show:     'var(--teal)',
@@ -25,14 +26,27 @@ export default async function EventsPage({
   const includeArchived = showArchived === '1'
 
   const supabase = await createClient()
-  const query = supabase
+  const staff = await getSessionStaff()
+
+  // Directors and PMs see only their assigned shows
+  let showIds: string[] | null = null
+  if (staff && staff.orgRole !== 'admin') {
+    const { data: assignments } = await supabase
+      .from('show_staff')
+      .select('show_id')
+      .eq('admin_user_id', staff.adminUserId)
+    showIds = (assignments ?? []).map(a => a.show_id)
+  }
+
+  let query = supabase
     .from('shows')
     .select('id, slug, title, event_type, start_date, status, archived')
     .order('start_date', { ascending: false })
 
-  const { data: shows } = includeArchived
-    ? await query
-    : await query.eq('archived', false)
+  if (!includeArchived) query = query.eq('archived', false)
+  if (showIds !== null) query = query.in('id', showIds.length > 0 ? showIds : ['00000000-0000-0000-0000-000000000000'])
+
+  const { data: shows } = await query
 
   return (
     <div style={{ maxWidth: '900px' }}>
@@ -44,15 +58,19 @@ export default async function EventsPage({
           <h1 style={{ fontFamily: "'Playfair Display', serif", fontSize: '2rem', fontWeight: 700 }}>Events</h1>
         </div>
         <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
-          <Link
-            href={includeArchived ? '/admin/events' : '/admin/events?archived=1'}
-            style={{ fontSize: '0.68rem', letterSpacing: '0.1em', textTransform: 'uppercase', color: includeArchived ? 'var(--gold)' : 'var(--muted)', textDecoration: 'none' }}
-          >
-            {includeArchived ? 'Hide Archived' : 'Show Archived'}
-          </Link>
-          <Link href="/admin/events/new" className="btn-primary">
-            <span>New Event</span>
-          </Link>
+          {staff?.orgRole === 'admin' && (
+            <Link
+              href={includeArchived ? '/admin/events' : '/admin/events?archived=1'}
+              style={{ fontSize: '0.68rem', letterSpacing: '0.1em', textTransform: 'uppercase', color: includeArchived ? 'var(--gold)' : 'var(--muted)', textDecoration: 'none' }}
+            >
+              {includeArchived ? 'Hide Archived' : 'Show Archived'}
+            </Link>
+          )}
+          {staff?.orgRole === 'admin' && (
+            <Link href="/admin/events/new" className="btn-primary">
+              <span>New Event</span>
+            </Link>
+          )}
         </div>
       </div>
 

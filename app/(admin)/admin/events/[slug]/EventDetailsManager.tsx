@@ -3,6 +3,7 @@
 import { useState, useTransition } from 'react'
 import { updateShowDetails } from './actions'
 import { uploadEventImage } from '../uploadImage'
+import type { StaffRole } from '@/lib/staff'
 
 const inputStyle: React.CSSProperties = {
   width: '100%',
@@ -42,14 +43,16 @@ const sectionLabel: React.CSSProperties = {
   display: 'block',
 }
 
-function Toggle({ on, onChange }: { on: boolean; onChange: (v: boolean) => void }) {
+function Toggle({ on, onChange, disabled = false }: { on: boolean; onChange: (v: boolean) => void; disabled?: boolean }) {
   return (
     <div
-      onClick={() => onChange(!on)}
+      onClick={() => !disabled && onChange(!on)}
       style={{
         width: '40px', height: '22px', borderRadius: '11px',
         background: on ? 'var(--gold)' : 'rgba(255,255,255,0.1)',
-        position: 'relative', flexShrink: 0, transition: 'background 0.2s', cursor: 'pointer',
+        position: 'relative', flexShrink: 0, transition: 'background 0.2s',
+        cursor: disabled ? 'not-allowed' : 'pointer',
+        opacity: disabled ? 0.5 : 1,
       }}
     >
       <div style={{
@@ -87,6 +90,7 @@ const TYPE_LABELS: Record<string, string> = {
 type Props = {
   showId: string
   slug: string
+  role: StaffRole
   show: {
     event_type: string
     start_date: string | null
@@ -114,7 +118,7 @@ type Props = {
   parentShows: { id: string; title: string; show_image: string | null; show_image_wide: string | null; venue_id: string | null; season: number | null }[]
 }
 
-export default function EventDetailsManager({ showId, slug, show, venues, parentShows }: Props) {
+export default function EventDetailsManager({ showId, slug, role, show, venues, parentShows }: Props) {
   const [isPending, startTransition] = useTransition()
   const eventType = show.event_type ?? 'show'
   const is = (types: string[]) => types.includes(eventType)
@@ -145,6 +149,10 @@ export default function EventDetailsManager({ showId, slug, show, venues, parent
   const [parentShowId, setParentShowId] = useState<string | null>(show.parent_show_id)
   const [saved, setSaved] = useState(false)
   const [error, setError] = useState('')
+
+  const isAdmin = role === 'admin'
+  const canEdit = (field: string) =>
+    isAdmin || (['start_date', 'end_date', 'venue_id'].includes(field) && role === 'director')
 
   function handleImageChange(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0] ?? null
@@ -222,13 +230,14 @@ export default function EventDetailsManager({ showId, slug, show, venues, parent
         </span>
       </div>
 
-      {/* ── Connected Show (audition only) ── */}
+      {/* Connected Show (audition only) */}
       {is(['audition']) && (
         <div style={{ marginBottom: '20px', paddingBottom: '20px', borderBottom: '1px solid var(--border)' }}>
           <label>
             <span style={labelStyle}>Connected Show</span>
             <select
               value={parentShowId ?? ''}
+              disabled={!isAdmin}
               onChange={e => {
                 const id = e.target.value || null
                 setParentShowId(id)
@@ -241,7 +250,7 @@ export default function EventDetailsManager({ showId, slug, show, venues, parent
                   }
                 }
               }}
-              style={{ ...inputStyle, appearance: 'none' }}
+              style={{ ...inputStyle, appearance: 'none', opacity: isAdmin ? 1 : 0.5 }}
             >
               <option value="">— Not linked to a show —</option>
               {parentShows.map(s => (
@@ -257,15 +266,16 @@ export default function EventDetailsManager({ showId, slug, show, venues, parent
         </div>
       )}
 
-      {/* ── Season (show, audition, camp) ── */}
+      {/* Season (show, audition, camp) */}
       {is(['show', 'audition', 'camp']) && (
         <div style={{ marginBottom: '20px' }}>
           <label>
             <span style={labelStyle}>Season <span style={{ color: 'var(--muted)', fontWeight: 400 }}>(optional)</span></span>
             <select
               value={season ?? ''}
+              disabled={!isAdmin}
               onChange={e => setSeason(e.target.value ? Number(e.target.value) : null)}
-              style={{ ...inputStyle, appearance: 'none' }}
+              style={{ ...inputStyle, appearance: 'none', opacity: isAdmin ? 1 : 0.5 }}
             >
               <option value="">— Unassigned —</option>
               {Array.from({ length: 25 }, (_, i) => i + 1).map(n => (
@@ -276,26 +286,39 @@ export default function EventDetailsManager({ showId, slug, show, venues, parent
         </div>
       )}
 
-      {/* ── Dates ── */}
+      {/* Dates */}
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px', marginBottom: '20px' }}>
         <label>
           <span style={labelStyle}>Start Date</span>
-          <input type="date" value={startDate} onChange={e => setStartDate(e.target.value)} style={inputStyle} />
+          <input
+            type="date"
+            value={startDate}
+            onChange={e => setStartDate(e.target.value)}
+            disabled={!canEdit('start_date')}
+            style={{ ...inputStyle, opacity: canEdit('start_date') ? 1 : 0.5 }}
+          />
         </label>
         <label>
           <span style={labelStyle}>End Date <span style={{ color: 'var(--muted)', fontWeight: 400 }}>(optional)</span></span>
-          <input type="date" value={endDate} onChange={e => setEndDate(e.target.value)} style={inputStyle} />
+          <input
+            type="date"
+            value={endDate}
+            onChange={e => setEndDate(e.target.value)}
+            disabled={!canEdit('end_date')}
+            style={{ ...inputStyle, opacity: canEdit('end_date') ? 1 : 0.5 }}
+          />
         </label>
       </div>
 
-      {/* ── Venue ── */}
+      {/* Venue */}
       <div style={{ marginBottom: '20px' }}>
         <label>
           <span style={labelStyle}>{eventType === 'audition' ? 'Audition Venue' : 'Venue'} <span style={{ color: 'var(--muted)', fontWeight: 400 }}>(optional)</span></span>
           <select
             value={venueId ?? ''}
+            disabled={!canEdit('venue_id')}
             onChange={e => setVenueId(e.target.value || null)}
-            style={{ ...inputStyle, appearance: 'none' }}
+            style={{ ...inputStyle, appearance: 'none', opacity: canEdit('venue_id') ? 1 : 0.5 }}
           >
             <option value="">— No venue —</option>
             {venues.map(v => (
@@ -307,7 +330,7 @@ export default function EventDetailsManager({ showId, slug, show, venues, parent
         </label>
       </div>
 
-      {/* ── Audition Settings (audition only) ── */}
+      {/* Audition Settings (audition only) */}
       {is(['audition']) && (
         <div style={sectionStyle}>
           <span style={sectionLabel}>Audition Settings</span>
@@ -317,7 +340,8 @@ export default function EventDetailsManager({ showId, slug, show, venues, parent
               {(['slot', 'window'] as const).map(type => (
                 <button
                   key={type} type="button"
-                  onClick={() => setAuditionType(type)}
+                  disabled={!isAdmin}
+                  onClick={() => isAdmin && setAuditionType(type)}
                   style={{
                     padding: '8px 16px',
                     border: `1px solid ${auditionType === type ? 'var(--gold)' : 'var(--border)'}`,
@@ -326,8 +350,9 @@ export default function EventDetailsManager({ showId, slug, show, venues, parent
                     color: auditionType === type ? 'var(--gold)' : 'var(--muted)',
                     fontSize: '0.72rem',
                     letterSpacing: '0.1em',
-                    cursor: 'pointer',
+                    cursor: isAdmin ? 'pointer' : 'not-allowed',
                     transition: 'all 0.2s',
+                    opacity: isAdmin ? 1 : 0.5,
                   }}
                 >
                   {type === 'slot' ? 'Specific Time Slots' : 'Audition Windows'}
@@ -338,38 +363,37 @@ export default function EventDetailsManager({ showId, slug, show, venues, parent
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
             <label>
               <span style={labelStyle}>Min Age <span style={{ color: 'var(--muted)', fontWeight: 400 }}>(optional)</span></span>
-              <input type="number" min={1} max={99} value={ageMin ?? ''} onChange={e => setAgeMin(e.target.value ? Number(e.target.value) : null)} placeholder="e.g. 8" style={inputStyle} />
+              <input type="number" min={1} max={99} value={ageMin ?? ''} disabled={!isAdmin} onChange={e => setAgeMin(e.target.value ? Number(e.target.value) : null)} placeholder="e.g. 8" style={{ ...inputStyle, opacity: isAdmin ? 1 : 0.5 }} />
             </label>
             <label>
               <span style={labelStyle}>Max Age <span style={{ color: 'var(--muted)', fontWeight: 400 }}>(optional)</span></span>
-              <input type="number" min={1} max={99} value={ageMax ?? ''} onChange={e => setAgeMax(e.target.value ? Number(e.target.value) : null)} placeholder="e.g. 18" style={inputStyle} />
+              <input type="number" min={1} max={99} value={ageMax ?? ''} disabled={!isAdmin} onChange={e => setAgeMax(e.target.value ? Number(e.target.value) : null)} placeholder="e.g. 18" style={{ ...inputStyle, opacity: isAdmin ? 1 : 0.5 }} />
             </label>
           </div>
         </div>
       )}
 
-      {/* ── Age Range (camp, workshop) ── */}
+      {/* Age Range (camp, workshop) */}
       {is(['camp', 'workshop']) && (
         <div style={sectionStyle}>
           <span style={sectionLabel}>Age Range</span>
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
             <label>
               <span style={labelStyle}>Min Age <span style={{ color: 'var(--muted)', fontWeight: 400 }}>(optional)</span></span>
-              <input type="number" min={1} max={99} value={ageMin ?? ''} onChange={e => setAgeMin(e.target.value ? Number(e.target.value) : null)} placeholder="e.g. 8" style={inputStyle} />
+              <input type="number" min={1} max={99} value={ageMin ?? ''} disabled={!isAdmin} onChange={e => setAgeMin(e.target.value ? Number(e.target.value) : null)} placeholder="e.g. 8" style={{ ...inputStyle, opacity: isAdmin ? 1 : 0.5 }} />
             </label>
             <label>
               <span style={labelStyle}>Max Age <span style={{ color: 'var(--muted)', fontWeight: 400 }}>(optional)</span></span>
-              <input type="number" min={1} max={99} value={ageMax ?? ''} onChange={e => setAgeMax(e.target.value ? Number(e.target.value) : null)} placeholder="e.g. 18" style={inputStyle} />
+              <input type="number" min={1} max={99} value={ageMax ?? ''} disabled={!isAdmin} onChange={e => setAgeMax(e.target.value ? Number(e.target.value) : null)} placeholder="e.g. 18" style={{ ...inputStyle, opacity: isAdmin ? 1 : 0.5 }} />
             </label>
           </div>
         </div>
       )}
 
-      {/* ── Images ── */}
+      {/* Images */}
       <div style={sectionStyle}>
         <span style={sectionLabel}>Images</span>
 
-        {/* Audition with connected show: show inherited previews, no upload */}
         {is(['audition']) && parentShowId ? (
           <div style={{ display: 'flex', gap: '16px', alignItems: 'center', padding: '14px', background: 'rgba(255,255,255,0.02)', border: '1px solid var(--border)', borderRadius: '2px' }}>
             {imagePreview && (
@@ -388,8 +412,8 @@ export default function EventDetailsManager({ showId, slug, show, venues, parent
           <>
             <div style={{ marginBottom: '14px' }}>
               <span style={labelStyle}>Portrait — 2:3 ratio · 1200 × 1800 px</span>
-              <label style={{ display: 'flex', alignItems: 'center', gap: '16px', border: '1px dashed var(--border)', borderRadius: '2px', padding: '14px', cursor: 'pointer', background: 'rgba(255,255,255,0.02)' }}>
-                <input type="file" accept="image/*" onChange={handleImageChange} style={{ display: 'none' }} />
+              <label style={{ display: 'flex', alignItems: 'center', gap: '16px', border: '1px dashed var(--border)', borderRadius: '2px', padding: '14px', cursor: isAdmin ? 'pointer' : 'not-allowed', background: 'rgba(255,255,255,0.02)', opacity: isAdmin ? 1 : 0.6, pointerEvents: isAdmin ? undefined : 'none' }}>
+                <input type="file" accept="image/*" onChange={handleImageChange} style={{ display: 'none' }} disabled={!isAdmin} />
                 {imagePreview ? (
                   // eslint-disable-next-line @next/next/no-img-element
                   <img src={imagePreview} alt="preview" style={{ width: '36px', height: '54px', objectFit: 'cover', borderRadius: '2px' }} />
@@ -408,8 +432,8 @@ export default function EventDetailsManager({ showId, slug, show, venues, parent
             </div>
             <div>
               <span style={labelStyle}>Wide — 16:9 ratio · 1920 × 1080 px</span>
-              <label style={{ display: 'flex', alignItems: 'center', gap: '16px', border: '1px dashed var(--border)', borderRadius: '2px', padding: '14px', cursor: 'pointer', background: 'rgba(255,255,255,0.02)' }}>
-                <input type="file" accept="image/*" onChange={handleImageWideChange} style={{ display: 'none' }} />
+              <label style={{ display: 'flex', alignItems: 'center', gap: '16px', border: '1px dashed var(--border)', borderRadius: '2px', padding: '14px', cursor: isAdmin ? 'pointer' : 'not-allowed', background: 'rgba(255,255,255,0.02)', opacity: isAdmin ? 1 : 0.6, pointerEvents: isAdmin ? undefined : 'none' }}>
+                <input type="file" accept="image/*" onChange={handleImageWideChange} style={{ display: 'none' }} disabled={!isAdmin} />
                 {imageWidePreview ? (
                   // eslint-disable-next-line @next/next/no-img-element
                   <img src={imageWidePreview} alt="preview" style={{ width: '72px', height: '40px', objectFit: 'cover', borderRadius: '2px' }} />
@@ -430,12 +454,12 @@ export default function EventDetailsManager({ showId, slug, show, venues, parent
         )}
       </div>
 
-      {/* ── Featured (show, camp, event) ── */}
+      {/* Featured (show, camp, event) */}
       {is(['show', 'camp', 'event']) && (
         <div style={sectionStyle}>
           <span style={sectionLabel}>Homepage Display</span>
           <div style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
-            <Toggle on={featured} onChange={setFeatured} />
+            <Toggle on={featured} onChange={setFeatured} disabled={!isAdmin} />
             <div>
               <p style={{ fontSize: '0.82rem', color: 'var(--warm-white)', marginBottom: '1px' }}>Featured</p>
               <p style={{ fontSize: '0.7rem', color: 'var(--muted)' }}>Displays as the featured event on the home page</p>
@@ -444,24 +468,24 @@ export default function EventDetailsManager({ showId, slug, show, venues, parent
         </div>
       )}
 
-      {/* ── CTA (show, camp, workshop, event) ── */}
+      {/* CTA (show, camp, workshop, event) */}
       {is(['show', 'camp', 'workshop', 'event']) && (
         <div style={sectionStyle}>
           <span style={sectionLabel}>{eventType === 'show' ? 'Tickets' : 'Call to Action'}</span>
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
             <label>
               <span style={labelStyle}>Button Label</span>
-              <input type="text" value={ctaLabel} onChange={e => setCtaLabel(e.target.value)} placeholder={eventType === 'show' ? 'Get Tickets' : 'Register Now'} style={inputStyle} />
+              <input type="text" value={ctaLabel} disabled={!isAdmin} onChange={e => setCtaLabel(e.target.value)} placeholder={eventType === 'show' ? 'Get Tickets' : 'Register Now'} style={{ ...inputStyle, opacity: isAdmin ? 1 : 0.5 }} />
             </label>
             <label>
               <span style={labelStyle}>Link</span>
-              <input type="text" value={ctaUrl} onChange={e => setCtaUrl(e.target.value)} placeholder="/tickets" style={inputStyle} />
+              <input type="text" value={ctaUrl} disabled={!isAdmin} onChange={e => setCtaUrl(e.target.value)} placeholder="/tickets" style={{ ...inputStyle, opacity: isAdmin ? 1 : 0.5 }} />
             </label>
           </div>
         </div>
       )}
 
-      {/* ── Registration Form Fields (audition, camp, workshop) ── */}
+      {/* Registration Form Fields (audition, camp, workshop) */}
       {is(['audition', 'camp', 'workshop']) && (
         <div style={sectionStyle}>
           <span style={sectionLabel}>Registration Form Fields</span>
@@ -470,19 +494,19 @@ export default function EventDetailsManager({ showId, slug, show, venues, parent
             { label: 'Require headshot upload',    state: showHeadshot, set: setShowHeadshot },
             { label: 'Require résumé upload',      state: showResume,   set: setShowResume   },
           ] as { label: string; state: boolean; set: (v: boolean) => void }[]).map(({ label, state, set }) => (
-            <div key={label} style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '12px', cursor: 'pointer' }}
-              onClick={() => set(!state)}
+            <div key={label} style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '12px', cursor: isAdmin ? 'pointer' : 'not-allowed' }}
+              onClick={() => isAdmin && set(!state)}
             >
-              <Toggle on={state} onChange={set} />
+              <Toggle on={state} onChange={set} disabled={!isAdmin} />
               <span style={{ fontSize: '0.82rem', color: 'var(--warm-white)' }}>{label}</span>
             </div>
           ))}
           {is(['audition']) && (
             <>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '12px', cursor: 'pointer' }}
-                onClick={() => setAllowCrewSignup(v => !v)}
+              <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '12px', cursor: isAdmin ? 'pointer' : 'not-allowed' }}
+                onClick={() => isAdmin && setAllowCrewSignup(v => !v)}
               >
-                <Toggle on={allowCrewSignup} onChange={setAllowCrewSignup} />
+                <Toggle on={allowCrewSignup} onChange={setAllowCrewSignup} disabled={!isAdmin} />
                 <span style={{ fontSize: '0.82rem', color: 'var(--warm-white)' }}>Allow crew signup on this page</span>
               </div>
               {allowCrewSignup && (
@@ -492,10 +516,11 @@ export default function EventDetailsManager({ showId, slug, show, venues, parent
                     <input
                       type="number"
                       min={1}
+                      disabled={!isAdmin}
                       value={crewPositions ?? ''}
                       onChange={e => setCrewPositions(e.target.value ? Number(e.target.value) : null)}
                       placeholder="e.g. 10"
-                      style={{ ...inputStyle, maxWidth: '120px' }}
+                      style={{ ...inputStyle, maxWidth: '120px', opacity: isAdmin ? 1 : 0.5 }}
                     />
                   </label>
                 </div>
@@ -505,14 +530,14 @@ export default function EventDetailsManager({ showId, slug, show, venues, parent
         </div>
       )}
 
-      {/* ── Past Productions (show only) ── */}
+      {/* Past Productions (show only) */}
       {is(['show']) && (
         <div style={sectionStyle}>
           <span style={sectionLabel}>Past Productions</span>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '14px', marginBottom: '16px', cursor: 'pointer' }}
-            onClick={() => setPastShowsVisible(v => !v)}
+          <div style={{ display: 'flex', alignItems: 'center', gap: '14px', marginBottom: '16px', cursor: isAdmin ? 'pointer' : 'not-allowed' }}
+            onClick={() => isAdmin && setPastShowsVisible(v => !v)}
           >
-            <Toggle on={pastShowsVisible} onChange={setPastShowsVisible} />
+            <Toggle on={pastShowsVisible} onChange={setPastShowsVisible} disabled={!isAdmin} />
             <div>
               <p style={{ fontSize: '0.82rem', color: 'var(--warm-white)', marginBottom: '1px' }}>Show in past productions</p>
               <p style={{ fontSize: '0.7rem', color: 'var(--muted)' }}>Appears in the Past Productions archive</p>
@@ -523,9 +548,10 @@ export default function EventDetailsManager({ showId, slug, show, venues, parent
             <input
               type="text"
               value={youtubeVideoId}
+              disabled={!isAdmin}
               onChange={e => setYoutubeVideoId(e.target.value)}
               placeholder="https://youtu.be/dQw4w9WgXcQ  or  dQw4w9WgXcQ"
-              style={inputStyle}
+              style={{ ...inputStyle, opacity: isAdmin ? 1 : 0.5 }}
             />
             <p style={{ fontSize: '0.7rem', color: 'var(--muted)', marginTop: '6px' }}>
               Paste a YouTube URL or the 11-character video ID.
@@ -536,17 +562,19 @@ export default function EventDetailsManager({ showId, slug, show, venues, parent
 
       {error && <p style={{ color: 'var(--rose)', fontSize: '0.8rem', marginTop: '20px' }}>{error}</p>}
 
-      <div style={{ display: 'flex', alignItems: 'center', gap: '16px', marginTop: '24px' }}>
-        <button
-          onClick={handleSave}
-          disabled={isPending}
-          className="btn-primary"
-          style={{ fontSize: '0.7rem', padding: '12px 28px', opacity: isPending ? 0.6 : 1 }}
-        >
-          <span>{isPending ? 'Saving…' : 'Save Details'}</span>
-        </button>
-        {saved && <span style={{ fontSize: '0.78rem', color: 'var(--teal)' }}>Saved</span>}
-      </div>
+      {role !== 'production_manager' && (
+        <div style={{ display: 'flex', alignItems: 'center', gap: '16px', marginTop: '24px' }}>
+          <button
+            onClick={handleSave}
+            disabled={isPending}
+            className="btn-primary"
+            style={{ fontSize: '0.7rem', padding: '12px 28px', opacity: isPending ? 0.6 : 1 }}
+          >
+            <span>{isPending ? 'Saving…' : 'Save Details'}</span>
+          </button>
+          {saved && <span style={{ fontSize: '0.78rem', color: 'var(--teal)' }}>Saved</span>}
+        </div>
+      )}
     </div>
   )
 }

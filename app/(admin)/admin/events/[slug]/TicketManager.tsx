@@ -54,11 +54,13 @@ export default function TicketManager({
   slug,
   performances,
   ticketConfig,
+  readOnly = false,
 }: {
   showId: string
   slug: string
   performances: Performance[]
   ticketConfig: TicketPerf[]
+  readOnly?: boolean
 }) {
   const configByPerfId = Object.fromEntries(ticketConfig.map(t => [t.show_performance_id, t]))
 
@@ -160,8 +162,9 @@ export default function TicketManager({
                 type="number"
                 min="1"
                 value={row.capacity}
+                disabled={readOnly}
                 onChange={e => setRows(r => ({ ...r, [p.id]: { ...r[p.id], capacity: e.target.value } }))}
-                style={inputStyle}
+                style={{ ...inputStyle, opacity: readOnly ? 0.5 : 1 }}
               />
 
               <div style={{ position: 'relative' }}>
@@ -174,14 +177,16 @@ export default function TicketManager({
                   min="0"
                   step="0.50"
                   value={row.price}
+                  disabled={readOnly}
                   onChange={e => setRows(r => ({ ...r, [p.id]: { ...r[p.id], price: e.target.value } }))}
-                  style={{ ...inputStyle, paddingLeft: '22px' }}
+                  style={{ ...inputStyle, paddingLeft: '22px', opacity: readOnly ? 0.5 : 1 }}
                 />
               </div>
 
               <button
                 type="button"
-                onClick={() => setRows(r => ({ ...r, [p.id]: { ...r[p.id], sales_enabled: !r[p.id].sales_enabled } }))}
+                disabled={readOnly}
+                onClick={() => !readOnly && setRows(r => ({ ...r, [p.id]: { ...r[p.id], sales_enabled: !r[p.id].sales_enabled } }))}
                 style={{
                   padding: '8px 12px',
                   border: `1px solid ${row.sales_enabled ? 'var(--teal)' : 'var(--border)'}`,
@@ -191,8 +196,9 @@ export default function TicketManager({
                   fontSize: '0.65rem',
                   letterSpacing: '0.1em',
                   textTransform: 'uppercase',
-                  cursor: 'pointer',
+                  cursor: readOnly ? 'not-allowed' : 'pointer',
                   whiteSpace: 'nowrap',
+                  opacity: readOnly ? 0.5 : 1,
                 }}
               >
                 {row.sales_enabled ? 'On' : 'Off'}
@@ -201,18 +207,20 @@ export default function TicketManager({
           )
         })}
 
-        <div style={{ padding: '20px 24px', borderTop: '1px solid var(--border)', display: 'flex', alignItems: 'center', gap: '16px' }}>
-          <button
-            onClick={handleSave}
-            disabled={isPending}
-            className="btn-primary"
-            style={{ padding: '10px 24px', opacity: isPending ? 0.6 : 1 }}
-          >
-            <span>{isPending ? 'Saving…' : 'Save Tickets'}</span>
-          </button>
-          {saved && !isPending && <p style={{ fontSize: '0.78rem', color: 'var(--teal)' }}>Saved</p>}
-          {error && <p style={{ fontSize: '0.78rem', color: 'var(--rose)' }}>{error}</p>}
-        </div>
+        {!readOnly && (
+          <div style={{ padding: '20px 24px', borderTop: '1px solid var(--border)', display: 'flex', alignItems: 'center', gap: '16px' }}>
+            <button
+              onClick={handleSave}
+              disabled={isPending}
+              className="btn-primary"
+              style={{ padding: '10px 24px', opacity: isPending ? 0.6 : 1 }}
+            >
+              <span>{isPending ? 'Saving…' : 'Save Tickets'}</span>
+            </button>
+            {saved && !isPending && <p style={{ fontSize: '0.78rem', color: 'var(--teal)' }}>Saved</p>}
+            {error && <p style={{ fontSize: '0.78rem', color: 'var(--rose)' }}>{error}</p>}
+          </div>
+        )}
       </div>
     </div>
   )

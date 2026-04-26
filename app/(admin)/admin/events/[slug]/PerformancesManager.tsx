@@ -157,11 +157,13 @@ export default function PerformancesManager({
   slug,
   performances,
   eventType,
+  readOnly = false,
 }: {
   showId: string
   slug: string
   performances: Performance[]
   eventType: string
+  readOnly?: boolean
 }) {
   const allowedTypes = ALLOWED_TYPES[eventType] ?? ['performance', 'audition', 'callback']
   const [showForm, setShowForm] = useState(false)
@@ -212,7 +214,7 @@ export default function PerformancesManager({
           <p style={{ fontSize: '0.65rem', letterSpacing: '0.25em', textTransform: 'uppercase', color: 'var(--muted)' }}>
             Dates &amp; Schedule
           </p>
-          {!showForm && (
+          {!showForm && !readOnly && (
             <button
               onClick={() => setShowForm(true)}
               style={{ background: 'none', border: '1px solid var(--border)', borderRadius: '2px', color: 'var(--gold)', fontSize: '0.65rem', letterSpacing: '0.15em', textTransform: 'uppercase', padding: '8px 14px', cursor: 'pointer' }}
@@ -248,14 +250,16 @@ export default function PerformancesManager({
                   {p.start_time ? formatTime(p.start_time) : '—'}
                 </p>
                 <p style={{ fontSize: '0.82rem', color: 'var(--muted)' }}>{p.label ?? '—'}</p>
-                <button
-                  onClick={() => handleDelete(p.id)}
-                  disabled={isPending}
-                  style={{ background: 'none', border: 'none', color: 'var(--muted)', cursor: 'pointer', fontSize: '1rem', lineHeight: 1, padding: 0 }}
-                  title="Remove"
-                >
-                  ×
-                </button>
+                {!readOnly && (
+                  <button
+                    onClick={() => handleDelete(p.id)}
+                    disabled={isPending}
+                    style={{ background: 'none', border: 'none', color: 'var(--muted)', cursor: 'pointer', fontSize: '1rem', lineHeight: 1, padding: 0 }}
+                    title="Remove"
+                  >
+                    ×
+                  </button>
+                )}
               </div>
             ))}
           </div>

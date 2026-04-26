@@ -1,6 +1,7 @@
 'use client'
 import { useTransition, useState } from 'react'
 import { saveFeeConfig, addCouponCode, deleteCouponCode } from './fees-actions'
+import type { StaffRole } from '@/lib/staff'
 
 interface Coupon {
   id: string
@@ -14,11 +15,12 @@ interface FeesManagerProps {
   showId: string
   slug: string
   eventType: string
+  role: StaffRole
   config: { shirt_price: number | null; tuition_amount: number | null; fees_enabled: boolean } | null
   coupons: Coupon[]
 }
 
-export default function FeesManager({ showId, slug, eventType, config, coupons }: FeesManagerProps) {
+export default function FeesManager({ showId, slug, eventType, role, config, coupons }: FeesManagerProps) {
   const [pending, startTransition] = useTransition()
   const [feesEnabled, setFeesEnabled] = useState(config?.fees_enabled ?? false)
   const [shirtPrice, setShirtPrice] = useState(config?.shirt_price?.toString() ?? '')
@@ -30,6 +32,8 @@ export default function FeesManager({ showId, slug, eventType, config, coupons }
   const [waiveShirts, setWaiveShirts] = useState(false)
   const [codeError, setCodeError] = useState<string | null>(null)
 
+  const isAdmin = role === 'admin'
+  const canEditCoupons = role === 'admin' || role === 'director'
   const isCamp = eventType === 'camp' || eventType === 'workshop'
 
   function handleSaveConfig() {
@@ -83,51 +87,72 @@ export default function FeesManager({ showId, slug, eventType, config, coupons }
 
       {/* Config */}
       <div style={{ background: 'var(--layer)', border: '1px solid var(--border)', borderRadius: '4px', padding: '20px 24px', marginBottom: '16px' }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '20px' }}>
-          <input
-            type="checkbox"
-            id="fees-enabled"
-            checked={feesEnabled}
-            onChange={e => setFeesEnabled(e.target.checked)}
-            style={{ width: '16px', height: '16px', accentColor: 'var(--gold)' }}
-          />
-          <label htmlFor="fees-enabled" style={{ fontSize: '0.85rem', color: 'var(--warm-white)', cursor: 'pointer' }}>
-            Fees enabled (show form to families)
-          </label>
-        </div>
-
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px', marginBottom: '20px' }}>
-          {!isCamp && (
-            <div>
-              <label style={LABEL}>Shirt Price ($)</label>
+        {isAdmin ? (
+          <>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '20px' }}>
               <input
-                type="number" min="0" step="0.01"
-                value={shirtPrice}
-                onChange={e => setShirtPrice(e.target.value)}
-                placeholder="Leave blank = no shirt upsell"
-                style={INPUT}
+                type="checkbox"
+                id="fees-enabled"
+                checked={feesEnabled}
+                onChange={e => setFeesEnabled(e.target.checked)}
+                style={{ width: '16px', height: '16px', accentColor: 'var(--gold)' }}
               />
+              <label htmlFor="fees-enabled" style={{ fontSize: '0.85rem', color: 'var(--warm-white)', cursor: 'pointer' }}>
+                Fees enabled (show form to families)
+              </label>
             </div>
-          )}
-          {isCamp && (
-            <div>
-              <label style={LABEL}>Tuition per Child ($)</label>
-              <input
-                type="number" min="0" step="0.01"
-                value={tuitionAmount}
-                onChange={e => setTuitionAmount(e.target.value)}
-                placeholder="Flat tuition per child"
-                style={INPUT}
-              />
+
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px', marginBottom: '20px' }}>
+              {!isCamp && (
+                <div>
+                  <label style={LABEL}>Shirt Price ($)</label>
+                  <input
+                    type="number" min="0" step="0.01"
+                    value={shirtPrice}
+                    onChange={e => setShirtPrice(e.target.value)}
+                    placeholder="Leave blank = no shirt upsell"
+                    style={INPUT}
+                  />
+                </div>
+              )}
+              {isCamp && (
+                <div>
+                  <label style={LABEL}>Tuition per Child ($)</label>
+                  <input
+                    type="number" min="0" step="0.01"
+                    value={tuitionAmount}
+                    onChange={e => setTuitionAmount(e.target.value)}
+                    placeholder="Flat tuition per child"
+                    style={INPUT}
+                  />
+                </div>
+              )}
             </div>
-          )}
-        </div>
 
-        {configError && <p style={{ fontSize: '0.78rem', color: 'var(--rose)', marginBottom: '12px' }}>{configError}</p>}
+            {configError && <p style={{ fontSize: '0.78rem', color: 'var(--rose)', marginBottom: '12px' }}>{configError}</p>}
 
-        <button onClick={handleSaveConfig} disabled={pending} className="btn-primary" style={{ fontSize: '0.72rem' }}>
-          <span>Save Config</span>
-        </button>
+            <button onClick={handleSaveConfig} disabled={pending} className="btn-primary" style={{ fontSize: '0.72rem' }}>
+              <span>Save Config</span>
+            </button>
+          </>
+        ) : (
+          <div style={{ opacity: 0.7 }}>
+            <p style={{ fontSize: '0.82rem', color: 'var(--muted)', marginBottom: '8px' }}>
+              Fees: <span style={{ color: 'var(--warm-white)' }}>{config?.fees_enabled ? 'Enabled' : 'Disabled'}</span>
+            </p>
+            {config?.tuition_amount != null && (
+              <p style={{ fontSize: '0.82rem', color: 'var(--muted)', marginBottom: '4px' }}>
+                Tuition: <span style={{ color: 'var(--warm-white)' }}>${config.tuition_amount}</span>
+              </p>
+            )}
+            {config?.shirt_price != null && (
+              <p style={{ fontSize: '0.82rem', color: 'var(--muted)' }}>
+                Shirt Price: <span style={{ color: 'var(--warm-white)' }}>${config.shirt_price}</span>
+              </p>
+            )}
+            {!config && <p style={{ fontSize: '0.82rem', color: 'var(--muted)' }}>No fee config set.</p>}
+          </div>
+        )}
       </div>
 
       {/* Coupon Codes */}
@@ -145,7 +170,7 @@ export default function FeesManager({ showId, slug, eventType, config, coupons }
                   </span>
                   {c.used_by_family_id && <span style={{ fontSize: '0.65rem', color: 'var(--rose)', letterSpacing: '0.1em' }}>USED</span>}
                 </div>
-                {!c.used_by_family_id && (
+                {!c.used_by_family_id && canEditCoupons && (
                   <button onClick={() => handleDelete(c.id)} disabled={pending} style={{ background: 'none', border: 'none', color: 'var(--rose)', cursor: 'pointer', fontSize: '0.72rem', padding: '0' }}>
                     Delete
                   </button>
@@ -155,29 +180,35 @@ export default function FeesManager({ showId, slug, eventType, config, coupons }
           </div>
         )}
 
-        <form onSubmit={handleAddCode} style={{ display: 'grid', gridTemplateColumns: '1fr auto auto auto', gap: '10px', alignItems: 'end' }}>
-          <div>
-            <label style={LABEL}>New Code</label>
-            <input
-              type="text" value={newCode} onChange={e => setNewCode(e.target.value)}
-              placeholder="e.g. SMITH2025" style={INPUT} maxLength={20}
-            />
-          </div>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '6px', justifyContent: 'flex-end', paddingBottom: '2px' }}>
-            <label style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '0.75rem', color: 'var(--muted)', cursor: 'pointer' }}>
-              <input type="checkbox" checked={waiveTuition} onChange={e => setWaiveTuition(e.target.checked)} />
-              Waive Tuition
-            </label>
-            <label style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '0.75rem', color: 'var(--muted)', cursor: 'pointer' }}>
-              <input type="checkbox" checked={waiveShirts} onChange={e => setWaiveShirts(e.target.checked)} />
-              Waive Shirts
-            </label>
-          </div>
-          <div />
-          <button type="submit" disabled={pending || !newCode.trim()} className="btn-primary" style={{ fontSize: '0.72rem', alignSelf: 'end' }}>
-            <span>Add Code</span>
-          </button>
-        </form>
+        {coupons.length === 0 && !canEditCoupons && (
+          <p style={{ fontSize: '0.82rem', color: 'var(--muted)', marginBottom: '8px' }}>No coupon codes.</p>
+        )}
+
+        {canEditCoupons && (
+          <form onSubmit={handleAddCode} style={{ display: 'grid', gridTemplateColumns: '1fr auto auto auto', gap: '10px', alignItems: 'end' }}>
+            <div>
+              <label style={LABEL}>New Code</label>
+              <input
+                type="text" value={newCode} onChange={e => setNewCode(e.target.value)}
+                placeholder="e.g. SMITH2025" style={INPUT} maxLength={20}
+              />
+            </div>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '6px', justifyContent: 'flex-end', paddingBottom: '2px' }}>
+              <label style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '0.75rem', color: 'var(--muted)', cursor: 'pointer' }}>
+                <input type="checkbox" checked={waiveTuition} onChange={e => setWaiveTuition(e.target.checked)} />
+                Waive Tuition
+              </label>
+              <label style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '0.75rem', color: 'var(--muted)', cursor: 'pointer' }}>
+                <input type="checkbox" checked={waiveShirts} onChange={e => setWaiveShirts(e.target.checked)} />
+                Waive Shirts
+              </label>
+            </div>
+            <div />
+            <button type="submit" disabled={pending || !newCode.trim()} className="btn-primary" style={{ fontSize: '0.72rem', alignSelf: 'end' }}>
+              <span>Add Code</span>
+            </button>
+          </form>
+        )}
         {codeError && <p style={{ fontSize: '0.78rem', color: 'var(--rose)', marginTop: '8px' }}>{codeError}</p>}
       </div>
     </div>
