@@ -108,7 +108,7 @@ export default function TicketManager({
             <p style={{ fontSize: '0.65rem', letterSpacing: '0.25em', textTransform: 'uppercase', color: 'var(--muted)' }}>Tickets</p>
           </div>
           <div style={{ padding: '32px 24px', textAlign: 'center' }}>
-            <p style={{ color: 'var(--muted)', fontSize: '0.85rem' }}>Add performance dates above to configure tickets.</p>
+            <p style={{ color: 'var(--muted)', fontSize: '0.85rem' }}>Add performance dates to configure tickets.</p>
           </div>
         </div>
       </div>
