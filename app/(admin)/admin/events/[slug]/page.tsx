@@ -12,6 +12,7 @@ import ShowTabNav, { type ShowTab } from './ShowTabNav'
 import OverviewTab from './tabs/OverviewTab'
 import DetailsTab from './tabs/DetailsTab'
 import ScheduleTab from './tabs/ScheduleTab'
+import TicketsTab from './tabs/TicketsTab'
 import PeopleTab from './tabs/PeopleTab'
 import FinancesTab from './tabs/FinancesTab'
 import CommsTab from './tabs/CommsTab'
@@ -107,7 +108,7 @@ export default async function ShowDetailPage({
 
   // Tabbed layout for shows
   if (show.event_type === 'show') {
-    const VALID_TABS: ShowTab[] = ['overview', 'details', 'schedule', 'people', 'finances', 'comms']
+    const VALID_TABS: ShowTab[] = ['overview', 'details', 'schedule', 'tickets', 'people', 'finances', 'comms']
     const activeTab: ShowTab = VALID_TABS.includes(tabParam as ShowTab) ? (tabParam as ShowTab) : 'overview'
 
     return (
@@ -117,7 +118,7 @@ export default async function ShowDetailPage({
             ← Events
           </Link>
           <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '8px' }}>
-            <h1 style={{ fontFamily: "'Playfair Display', serif", fontSize: '2rem', fontWeight: 700 }}>{show.title}</h1>
+            <h1 style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: '2.4rem', letterSpacing: '0.04em', lineHeight: 1 }}>{show.title}</h1>
             <span style={{
               padding: '4px 10px',
               border: `1px solid ${badge.border}`,
@@ -161,8 +162,16 @@ export default async function ShowDetailPage({
             slug={slug}
             role={role}
             performancesData={performancesData ?? []}
-            ticketConfigData={ticketConfigData ?? []}
             showEventsData={showEventsData ?? []}
+          />
+        )}
+        {activeTab === 'tickets' && (
+          <TicketsTab
+            show={{ id: show.id }}
+            slug={slug}
+            role={role}
+            performancesData={performancesData ?? []}
+            ticketConfigData={ticketConfigData ?? []}
           />
         )}
         {activeTab === 'people' && (
@@ -207,7 +216,7 @@ export default async function ShowDetailPage({
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: '24px', flexWrap: 'wrap' }}>
           <div>
             <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '8px' }}>
-              <h1 style={{ fontFamily: "'Playfair Display', serif", fontSize: '2rem', fontWeight: 700 }}>{show.title}</h1>
+              <h1 style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: '2.4rem', letterSpacing: '0.04em', lineHeight: 1 }}>{show.title}</h1>
               <span style={{
                 padding: '4px 10px',
                 border: `1px solid ${badge.border}`,

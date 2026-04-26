@@ -1,12 +1,13 @@
 import Link from 'next/link'
 import type { StaffRole } from '@/lib/staff'
 
-export type ShowTab = 'overview' | 'details' | 'schedule' | 'people' | 'finances' | 'comms'
+export type ShowTab = 'overview' | 'details' | 'schedule' | 'tickets' | 'people' | 'finances' | 'comms'
 
 const TABS: { id: ShowTab; label: string }[] = [
   { id: 'overview',  label: 'Overview' },
   { id: 'details',   label: 'Details' },
-  { id: 'schedule',  label: 'Schedule & Tickets' },
+  { id: 'schedule',  label: 'Schedule' },
+  { id: 'tickets',   label: 'Tickets' },
   { id: 'people',    label: 'Cast & Crew' },
   { id: 'finances',  label: 'Finances' },
   { id: 'comms',     label: 'Comms & Waivers' },
