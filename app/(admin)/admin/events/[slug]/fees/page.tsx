@@ -42,7 +42,7 @@ export default async function FeeOrdersPage({
         <Link href={`/admin/events/${slug}`} style={{ color: 'var(--muted)', fontSize: '0.78rem', textDecoration: 'none', display: 'inline-block', marginBottom: '16px' }}>
           ← {show.title}
         </Link>
-        <h1 style={{ fontFamily: "'Playfair Display', serif", fontSize: '1.6rem', fontWeight: 700 }}>Fee Orders</h1>
+        <h1 style={{ fontFamily: "'Playfair Display', serif", fontSize: '1.6rem', fontWeight: 700 }}>Production Orders</h1>
         <p style={{ color: 'var(--muted)', fontSize: '0.82rem', marginTop: '4px' }}>{paidOrders.length} paid</p>
       </div>
 

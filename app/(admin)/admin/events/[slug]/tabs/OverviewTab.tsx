@@ -21,7 +21,7 @@ export default function OverviewTab({ show, slug, role, performancesData, member
     { label: 'Communications', href: `/admin/events/${slug}/communications`, cta: 'Send Email →' },
     { label: 'Playbill Bios',  href: `/admin/events/${slug}/bios`,           cta: 'View Bios →' },
     { label: 'Waivers',        href: `/admin/events/${slug}/waivers`,         cta: 'View Signatures →' },
-    { label: 'Fee Orders',     href: `/admin/events/${slug}/fees`,            cta: 'View Orders →' },
+    { label: 'Production Orders', href: `/admin/events/${slug}/fees`,         cta: 'View Orders →' },
   ]
 
   return (

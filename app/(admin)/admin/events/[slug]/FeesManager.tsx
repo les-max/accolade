@@ -155,9 +155,9 @@ export default function FeesManager({ showId, slug, eventType, role, config, cou
         )}
       </div>
 
-      {/* Coupon Codes */}
+      {/* Scholarship Codes */}
       <div style={{ background: 'var(--layer)', border: '1px solid var(--border)', borderRadius: '4px', padding: '20px 24px' }}>
-        <p style={{ fontSize: '0.72rem', color: 'var(--muted)', marginBottom: '16px', letterSpacing: '0.1em', textTransform: 'uppercase' }}>Coupon Codes</p>
+        <p style={{ fontSize: '0.72rem', color: 'var(--muted)', marginBottom: '16px', letterSpacing: '0.1em', textTransform: 'uppercase' }}>Scholarship Codes</p>
 
         {coupons.length > 0 && (
           <div style={{ marginBottom: '16px' }}>
@@ -181,7 +181,7 @@ export default function FeesManager({ showId, slug, eventType, role, config, cou
         )}
 
         {coupons.length === 0 && !canEditCoupons && (
-          <p style={{ fontSize: '0.82rem', color: 'var(--muted)', marginBottom: '8px' }}>No coupon codes.</p>
+          <p style={{ fontSize: '0.82rem', color: 'var(--muted)', marginBottom: '8px' }}>No scholarship codes.</p>
         )}
 
         {canEditCoupons && (

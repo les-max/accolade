@@ -180,9 +180,9 @@ export default function FeesForm({ showId, showSlug, showTitle, eventType, feesC
         </div>
       )}
 
-      {/* Coupon code */}
+      {/* Scholarship code */}
       <div style={{ marginBottom: '32px' }}>
-        <p style={LABEL_SM}>Coupon Code</p>
+        <p style={LABEL_SM}>Scholarship Code</p>
         <div style={{ display: 'flex', gap: '8px' }}>
           <input
             type="text"

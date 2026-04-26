@@ -94,7 +94,7 @@ export async function POST(req: NextRequest) {
       .eq('code', coupon_code.toUpperCase().trim())
       .single()
     if (!couponRow || couponRow.used_by_family_id) {
-      return NextResponse.json({ error: 'Invalid or already-used coupon code' }, { status: 400 })
+      return NextResponse.json({ error: 'Invalid or already-used scholarship code' }, { status: 400 })
     }
     coupon = couponRow
   }

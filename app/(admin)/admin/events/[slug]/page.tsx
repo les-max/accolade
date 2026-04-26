@@ -291,7 +291,7 @@ export default async function ShowDetailPage({
         <div style={{ marginBottom: '32px' }}>
           <Link href={`/admin/events/${slug}/fees`} className="admin-link-card" style={{ padding: '20px 24px' }}>
             <p style={{ fontSize: '0.65rem', letterSpacing: '0.25em', textTransform: 'uppercase', color: 'var(--muted)' }}>
-              Fee Orders
+              Production Orders
             </p>
             <span style={{ fontSize: '0.72rem', color: 'var(--gold)' }}>View Orders →</span>
           </Link>

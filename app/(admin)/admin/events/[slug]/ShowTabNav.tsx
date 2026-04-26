@@ -9,7 +9,7 @@ const TABS: { id: ShowTab; label: string }[] = [
   { id: 'schedule',  label: 'Schedule' },
   { id: 'tickets',   label: 'Tickets' },
   { id: 'people',    label: 'Cast & Crew' },
-  { id: 'finances',  label: 'Finances' },
+  { id: 'finances',  label: 'Show Fees' },
   { id: 'comms',     label: 'Comms & Waivers' },
 ]
 
