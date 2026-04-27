@@ -10,8 +10,8 @@ export default async function SetupPage() {
   if (!user) redirect('/login')
 
   // Already has a profile — skip setup
-  const { data: family } = await supabase.from('families').select('id').eq('user_id', user.id).single()
-  if (family) redirect('/account')
+  const { data: fu } = await supabase.from('family_users').select('family_id').eq('user_id', user.id).single()
+  if (fu) redirect('/account')
 
   return (
     <section style={{ padding: 'clamp(48px, 8vw, 80px) clamp(20px, 5vw, 48px)' }}>

@@ -12,9 +12,8 @@ export default async function AccountLayout({
 
   if (!user) redirect('/login?redirect=/account')
 
-  // Check if family profile exists — if not, redirect to setup (unless already there)
-  const [{ data: family }, { data: adminUser }] = await Promise.all([
-    supabase.from('families').select('id').eq('user_id', user.id).single(),
+  const [{ data: fu }, { data: adminUser }] = await Promise.all([
+    supabase.from('family_users').select('family_id').eq('user_id', user.id).single(),
     supabase.from('admin_users').select('id').eq('user_id', user.id).single(),
   ])
 
@@ -23,7 +22,7 @@ export default async function AccountLayout({
 
   return (
     <div style={{ paddingTop: '80px' }}>
-      <AccountNav hasFamily={!!family} isAdmin={isAdmin} />
+      <AccountNav hasFamily={!!fu} isAdmin={isAdmin} />
       {children}
     </div>
   )

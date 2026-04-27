@@ -11,18 +11,34 @@ export async function GET(request: Request) {
     const supabase = await createClient()
     const { data } = await supabase.auth.exchangeCodeForSession(code)
 
-    // When a user arrives via an admin invite, create their families record
     if (data?.user) {
       const meta = data.user.user_metadata
-      if (meta?.invited_by_admin) {
-        const service = createServiceClient()
+      const service = createServiceClient()
+
+      if (meta?.invited_as_co_parent && meta?.family_id) {
+        // Spouse accepting an invite — link them to the existing family
         const { data: existing } = await service
-          .from('families')
+          .from('family_users')
           .select('id')
           .eq('user_id', data.user.id)
           .maybeSingle()
 
         if (!existing) {
+          await service.from('family_users').insert({
+            family_id: meta.family_id,
+            user_id:   data.user.id,
+            name:      meta.name ?? '',
+          })
+        }
+      } else if (meta?.invited_by_admin) {
+        // Admin invite — create families record and family_users row
+        const { data: existingFamily } = await service
+          .from('families')
+          .select('id')
+          .eq('user_id', data.user.id)
+          .maybeSingle()
+
+        if (!existingFamily) {
           const { data: family } = await service
             .from('families')
             .insert({
@@ -35,12 +51,20 @@ export async function GET(request: Request) {
             .select('id')
             .single()
 
-          if (family && meta.show_id) {
-            await service.from('show_members').insert({
-              show_id: meta.show_id,
+          if (family) {
+            await service.from('family_users').insert({
               family_id: family.id,
-              show_role: meta.show_role ?? 'parent',
+              user_id:   data.user.id,
+              name:      meta.name ?? '',
             })
+
+            if (meta.show_id) {
+              await service.from('show_members').insert({
+                show_id:   meta.show_id,
+                family_id: family.id,
+                show_role: meta.show_role ?? 'parent',
+              })
+            }
           }
         }
       }

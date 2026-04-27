@@ -47,15 +47,26 @@ export async function removePortalUser(familyId: string) {
 
   const service = createServiceClient()
 
-  // Get user_id from families before deleting
-  const { data: family } = await service
-    .from('families')
+  // Delete all auth users linked to this family
+  const { data: familyUsersRows } = await service
+    .from('family_users')
     .select('user_id')
-    .eq('id', familyId)
-    .single()
+    .eq('family_id', familyId)
 
-  if (family?.user_id) {
-    await service.auth.admin.deleteUser(family.user_id)
+  for (const row of (familyUsersRows ?? [])) {
+    await service.auth.admin.deleteUser(row.user_id)
+  }
+
+  // Legacy fallback for families without a family_users row
+  if (!familyUsersRows?.length) {
+    const { data: family } = await service
+      .from('families')
+      .select('user_id')
+      .eq('id', familyId)
+      .single()
+    if (family?.user_id) {
+      await service.auth.admin.deleteUser(family.user_id)
+    }
   }
 
   revalidatePath('/admin/users')

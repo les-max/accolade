@@ -16,7 +16,7 @@ export async function createFamilyProfile(formData: FormData) {
   const spouse_phone  = formData.get('spouse_phone') as string || null
   const spouse_gender = formData.get('spouse_gender') as string || null
 
-  const { error } = await supabase.from('families').insert({
+  const { data: family, error } = await supabase.from('families').insert({
     user_id: user.id,
     email:   user.email!,
     parent_name,
@@ -26,9 +26,15 @@ export async function createFamilyProfile(formData: FormData) {
     spouse_email,
     spouse_phone,
     spouse_gender,
-  })
+  }).select('id').single()
 
   if (error) throw new Error(error.message)
+
+  await supabase.from('family_users').insert({
+    family_id: family.id,
+    user_id:   user.id,
+    name:      parent_name,
+  })
 
   redirect('/account/family')
 }

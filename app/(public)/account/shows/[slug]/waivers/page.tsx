@@ -30,13 +30,9 @@ export default async function WaiversPage({
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) redirect('/login')
 
-  const { data: family } = await supabase
-    .from('families')
-    .select('id')
-    .eq('user_id', user.id)
-    .single()
-
-  if (!family) redirect('/account/setup')
+  const { data: fu } = await supabase.from('family_users').select('family_id').eq('user_id', user.id).single()
+  if (!fu) redirect('/account/setup')
+  const family = { id: fu.family_id }
 
   const { data: show } = await supabase
     .from('shows')

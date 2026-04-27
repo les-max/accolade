@@ -18,13 +18,14 @@ export default async function CalendarPage() {
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) redirect('/login')
 
+  const { data: fu } = await supabase.from('family_users').select('family_id').eq('user_id', user.id).single()
+  if (!fu) redirect('/account/setup')
+
   const { data: family } = await supabase
     .from('families')
     .select('id, calendar_token')
-    .eq('user_id', user.id)
+    .eq('id', fu.family_id)
     .single()
-
-  if (!family) redirect('/account/setup')
 
   const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? 'http://localhost:3000'
   const feedUrl = `${siteUrl}/api/calendar/${family.calendar_token}`

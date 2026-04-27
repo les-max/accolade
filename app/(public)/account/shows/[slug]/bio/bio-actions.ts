@@ -24,13 +24,9 @@ export async function submitBio(
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) return { success: false, error: 'Not signed in' }
 
-  const { data: family } = await supabase
-    .from('families')
-    .select('id')
-    .eq('user_id', user.id)
-    .single()
-
-  if (!family) return { success: false, error: 'Family not found' }
+  const { data: fu } = await supabase.from('family_users').select('family_id').eq('user_id', user.id).single()
+  if (!fu) return { success: false, error: 'Family not found' }
+  const family = { id: fu.family_id }
 
   const { error } = await supabase.from('show_bios').upsert(
     {

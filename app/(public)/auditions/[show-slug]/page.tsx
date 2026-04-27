@@ -72,19 +72,22 @@ export default async function AuditionRegistrationPage({
   let familyMembers: { id: string; name: string; birthdate: string | null; age: number | null; grade: string | null }[] = []
 
   if (user) {
-    const { data: fam } = await supabase
-      .from('families')
-      .select('id, parent_name, email, phone')
-      .eq('user_id', user.id)
-      .single()
-    if (fam) {
-      family = fam
-      const { data: members } = await supabase
-        .from('family_members')
-        .select('id, name, birthdate, age, grade')
-        .eq('family_id', fam.id)
-        .order('name')
-      familyMembers = members ?? []
+    const { data: fu } = await supabase.from('family_users').select('family_id').eq('user_id', user.id).single()
+    if (fu) {
+      const { data: fam } = await supabase
+        .from('families')
+        .select('id, parent_name, email, phone')
+        .eq('id', fu.family_id)
+        .single()
+      if (fam) {
+        family = fam
+        const { data: members } = await supabase
+          .from('family_members')
+          .select('id, name, birthdate, age, grade')
+          .eq('family_id', fam.id)
+          .order('name')
+        familyMembers = members ?? []
+      }
     }
   }
 

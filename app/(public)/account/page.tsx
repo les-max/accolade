@@ -9,13 +9,14 @@ export default async function AccountPage() {
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) redirect('/login')
 
+  const { data: fu } = await supabase.from('family_users').select('family_id').eq('user_id', user.id).single()
+  if (!fu) redirect('/account/setup')
+
   const { data: family } = await supabase
     .from('families')
     .select('*, family_members(*)')
-    .eq('user_id', user.id)
+    .eq('id', fu.family_id)
     .single()
-
-  if (!family) redirect('/account/setup')
 
   const members = family.family_members ?? []
 

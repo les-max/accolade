@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useTransition } from 'react'
-import { addPerformance, deletePerformance } from './actions'
+import { addPerformance, updatePerformance, deletePerformance } from './actions'
 
 const inputStyle: React.CSSProperties = {
   background: 'rgba(255,255,255,0.04)',
@@ -185,6 +185,7 @@ export default function PerformancesManager({
   const [type, setType] = useState<'performance' | 'audition' | 'callback'>(allowedTypes[0])
   const [isPending, startTransition] = useTransition()
   const [error, setError] = useState('')
+  const [editingId, setEditingId] = useState<string | null>(null)
 
   function handleAdd(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault()
@@ -200,6 +201,19 @@ export default function PerformancesManager({
         setShowForm(false)
       } catch (err) {
         setError(err instanceof Error ? err.message : 'Error adding entry')
+      }
+    })
+  }
+
+  function handleUpdate(e: React.FormEvent<HTMLFormElement>, id: string) {
+    e.preventDefault()
+    const data = new FormData(e.currentTarget)
+    startTransition(async () => {
+      try {
+        await updatePerformance(id, slug, data)
+        setEditingId(null)
+      } catch (err) {
+        setError(err instanceof Error ? err.message : 'Error saving')
       }
     })
   }
@@ -253,27 +267,66 @@ export default function PerformancesManager({
             </div>
             {sorted.map((p, i) => (
               <div key={p.id} style={{
-                display: 'grid', gridTemplateColumns: '100px 1fr 100px 1fr 32px',
-                padding: '14px 24px', gap: '16px', alignItems: 'center',
                 borderBottom: i < sorted.length - 1 || showForm ? '1px solid var(--border)' : 'none',
               }}>
-                <span style={{ fontSize: '0.68rem', letterSpacing: '0.12em', textTransform: 'uppercase', color: TYPE_COLORS[p.type] ?? 'var(--muted)', fontWeight: 600 }}>
-                  {TYPE_LABELS[p.type] ?? p.type}
-                </span>
-                <p style={{ fontSize: '0.85rem' }}>{formatDate(p.date)}</p>
-                <p style={{ fontSize: '0.82rem', color: 'var(--muted)' }}>
-                  {p.start_time ? formatTime(p.start_time) : '—'}
-                </p>
-                <p style={{ fontSize: '0.82rem', color: 'var(--muted)' }}>{p.label ?? '—'}</p>
-                {!readOnly && (
-                  <button
-                    onClick={() => handleDelete(p.id)}
-                    disabled={isPending}
-                    style={{ background: 'none', border: 'none', color: 'var(--muted)', cursor: 'pointer', fontSize: '1rem', lineHeight: 1, padding: 0 }}
-                    title="Remove"
-                  >
-                    ×
-                  </button>
+                {editingId === p.id ? (
+                  <form onSubmit={e => handleUpdate(e, p.id)} style={{
+                    display: 'flex', gap: '8px', alignItems: 'center', flexWrap: 'wrap',
+                    padding: '12px 24px', background: 'rgba(212,168,83,0.03)',
+                  }}>
+                    <input
+                      name="date" type="date" required defaultValue={p.date}
+                      style={{ ...inputStyle, width: 'auto', flex: '0 0 auto', colorScheme: 'dark' }}
+                    />
+                    <input
+                      name="start_time" type="time" defaultValue={p.start_time ?? ''}
+                      style={{ ...inputStyle, width: 'auto', flex: '0 0 auto', colorScheme: 'dark' }}
+                    />
+                    <input
+                      name="label" type="text" defaultValue={p.label ?? ''} placeholder="Note (optional)"
+                      style={{ ...inputStyle, flex: 1, minWidth: '120px' }}
+                    />
+                    <button type="submit" disabled={isPending} className="btn-primary" style={{ padding: '9px 18px', opacity: isPending ? 0.6 : 1, whiteSpace: 'nowrap' }}>
+                      <span>Save</span>
+                    </button>
+                    <button type="button" onClick={() => setEditingId(null)} className="btn-ghost" style={{ padding: '9px 14px' }}>
+                      <span>Cancel</span>
+                    </button>
+                  </form>
+                ) : (
+                  <div style={{
+                    display: 'grid', gridTemplateColumns: '100px 1fr 100px 1fr auto',
+                    padding: '14px 24px', gap: '16px', alignItems: 'center',
+                  }}>
+                    <span style={{ fontSize: '0.68rem', letterSpacing: '0.12em', textTransform: 'uppercase', color: TYPE_COLORS[p.type] ?? 'var(--muted)', fontWeight: 600 }}>
+                      {TYPE_LABELS[p.type] ?? p.type}
+                    </span>
+                    <p style={{ fontSize: '0.85rem' }}>{formatDate(p.date)}</p>
+                    <p style={{ fontSize: '0.82rem', color: 'var(--muted)' }}>
+                      {p.start_time ? formatTime(p.start_time) : '—'}
+                    </p>
+                    <p style={{ fontSize: '0.82rem', color: 'var(--muted)' }}>{p.label ?? '—'}</p>
+                    {!readOnly && (
+                      <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+                        <button
+                          onClick={() => setEditingId(p.id)}
+                          disabled={isPending}
+                          style={{ background: 'none', border: 'none', color: 'var(--muted)', cursor: 'pointer', fontSize: '0.72rem', letterSpacing: '0.08em', padding: 0 }}
+                          title="Edit"
+                        >
+                          Edit
+                        </button>
+                        <button
+                          onClick={() => handleDelete(p.id)}
+                          disabled={isPending}
+                          style={{ background: 'none', border: 'none', color: 'var(--muted)', cursor: 'pointer', fontSize: '1rem', lineHeight: 1, padding: 0 }}
+                          title="Remove"
+                        >
+                          ×
+                        </button>
+                      </div>
+                    )}
+                  </div>
                 )}
               </div>
             ))}

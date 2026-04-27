@@ -16,11 +16,10 @@ export default async function FeesSuccessPage({
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) redirect('/login')
 
-  const { data: family } = await supabase
-    .from('families')
-    .select('id, parent_name')
-    .eq('user_id', user.id)
-    .single()
+  const { data: fu } = await supabase.from('family_users').select('family_id').eq('user_id', user.id).single()
+  const { data: family } = fu
+    ? await supabase.from('families').select('id, parent_name').eq('id', fu.family_id).single()
+    : { data: null }
 
   const { data: show } = await supabase
     .from('shows')

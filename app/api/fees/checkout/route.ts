@@ -36,11 +36,14 @@ export async function POST(req: NextRequest) {
 
   const supabase = createServiceClient()
 
-  // Load family
+  // Load family via family_users join table
+  const { data: fu } = await authSupabase.from('family_users').select('family_id').eq('user_id', user.id).single()
+  if (!fu) return NextResponse.json({ error: 'Family not found' }, { status: 404 })
+
   const { data: family } = await supabase
     .from('families')
     .select('id, parent_name, email')
-    .eq('user_id', user.id)
+    .eq('id', fu.family_id)
     .single()
   if (!family) {
     return NextResponse.json({ error: 'Family not found' }, { status: 404 })

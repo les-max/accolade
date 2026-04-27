@@ -14,6 +14,16 @@ export async function addPerformance(showId: string, slug: string, formData: For
   revalidatePath(`/admin/events/${slug}`)
 }
 
+export async function updatePerformance(id: string, slug: string, formData: FormData) {
+  const supabase = await createClient()
+  const date       = formData.get('date') as string
+  const start_time = formData.get('start_time') as string || null
+  const label      = formData.get('label') as string || null
+  const { error } = await supabase.from('show_performances').update({ date, start_time, label }).eq('id', id)
+  if (error) throw new Error(error.message)
+  revalidatePath(`/admin/events/${slug}`)
+}
+
 export async function deletePerformance(id: string, slug: string) {
   const supabase = await createClient()
   const { error } = await supabase.from('show_performances').delete().eq('id', id)
