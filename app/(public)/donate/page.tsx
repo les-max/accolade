@@ -20,14 +20,14 @@ export default function DonatePage() {
       <section style={{ padding: 'clamp(48px, 10vw, 100px) clamp(20px, 5vw, 48px)' }}>
         <div style={{ maxWidth: '1200px', margin: '0 auto' }}>
           <p className="section-label">Your Impact</p>
-          <div className="g-3" style={{ display: 'grid', gap: '32px', marginBottom: '80px' }}>
+          <div className="g-3 page-enter" style={{ display: 'grid', gap: '32px', marginBottom: '80px' }}>
             {[
               { amount: '$25',  label: 'Covers a student\'s costume materials for one show', color: 'var(--rose)' },
               { amount: '$50',  label: 'Pays for one night of rehearsal space rental', color: 'var(--amber)' },
               { amount: '$100', label: 'Helps fund rights and licensing for one production', color: 'var(--gold)' },
-              { amount: '$250', label: 'Covers set materials for an entire production', color: 'var(--teal)' },
-              { amount: '$500', label: 'Sponsors one full student scholarship to summer camp', color: 'var(--rose)' },
-              { amount: '$1,000', label: 'Co-sponsors a full production from start to close', color: 'var(--gold)' },
+              { amount: '$250', label: 'Covers tuition for 5 cast or crew members', color: 'var(--teal)' },
+              { amount: '$500', label: 'Covers mic rentals for one musical', color: 'var(--rose)' },
+              { amount: '$1,000', label: 'Can cover set costs for most productions', color: 'var(--gold)' },
             ].map(({ amount, label, color }) => (
               <div key={amount} style={{ background: 'var(--layer)', border: '1px solid var(--border)', borderRadius: '4px', padding: '32px' }}>
                 <div style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: '2.4rem', color, marginBottom: '12px' }}>{amount}</div>

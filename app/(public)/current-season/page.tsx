@@ -44,13 +44,14 @@ export default async function CurrentSeasonPage() {
               <p style={{ fontSize: '0.9rem' }}>Check back soon for upcoming season announcements.</p>
             </div>
           ) : (
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(340px, 1fr))', gap: '28px' }}>
+            <div className="reveal" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(340px, 1fr))', gap: '28px' }}>
               {shows.map(event => {
                 const dateStr = formatDateRange(event.start_date, event.end_date);
                 return (
                   <Link
                     key={event.id}
                     href={`/shows/${event.slug}`}
+                    className="reveal"
                     style={{
                       position: 'relative',
                       borderRadius: '4px',

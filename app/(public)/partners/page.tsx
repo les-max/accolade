@@ -72,7 +72,7 @@ export default function PartnersPage() {
       <section style={{ padding: 'clamp(48px, 10vw, 100px) clamp(20px, 5vw, 48px)' }}>
         <div style={{ maxWidth: '1200px', margin: '0 auto' }}>
           <p className="section-label">Why Partner With Us</p>
-          <div className="g-2" style={{ display: 'grid', gap: '64px', alignItems: 'center' }}>
+          <div className="g-2 page-enter" style={{ display: 'grid', gap: '64px', alignItems: 'center' }}>
             <div>
               <h2 style={{ fontFamily: "'Playfair Display', serif", fontSize: 'clamp(2rem, 3vw, 3rem)', fontWeight: 900, lineHeight: 1.1, marginBottom: '28px' }}>
                 Every dollar goes<br />
@@ -106,9 +106,9 @@ export default function PartnersPage() {
       <section style={{ padding: 'clamp(40px, 8vw, 80px) clamp(20px, 5vw, 48px)', background: 'var(--layer)', borderTop: '1px solid var(--border)', borderBottom: '1px solid var(--border)' }}>
         <div style={{ maxWidth: '1200px', margin: '0 auto' }}>
           <p className="section-label">Partnership Levels</p>
-          <div className="g-4" style={{ display: 'grid', gap: '20px' }}>
+          <div className="g-4 reveal" style={{ display: 'grid', gap: '20px' }}>
             {partnerTiers.map(({ name, color, price, benefits, featured, cta }) => (
-              <div key={name} style={{
+              <div key={name} className="reveal" style={{
                 border: `1px solid ${featured ? 'rgba(212,168,83,0.5)' : 'var(--border)'}`,
                 borderRadius: '4px',
                 padding: '36px 28px',
@@ -149,7 +149,7 @@ export default function PartnersPage() {
 
       {/* ── Contact ───────────────────────────────── */}
       <section style={{ padding: 'clamp(48px, 10vw, 100px) clamp(20px, 5vw, 48px)', textAlign: 'center' }}>
-        <div style={{ maxWidth: '560px', margin: '0 auto' }}>
+        <div className="reveal" style={{ maxWidth: '560px', margin: '0 auto' }}>
           <h2 style={{ fontFamily: "'Playfair Display', serif", fontSize: 'clamp(2rem, 3vw, 2.8rem)', fontWeight: 900, marginBottom: '20px' }}>
             Questions about<br />
             <em style={{ fontStyle: 'italic', fontWeight: 400, color: 'var(--gold)' }}>partnership?</em>

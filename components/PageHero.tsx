@@ -23,7 +23,7 @@ export default function PageHero({ eyebrow, title, titleItalic, subtitle, accent
         background: `radial-gradient(ellipse at 50% 0%, rgba(212,168,83,0.06) 0%, transparent 60%)`,
       }} />
       <div style={{ position: 'relative', maxWidth: '800px', margin: '0 auto' }}>
-        <p style={{
+        <p className="hero-title" style={{
           fontFamily: 'Inter, sans-serif',
           fontSize: '0.7rem',
           letterSpacing: '0.4em',
@@ -34,7 +34,7 @@ export default function PageHero({ eyebrow, title, titleItalic, subtitle, accent
         }}>
           {eyebrow}
         </p>
-        <h1 style={{
+        <h1 className="hero-subtitle" style={{
           fontFamily: "'Playfair Display', serif",
           fontSize: 'clamp(2.8rem, 7vw, 6rem)',
           fontWeight: 900,
@@ -50,7 +50,7 @@ export default function PageHero({ eyebrow, title, titleItalic, subtitle, accent
           )}
         </h1>
         {subtitle && (
-          <p style={{ fontSize: '1rem', color: 'var(--muted)', lineHeight: 1.75, maxWidth: '560px', margin: '0 auto' }}>
+          <p className="hero-cta" style={{ fontSize: '1rem', color: 'var(--muted)', lineHeight: 1.75, maxWidth: '560px', margin: '0 auto' }}>
             {subtitle}
           </p>
         )}

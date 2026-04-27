@@ -19,6 +19,11 @@
   --warm-white: #faf7f2;
   --muted:      #a0a0b5;
   --muted-dim:  rgba(160,160,181,0.5);
+
+  /* Easing tokens */
+  --ease-out-quart: cubic-bezier(0.25, 1, 0.5, 1);
+  --ease-out-quint: cubic-bezier(0.22, 1, 0.36, 1);
+  --ease-out-expo:  cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 html {
@@ -475,6 +480,31 @@ input[type="datetime-local"] {
 .admin-link-card:hover {
   border-color: rgba(212,168,83,0.4);
   background: rgba(212,168,83,0.04);
+}
+
+/* ── Entrance + scroll reveal ─────────────────────── */
+@keyframes heroEnter {
+  from { opacity: 0; transform: translateY(32px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .hero-title    { animation: heroEnter 1.6s cubic-bezier(0.22, 1, 0.36, 1) 0.2s  both; }
+  .hero-subtitle { animation: heroEnter 1.6s cubic-bezier(0.22, 1, 0.36, 1) 0.6s  both; }
+  .hero-cta      { animation: heroEnter 1.6s cubic-bezier(0.22, 1, 0.36, 1) 1.0s  both; }
+  .page-enter    { animation: heroEnter 1.6s cubic-bezier(0.22, 1, 0.36, 1) 1.4s  both; }
+
+  .reveal {
+    opacity: 0;
+    transform: translateY(24px);
+    transition:
+      opacity   1.9s cubic-bezier(0.22, 1, 0.36, 1) var(--reveal-delay, 0ms),
+      transform 1.9s cubic-bezier(0.22, 1, 0.36, 1) var(--reveal-delay, 0ms);
+  }
+  .reveal.in-view {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 /* ── Admin UI — tab nav links ───────────────────── */

@@ -130,7 +130,7 @@ export default async function ShowDetailPage({ params }: { params: Promise<{ 'sh
       {/* ── Content ──────────────────────────────────── */}
       <section style={{ padding: 'clamp(48px, 8vw, 96px) clamp(20px, 5vw, 48px) clamp(80px, 12vw, 140px)' }}>
         <div style={{ maxWidth: '1400px', margin: '0 auto', display: 'grid', gridTemplateColumns: '1fr', gap: '48px' }}>
-          <div className="g-2s" style={{ display: 'grid', gap: '48px', alignItems: 'start' }}>
+          <div className="g-2s reveal" style={{ display: 'grid', gap: '48px', alignItems: 'start' }}>
 
             {/* ── Main column ─── */}
             <div style={{ display: 'flex', flexDirection: 'column', gap: '40px' }}>

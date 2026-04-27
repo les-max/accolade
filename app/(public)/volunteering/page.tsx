@@ -112,9 +112,9 @@ export default function VolunteeringPage() {
       <section style={{ padding: 'clamp(48px, 10vw, 100px) clamp(20px, 5vw, 48px)' }}>
         <div style={{ maxWidth: '1200px', margin: '0 auto' }}>
           <p className="section-label">Volunteer Opportunities</p>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: '24px' }}>
+          <div className="reveal" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: '24px' }}>
             {volunteerRoles.map(({ category, color, roles }) => (
-              <div key={category} style={{ background: 'var(--layer)', border: '1px solid var(--border)', borderRadius: '4px', padding: '32px' }}>
+              <div key={category} className="reveal" style={{ background: 'var(--layer)', border: '1px solid var(--border)', borderRadius: '4px', padding: '32px' }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '24px' }}>
                   <div style={{ width: '3px', height: '28px', background: color, flexShrink: 0 }} />
                   <h3 style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: '1.6rem' }}>{category}</h3>
@@ -135,7 +135,7 @@ export default function VolunteeringPage() {
 
       {/* ── Ready to Help Out ─────────────────────────────── */}
       <section style={{ padding: 'clamp(40px, 8vw, 80px) clamp(20px, 5vw, 48px) clamp(60px, 12vw, 120px)', background: 'var(--layer)', borderTop: '1px solid var(--border)', borderBottom: '1px solid var(--border)' }}>
-        <div className="g-2" style={{ maxWidth: '1200px', margin: '0 auto', display: 'grid', gap: '80px', alignItems: 'start' }}>
+        <div className="g-2 reveal" style={{ maxWidth: '1200px', margin: '0 auto', display: 'grid', gap: '80px', alignItems: 'start' }}>
           <div>
             <p className="section-label">Ready to Help Out?</p>
             <h2 style={{ fontFamily: "'Playfair Display', serif", fontSize: 'clamp(2rem, 3vw, 2.8rem)', fontWeight: 900, lineHeight: 1.1, marginBottom: '20px' }}>

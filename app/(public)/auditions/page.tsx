@@ -45,7 +45,7 @@ export default async function AuditionsPage() {
                 show.show_image_wide ?? show.show_image ??
                 parent?.show_image_wide ?? parent?.show_image ?? null;
               return (
-                <div key={show.id} style={{ border: '1px solid var(--border)', borderRadius: '4px', background: 'var(--layer)', overflow: 'hidden', marginBottom: '24px' }}>
+                <div key={show.id} className="reveal" style={{ border: '1px solid var(--border)', borderRadius: '4px', background: 'var(--layer)', overflow: 'hidden', marginBottom: '24px' }}>
                   <div className="g-2s" style={{ display: 'grid' }}>
                     <div style={{ position: 'relative', aspectRatio: '16/9' }}>
                       {heroImage ? (
@@ -112,13 +112,13 @@ export default async function AuditionsPage() {
       <section style={{ padding: 'clamp(40px, 8vw, 80px) clamp(20px, 5vw, 48px)', background: 'var(--layer)', borderTop: '1px solid var(--border)', borderBottom: '1px solid var(--border)' }}>
         <div style={{ maxWidth: '1200px', margin: '0 auto' }}>
           <p className="section-label">What to Expect</p>
-          <div className="g-3" style={{ display: 'grid', gap: '48px' }}>
+          <div className="g-3 reveal" style={{ display: 'grid', gap: '48px' }}>
             {[
               { step: '01', title: 'Read the Audition Announcement', body: 'Each show has its own requirements. The announcement tells you what to prepare, what to wear, and what to bring — so read it carefully before you do anything else.' },
               { step: '02', title: 'Prepare', body: 'Work on whatever the Audition Announcement asks for. Keep going until your lines or your song feel second nature — when you\'re confident in your performance, it shows.' },
               { step: '03', title: 'Be Yourself', body: 'Our casting panel wants to see the real you — how you carry yourself, how you take direction, and the energy you bring into the room. Relax, trust your preparation, and let your personality come through.' },
             ].map(({ step, title, body }) => (
-              <div key={step}>
+              <div key={step} className="reveal">
                 <div style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: '4rem', color: 'rgba(212,168,83,0.15)', lineHeight: 1, marginBottom: '16px' }}>{step}</div>
                 <h3 style={{ fontFamily: "'Playfair Display', serif", fontSize: '1.4rem', fontWeight: 700, marginBottom: '12px' }}>{title}</h3>
                 <p style={{ color: 'var(--muted)', lineHeight: 1.75, fontSize: '0.88rem' }}>{body}</p>
@@ -168,7 +168,7 @@ export default async function AuditionsPage() {
             { q: 'Is there a fee to participate?', a: <>Most productions have a participation fee: $50 per child for the first two children in a family, and $25 per child for the third and beyond. Scholarship assistance is available — just reach out at <a href="mailto:info@accoladetheatre.org" style={{ color: 'var(--teal)' }}>info@accoladetheatre.org</a> and ask.</> },
             { q: 'How do I know when auditions are announced?', a: 'Join our mailing list or follow us on social media. Audition announcements typically go out about 30 days before the audition date.' },
           ].map(({ q, a }, i) => (
-            <div key={i} style={{ borderBottom: '1px solid var(--border)', padding: '28px 0' }}>
+            <div key={i} className="reveal" style={{ borderBottom: '1px solid var(--border)', padding: '28px 0' }}>
               <h3 style={{ fontFamily: "'Playfair Display', serif", fontSize: '1.15rem', fontWeight: 700, marginBottom: '12px' }}>{q}</h3>
               <p style={{ color: 'var(--muted)', lineHeight: 1.75, fontSize: '0.9rem' }}>{a}</p>
             </div>

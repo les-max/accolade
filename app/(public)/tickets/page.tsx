@@ -171,7 +171,7 @@ export default async function TicketsPage() {
 
       {/* ── Group Sales ───────────────────────────── */}
       <section style={{ padding: 'clamp(40px, 8vw, 80px) clamp(20px, 5vw, 48px)', background: 'var(--layer)', borderTop: '1px solid var(--border)', borderBottom: '1px solid var(--border)' }}>
-        <div className="g-2" style={{ display: 'grid', maxWidth: '1200px', margin: '0 auto', gap: '64px', alignItems: 'center' }}>
+        <div className="g-2 reveal" style={{ display: 'grid', maxWidth: '1200px', margin: '0 auto', gap: '64px', alignItems: 'center' }}>
           <div>
             <p className="section-label">Groups & Schools</p>
             <h2 style={{ fontFamily: "'Playfair Display', serif", fontSize: 'clamp(2rem, 3vw, 3rem)', fontWeight: 900, lineHeight: 1.1, marginBottom: '24px' }}>
@@ -203,7 +203,7 @@ export default async function TicketsPage() {
 
       {/* ── Partner CTA ───────────────────────────── */}
       <section style={{ padding: 'clamp(48px, 10vw, 100px) clamp(20px, 5vw, 48px)', textAlign: 'center' }}>
-        <div style={{ maxWidth: '600px', margin: '0 auto' }}>
+        <div className="reveal" style={{ maxWidth: '600px', margin: '0 auto' }}>
           <h2 style={{ fontFamily: "'Playfair Display', serif", fontSize: 'clamp(1.8rem, 3vw, 2.8rem)', fontWeight: 900, marginBottom: '20px' }}>
             Get tickets + perks as a <em style={{ fontStyle: 'italic', fontWeight: 400, color: 'var(--gold)' }}>Partner</em>
           </h2>

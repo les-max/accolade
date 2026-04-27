@@ -18,7 +18,7 @@ export default function AboutPage() {
       {/* ── Our Story ─────────────────────────────── */}
       <section style={{ padding: 'clamp(48px, 10vw, 100px) clamp(20px, 5vw, 48px)', maxWidth: '900px', margin: '0 auto' }}>
         <p className="section-label">Our Story</p>
-        <div className="g-2" style={{ display: 'grid', gap: '64px', alignItems: 'start' }}>
+        <div className="g-2 page-enter" style={{ display: 'grid', gap: '64px', alignItems: 'start' }}>
           <div>
             <h2 style={{ fontFamily: "'Playfair Display', serif", fontSize: 'clamp(1.8rem, 3vw, 2.8rem)', fontWeight: 900, lineHeight: 1.1, marginBottom: '28px' }}>
               Born from a desire to create<br />
@@ -46,13 +46,13 @@ export default function AboutPage() {
       <section style={{ padding: 'clamp(40px, 8vw, 80px) clamp(20px, 5vw, 48px)', background: 'var(--layer)', borderTop: '1px solid var(--border)', borderBottom: '1px solid var(--border)' }}>
         <div style={{ maxWidth: '1200px', margin: '0 auto' }}>
           <p className="section-label">What We Stand For</p>
-          <div className="g-3" style={{ display: 'grid', gap: '48px' }}>
+          <div className="g-3 reveal" style={{ display: 'grid', gap: '48px' }}>
             {[
               { title: 'Inclusion', color: 'var(--teal)', body: 'Theatre is for everyone. We actively welcome performers and volunteers of all backgrounds, ages, and experience levels.' },
               { title: 'Excellence', color: 'var(--gold)', body: 'Community theatre doesn\'t mean settling. We bring professional-quality production values to every show we produce.' },
               { title: 'Community', color: 'var(--rose)', body: 'We exist to serve our neighbors. The relationships built at Accolade last long after the curtain falls.' },
             ].map(({ title, color, body }) => (
-              <div key={title}>
+              <div key={title} className="reveal">
                 <div style={{ width: '2px', height: '40px', background: color, marginBottom: '24px' }} />
                 <h3 style={{ fontFamily: "'Playfair Display', serif", fontSize: '1.6rem', fontWeight: 700, marginBottom: '16px' }}>{title}</h3>
                 <p style={{ color: 'var(--muted)', lineHeight: 1.75, fontSize: '0.9rem' }}>{body}</p>
@@ -64,7 +64,7 @@ export default function AboutPage() {
 
       {/* ── Join CTA ──────────────────────────────── */}
       <section style={{ padding: 'clamp(48px, 10vw, 120px) clamp(20px, 5vw, 48px)', textAlign: 'center' }}>
-        <div style={{ maxWidth: '600px', margin: '0 auto' }}>
+        <div className="reveal" style={{ maxWidth: '600px', margin: '0 auto' }}>
           <h2 style={{ fontFamily: "'Playfair Display', serif", fontSize: 'clamp(2rem, 4vw, 3rem)', fontWeight: 900, marginBottom: '20px' }}>
             Ready to get involved?
           </h2>

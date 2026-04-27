@@ -41,7 +41,7 @@ export default function PastShowsGrid({ shows }: { shows: PastShow[] }) {
       {seasons.map(([season, seasonShows]) => (
         <div key={season} style={{ marginBottom: '80px' }}>
           <p className="section-label">{season} Season</p>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(340px, 1fr))', gap: '28px' }}>
+          <div className="reveal" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(340px, 1fr))', gap: '28px' }}>
             {seasonShows.map(show => {
               const image = show.show_image_wide ?? show.show_image
               const hasVideo = !!show.youtube_video_id
@@ -129,6 +129,7 @@ export default function PastShowsGrid({ shows }: { shows: PastShow[] }) {
               return (
                 <div
                   key={show.id}
+                  className="reveal"
                   onClick={() => { if (hasVideo) setActive(show) }}
                   role={hasVideo ? 'button' : undefined}
                   tabIndex={hasVideo ? 0 : undefined}
