@@ -1,12 +1,19 @@
 'use client'
 
-import { useState, useTransition } from 'react'
-import { addShowMember, removeShowMember } from './roster-actions'
+import { useState, useTransition, useEffect, useRef } from 'react'
+import { addShowMember, removeShowMember, searchFamiliesByName } from './roster-actions'
 
 type Member = {
   id: string
   show_role: string
   families: { parent_name: string; email: string }
+}
+
+type SearchResult = {
+  id: string
+  parent_name: string
+  email: string
+  children: string[]
 }
 
 const inputStyle: React.CSSProperties = {
@@ -32,19 +39,69 @@ export default function RosterManager({
   slug: string
   members: Member[]
 }) {
-  const [email, setEmail] = useState('')
+  const [query, setQuery] = useState('')
+  const [results, setResults] = useState<SearchResult[]>([])
+  const [selected, setSelected] = useState<SearchResult | null>(null)
+  const [dropdownOpen, setDropdownOpen] = useState(false)
+  const [searching, setSearching] = useState(false)
   const [role, setRole] = useState('Cast')
   const [isPending, startTransition] = useTransition()
   const [error, setError] = useState('')
+  const dropdownRef = useRef<HTMLDivElement>(null)
+
+  useEffect(() => {
+    if (selected || query.length < 2) {
+      setDropdownOpen(false)
+      return
+    }
+    setDropdownOpen(true)
+    const timer = setTimeout(async () => {
+      setSearching(true)
+      try {
+        const res = await searchFamiliesByName(query)
+        setResults(res)
+      } catch {
+        setResults([])
+      } finally {
+        setSearching(false)
+      }
+    }, 300)
+    return () => clearTimeout(timer)
+  }, [query, selected])
+
+  useEffect(() => {
+    function handleClickOutside(e: MouseEvent) {
+      if (dropdownRef.current && !dropdownRef.current.contains(e.target as Node)) {
+        setDropdownOpen(false)
+      }
+    }
+    document.addEventListener('mousedown', handleClickOutside)
+    return () => document.removeEventListener('mousedown', handleClickOutside)
+  }, [])
+
+  function handleSelect(r: SearchResult) {
+    setSelected(r)
+    setQuery('')
+    setResults([])
+    setDropdownOpen(false)
+  }
+
+  function handleClear() {
+    setSelected(null)
+    setQuery('')
+    setResults([])
+    setDropdownOpen(false)
+  }
 
   function handleAdd(e: React.FormEvent) {
     e.preventDefault()
-    if (!email.trim() || !role.trim()) return
+    if (!selected || !role.trim()) return
     setError('')
     startTransition(async () => {
       try {
-        await addShowMember(showId, slug, email, role.trim())
-        setEmail('')
+        await addShowMember(showId, slug, selected.id, role.trim())
+        setSelected(null)
+        setQuery('')
       } catch (err) {
         setError(err instanceof Error ? err.message : 'Failed to add member')
       }
@@ -57,7 +114,6 @@ export default function RosterManager({
     })
   }
 
-  // Group members by their show_role label
   const groups = Array.from(new Set(members.map(m => m.show_role))).sort()
   const byRole = Object.fromEntries(groups.map(g => [g, members.filter(m => m.show_role === g)]))
 
@@ -115,15 +171,79 @@ export default function RosterManager({
         {/* Add form */}
         <form onSubmit={handleAdd} style={{ padding: '20px 24px', borderTop: members.length > 0 ? '1px solid var(--border)' : 'none' }}>
           <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap', marginBottom: error ? '8px' : 0 }}>
-            <input
-              type="email"
-              required
-              placeholder="family@email.com"
-              value={email}
-              onChange={e => setEmail(e.target.value)}
-              style={{ ...inputStyle, minWidth: '220px' }}
-            />
-            {/* Free-text group input with suggestions */}
+
+            {/* Name search with dropdown */}
+            <div ref={dropdownRef} style={{ position: 'relative', flex: 1, minWidth: '220px' }}>
+              {selected ? (
+                <div style={{
+                  ...inputStyle,
+                  display: 'flex', alignItems: 'center', gap: '8px', cursor: 'default',
+                }}>
+                  <span style={{ flex: 1, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                    {selected.parent_name}
+                    {selected.children.length > 0 && (
+                      <span style={{ color: 'var(--muted)', marginLeft: '6px', fontSize: '0.78rem' }}>
+                        — {selected.children.join(', ')}
+                      </span>
+                    )}
+                  </span>
+                  <button
+                    type="button"
+                    onClick={handleClear}
+                    style={{ background: 'none', border: 'none', color: 'var(--muted)', cursor: 'pointer', padding: 0, fontSize: '1rem', lineHeight: 1, flexShrink: 0 }}
+                  >
+                    ×
+                  </button>
+                </div>
+              ) : (
+                <input
+                  type="text"
+                  placeholder="Search by parent or child name..."
+                  value={query}
+                  onChange={e => setQuery(e.target.value)}
+                  autoComplete="off"
+                  style={inputStyle}
+                />
+              )}
+
+              {dropdownOpen && !selected && (
+                <div style={{
+                  position: 'absolute', top: '100%', left: 0, right: 0, zIndex: 50,
+                  background: 'var(--layer)', border: '1px solid var(--border)', borderRadius: '2px',
+                  marginTop: '2px', boxShadow: '0 8px 24px rgba(0,0,0,0.5)',
+                }}>
+                  {searching ? (
+                    <div style={{ padding: '12px 16px', color: 'var(--muted)', fontSize: '0.82rem' }}>Searching...</div>
+                  ) : results.length === 0 ? (
+                    <div style={{ padding: '12px 16px', color: 'var(--muted)', fontSize: '0.82rem' }}>No matches found</div>
+                  ) : (
+                    results.map(r => (
+                      <button
+                        key={r.id}
+                        type="button"
+                        onClick={() => handleSelect(r)}
+                        style={{
+                          width: '100%', textAlign: 'left', background: 'none', border: 'none',
+                          padding: '10px 16px', cursor: 'pointer', color: 'var(--warm-white)',
+                          borderBottom: '1px solid rgba(255,255,255,0.06)',
+                        }}
+                        onMouseOver={e => (e.currentTarget.style.background = 'rgba(255,255,255,0.06)')}
+                        onMouseOut={e => (e.currentTarget.style.background = 'none')}
+                      >
+                        <p style={{ fontSize: '0.85rem', margin: 0 }}>{r.parent_name}</p>
+                        {r.children.length > 0 && (
+                          <p style={{ fontSize: '0.72rem', color: 'var(--muted)', margin: '2px 0 0' }}>
+                            {r.children.join(', ')}
+                          </p>
+                        )}
+                      </button>
+                    ))
+                  )}
+                </div>
+              )}
+            </div>
+
+            {/* Role/group input */}
             <input
               type="text"
               required
@@ -137,13 +257,19 @@ export default function RosterManager({
               {ROLE_SUGGESTIONS.map(s => <option key={s} value={s} />)}
               {groups.filter(g => !ROLE_SUGGESTIONS.includes(g)).map(g => <option key={g} value={g} />)}
             </datalist>
-            <button type="submit" disabled={isPending} className="btn-primary" style={{ padding: '10px 20px', opacity: isPending ? 0.6 : 1, whiteSpace: 'nowrap' }}>
+
+            <button
+              type="submit"
+              disabled={isPending || !selected}
+              className="btn-primary"
+              style={{ padding: '10px 20px', opacity: (isPending || !selected) ? 0.6 : 1, whiteSpace: 'nowrap' }}
+            >
               <span>{isPending ? 'Adding…' : '+ Add'}</span>
             </button>
           </div>
           {error && <p style={{ fontSize: '0.78rem', color: 'var(--rose)', marginTop: '6px' }}>{error}</p>}
           <p style={{ fontSize: '0.72rem', color: 'var(--muted)', marginTop: '8px' }}>
-            Enter the email address of a family with an existing account. Type any group name or choose from suggestions.
+            Search by parent or child name. Type any group name or choose from suggestions.
           </p>
         </form>
       </div>
