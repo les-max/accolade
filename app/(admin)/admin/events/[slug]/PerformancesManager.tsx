@@ -93,26 +93,25 @@ function TimePicker({ name }: { name: string }) {
     <div style={{ display: 'flex', alignItems: 'center', gap: '6px', flexWrap: 'wrap' }}>
       <input type="hidden" name={name} value={value24} />
 
-      {/* Enable toggle */}
-      <button
-        type="button"
-        onClick={() => setEnabled(e => !e)}
-        style={{
-          padding: '9px 12px',
-          border: `1px solid ${enabled ? 'var(--gold)' : 'var(--border)'}`,
-          borderRadius: '2px',
-          background: enabled ? 'rgba(212,168,83,0.1)' : 'rgba(255,255,255,0.04)',
-          color: enabled ? 'var(--gold)' : 'var(--muted)',
-          fontSize: '0.72rem',
-          letterSpacing: '0.1em',
-          cursor: 'pointer',
-          whiteSpace: 'nowrap',
-        }}
-      >
-        {enabled ? 'Set' : '+ Add time'}
-      </button>
-
-      {enabled && (
+      {!enabled ? (
+        <button
+          type="button"
+          onClick={() => setEnabled(true)}
+          style={{
+            padding: '9px 12px',
+            border: '1px solid var(--border)',
+            borderRadius: '2px',
+            background: 'rgba(255,255,255,0.04)',
+            color: 'var(--muted)',
+            fontSize: '0.72rem',
+            letterSpacing: '0.1em',
+            cursor: 'pointer',
+            whiteSpace: 'nowrap',
+          }}
+        >
+          + Add time
+        </button>
+      ) : (
         <>
           <select value={hour} onChange={e => setHour(e.target.value)} style={selectStyle}>
             {HOURS.map(h => <option key={h} value={h}>{h}</option>)}
@@ -137,6 +136,22 @@ function TimePicker({ name }: { name: string }) {
             }}
           >
             {ampm}
+          </button>
+          <button
+            type="button"
+            onClick={() => setEnabled(false)}
+            style={{
+              padding: '9px 10px',
+              border: '1px solid var(--border)',
+              borderRadius: '2px',
+              background: 'none',
+              color: 'var(--muted)',
+              fontSize: '0.78rem',
+              cursor: 'pointer',
+            }}
+            title="Remove time"
+          >
+            × Clear
           </button>
         </>
       )}
