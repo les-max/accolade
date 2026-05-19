@@ -21,6 +21,7 @@ export default async function FeesPage({
     .select('id, parent_name')
     .eq('id', fu.family_id)
     .single()
+  if (!family) redirect('/account/setup')
 
   const { data: show } = await supabase
     .from('shows')

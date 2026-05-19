@@ -17,6 +17,7 @@ export default async function AccountPage() {
     .select('*, family_members(*)')
     .eq('id', fu.family_id)
     .single()
+  if (!family) redirect('/account/setup')
 
   const members = family.family_members ?? []
 

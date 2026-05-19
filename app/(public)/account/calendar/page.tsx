@@ -26,6 +26,7 @@ export default async function CalendarPage() {
     .select('id, calendar_token')
     .eq('id', fu.family_id)
     .single()
+  if (!family) redirect('/account/setup')
 
   const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? 'http://localhost:3000'
   const feedUrl = `${siteUrl}/api/calendar/${family.calendar_token}`
