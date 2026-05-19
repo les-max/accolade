@@ -687,6 +687,8 @@ function ManualAddSection({
 
 // ─── Main component ───────────────────────────────────────────────────────────
 
+const PAGE_SIZE = 20
+
 export default function RosterManager({
   showId,
   slug,
@@ -699,6 +701,8 @@ export default function RosterManager({
   auditioners?: Auditioner[]
 }) {
   const [isPending, start] = useTransition()
+  const [collapsedGroups, setCollapsedGroups] = useState<Set<string>>(new Set())
+  const [expandedGroups, setExpandedGroups] = useState<Set<string>>(new Set())
 
   const groups = Array.from(new Set(members.map(m => m.show_role))).sort()
   const byRole = Object.fromEntries(groups.map(g => [g, members.filter(m => m.show_role === g)]))
@@ -713,6 +717,22 @@ export default function RosterManager({
 
   function handleRemove(memberId: string) {
     start(async () => { await removeShowMember(memberId, slug) })
+  }
+
+  function toggleCollapse(role: string) {
+    setCollapsedGroups(prev => {
+      const next = new Set(prev)
+      next.has(role) ? next.delete(role) : next.add(role)
+      return next
+    })
+  }
+
+  function toggleExpand(role: string) {
+    setExpandedGroups(prev => {
+      const next = new Set(prev)
+      next.has(role) ? next.delete(role) : next.add(role)
+      return next
+    })
   }
 
   return (
@@ -735,14 +755,26 @@ export default function RosterManager({
           <div>
             {groups.map(r => {
               const group = byRole[r]
+              const collapsed = collapsedGroups.has(r)
+              const showAll = expandedGroups.has(r)
+              const visible = collapsed ? [] : showAll ? group : group.slice(0, PAGE_SIZE)
+              const hiddenCount = group.length - PAGE_SIZE
               return (
                 <div key={r} style={{ borderBottom: '1px solid var(--border)' }}>
-                  <div style={{ padding: '10px 24px', background: 'rgba(0,0,0,0.2)' }}>
+                  <button
+                    type="button"
+                    onClick={() => toggleCollapse(r)}
+                    style={{
+                      width: '100%', background: 'rgba(0,0,0,0.2)', border: 'none', cursor: 'pointer',
+                      padding: '10px 24px', display: 'flex', justifyContent: 'space-between', alignItems: 'center',
+                    }}
+                  >
                     <span style={{ fontSize: '0.58rem', letterSpacing: '0.18em', textTransform: 'uppercase', color: 'var(--teal)' }}>
                       {r} ({group.length})
                     </span>
-                  </div>
-                  {group.map(m => (
+                    <span style={{ color: 'var(--muted)', fontSize: '0.65rem' }}>{collapsed ? '▶' : '▼'}</span>
+                  </button>
+                  {visible.map(m => (
                     <div key={m.id} style={{
                       display: 'grid',
                       gridTemplateColumns: '1fr auto auto',
@@ -765,6 +797,17 @@ export default function RosterManager({
                       </button>
                     </div>
                   ))}
+                  {!collapsed && hiddenCount > 0 && (
+                    <div style={{ padding: '10px 24px', borderBottom: '1px solid rgba(255,255,255,0.04)' }}>
+                      <button
+                        type="button"
+                        onClick={() => toggleExpand(r)}
+                        style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--muted)', fontSize: '0.75rem', padding: 0 }}
+                      >
+                        {showAll ? `▲ Show first ${PAGE_SIZE}` : `▼ Show ${hiddenCount} more`}
+                      </button>
+                    </div>
+                  )}
                 </div>
               )
             })}

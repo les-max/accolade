@@ -33,12 +33,12 @@ export default function EmailComposer({
 }: {
   showId: string
   showTitle: string
-  memberGroups: { label: string; count: number }[]
+  memberGroups: { label: string; count: number; emailableCount: number }[]
   auditionerCount: number
 }) {
   const allGroups = [
     ...memberGroups,
-    { label: 'auditioners', count: auditionerCount },
+    { label: 'auditioners', count: auditionerCount, emailableCount: auditionerCount },
   ]
 
   const [selected, setSelected] = useState<Set<string>>(new Set())
@@ -123,14 +123,27 @@ export default function EmailComposer({
             )
           })}
         </div>
-        {selected.size > 0 && (
-          <p style={{ fontSize: '0.75rem', color: 'var(--muted)', marginTop: '10px' }}>
-            {Array.from(selected).map(id => {
-              const g = allGroups.find(x => x.label === id)
-              return `${g?.count ?? 0} ${id === 'auditioners' ? 'auditioners' : id}`
-            }).join(', ')} — deduplicated before send
-          </p>
-        )}
+        {selected.size > 0 && (() => {
+          const missingCount = Array.from(selected).reduce((sum, id) => {
+            const g = allGroups.find(x => x.label === id)
+            return g ? sum + (g.count - g.emailableCount) : sum
+          }, 0)
+          return (
+            <>
+              <p style={{ fontSize: '0.75rem', color: 'var(--muted)', marginTop: '10px' }}>
+                {Array.from(selected).map(id => {
+                  const g = allGroups.find(x => x.label === id)
+                  return `${g?.count ?? 0} ${id === 'auditioners' ? 'auditioners' : id}`
+                }).join(', ')} — deduplicated before send
+              </p>
+              {missingCount > 0 && (
+                <p style={{ fontSize: '0.75rem', color: 'var(--rose)', marginTop: '6px' }}>
+                  {missingCount} member{missingCount !== 1 ? 's' : ''} in the selected group{selected.size !== 1 ? 's' : ''} ha{missingCount !== 1 ? 've' : 's'} no email address and will not receive this message.
+                </p>
+              )}
+            </>
+          )
+        })()}
       </div>
 
       <div style={{ marginBottom: '20px' }}>

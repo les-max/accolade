@@ -21,14 +21,21 @@ export default async function CommunicationsPage({
 
   const { data: members } = await supabase
     .from('show_members')
-    .select('show_role')
+    .select('show_role, email, families(email)')
     .eq('show_id', show.id)
 
   const countByRole: Record<string, number> = {}
+  const emailableByRole: Record<string, number> = {}
   for (const m of members ?? []) {
     countByRole[m.show_role] = (countByRole[m.show_role] ?? 0) + 1
+    const f = m.families as { email: string | null } | null
+    if (f?.email ?? m.email) emailableByRole[m.show_role] = (emailableByRole[m.show_role] ?? 0) + 1
   }
-  const memberGroups = Object.entries(countByRole).map(([label, count]) => ({ label, count }))
+  const memberGroups = Object.entries(countByRole).map(([label, count]) => ({
+    label,
+    count,
+    emailableCount: emailableByRole[label] ?? 0,
+  }))
 
   const { count: auditionerCount } = await supabase
     .from('auditions')

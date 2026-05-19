@@ -21,6 +21,49 @@ export default async function AccountPage() {
 
   const members = family.family_members ?? []
 
+  // Fetch roster entries for this family across all non-draft shows
+  const { data: rosterEntries } = await supabase
+    .from('show_members')
+    .select('person_name, show_role, shows(id, title, slug, status)')
+    .eq('family_id', family.id)
+
+  type ShowEntry = { id: string; title: string; slug: string; members: { name: string; role: string }[] }
+  const showsMap = new Map<string, ShowEntry>()
+  for (const entry of rosterEntries ?? []) {
+    const show = entry.shows as { id: string; title: string; slug: string; status: string } | null
+    if (!show || show.status === 'draft') continue
+    if (!showsMap.has(show.id)) showsMap.set(show.id, { id: show.id, title: show.title, slug: show.slug, members: [] })
+    showsMap.get(show.id)!.members.push({ name: entry.person_name, role: entry.show_role })
+  }
+  const activeShows = Array.from(showsMap.values())
+  const activeShowIds = activeShows.map(s => s.id)
+
+  const feesPendingIds = new Set<string>()
+  const waiversPendingIds = new Set<string>()
+
+  if (activeShowIds.length > 0) {
+    const [{ data: feeConfigs }, { data: paidOrders }, { data: waivers }] = await Promise.all([
+      supabase.from('show_fees_config').select('show_id').eq('fees_enabled', true).in('show_id', activeShowIds),
+      supabase.from('show_fee_orders').select('show_id').eq('family_id', family.id).in('show_id', activeShowIds).eq('status', 'paid'),
+      supabase.from('show_waivers').select('show_id, waiver_type').eq('family_id', family.id).in('show_id', activeShowIds),
+    ])
+
+    const paidShowIds = new Set((paidOrders ?? []).map(o => o.show_id))
+    for (const c of feeConfigs ?? []) {
+      if (!paidShowIds.has(c.show_id)) feesPendingIds.add(c.show_id)
+    }
+
+    const signedByShow = new Map<string, Set<string>>()
+    for (const w of waivers ?? []) {
+      if (!signedByShow.has(w.show_id)) signedByShow.set(w.show_id, new Set())
+      signedByShow.get(w.show_id)!.add(w.waiver_type)
+    }
+    for (const id of activeShowIds) {
+      const signed = signedByShow.get(id)
+      if (!signed?.has('liability') || !signed?.has('photo_video')) waiversPendingIds.add(id)
+    }
+  }
+
   // Fetch upcoming auditions for this family
   const { data: auditions } = await supabase
     .from('auditions')
@@ -61,6 +104,63 @@ export default async function AccountPage() {
             Welcome back, {family.parent_name.split(' ')[0]}
           </h1>
         </div>
+
+        {/* Current productions card */}
+        {activeShows.length > 0 && (
+          <div style={{ background: 'var(--layer)', border: '1px solid var(--border)', borderRadius: '4px', overflow: 'hidden', marginBottom: '32px' }}>
+            <div style={{ padding: '20px 24px', borderBottom: '1px solid var(--border)' }}>
+              <p style={{ fontSize: '0.65rem', letterSpacing: '0.25em', textTransform: 'uppercase', color: 'var(--muted)' }}>
+                Current Productions
+              </p>
+            </div>
+            {activeShows.map((show, i) => {
+              const feesDue = feesPendingIds.has(show.id)
+              const waiversDue = waiversPendingIds.has(show.id)
+              return (
+                <div key={show.id} style={{
+                  padding: '16px 24px',
+                  borderBottom: i < activeShows.length - 1 ? '1px solid var(--border)' : 'none',
+                  display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: '16px', flexWrap: 'wrap',
+                }}>
+                  <div>
+                    <p style={{ fontSize: '0.92rem', fontWeight: 600, marginBottom: '4px' }}>{show.title}</p>
+                    <p style={{ fontSize: '0.75rem', color: 'var(--muted)' }}>
+                      {show.members.map(m => `${m.name} · ${m.role}`).join('  •  ')}
+                    </p>
+                  </div>
+                  {(feesDue || waiversDue) && (
+                    <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap', flexShrink: 0 }}>
+                      {feesDue && (
+                        <Link
+                          href={`/account/shows/${show.slug}/fees`}
+                          style={{
+                            fontSize: '0.62rem', letterSpacing: '0.12em', textTransform: 'uppercase',
+                            color: 'var(--gold)', border: '1px solid var(--gold)', borderRadius: '2px',
+                            padding: '4px 10px', textDecoration: 'none', whiteSpace: 'nowrap',
+                          }}
+                        >
+                          Fees due →
+                        </Link>
+                      )}
+                      {waiversDue && (
+                        <Link
+                          href={`/account/shows/${show.slug}/waivers`}
+                          style={{
+                            fontSize: '0.62rem', letterSpacing: '0.12em', textTransform: 'uppercase',
+                            color: 'var(--rose)', border: '1px solid var(--rose)', borderRadius: '2px',
+                            padding: '4px 10px', textDecoration: 'none', whiteSpace: 'nowrap',
+                          }}
+                        >
+                          Waiver needed →
+                        </Link>
+                      )}
+                    </div>
+                  )}
+                </div>
+              )
+            })}
+          </div>
+        )}
 
         <div className="g-2" style={{ display: 'grid', gap: '32px', alignItems: 'start' }}>
 
