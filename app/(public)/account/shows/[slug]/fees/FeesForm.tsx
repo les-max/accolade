@@ -2,7 +2,8 @@
 import { useTransition, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import {
-  ACCOLADE_AD_PRICES, AD_LABELS, SHIRT_SIZES, computeShowTuition,
+  ACCOLADE_AD_PRICES, AD_LABELS, SHIRT_SIZES, SHOW_TUITION_TIER_1, SHOW_TUITION_TIER_2,
+  computeShowTuition,
   type AdSize, type ShirtSize,
 } from '@/lib/fees-constants'
 import { validateCoupon } from './fees-actions'
@@ -22,7 +23,6 @@ export default function FeesForm({ showId, showSlug, showTitle, eventType, feesC
   const router = useRouter()
   const [pending, startTransition] = useTransition()
 
-  const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set())
   const [shirtSizes, setShirtSizes] = useState<Record<string, ShirtSize | ''>>({})
   const [selectedAds, setSelectedAds] = useState<AdSize[]>([])
   const [couponInput, setCouponInput] = useState('')
@@ -33,14 +33,12 @@ export default function FeesForm({ showId, showSlug, showTitle, eventType, feesC
   const isShow = eventType === 'show'
   const shirtPrice = feesConfig.shirt_price ?? 0
   const campTuition = feesConfig.tuition_amount ?? 0
+  const showShirtSelector = isCamp || shirtPrice > 0
 
-  const selectedList = members.filter(m => selectedIds.has(m.id))
-
-  // Compute totals
-  const childCount = selectedList.length
+  const childCount = members.length
   const rawTuition = isShow ? computeShowTuition(childCount) : campTuition * childCount
-  const rawShirts = isShow && shirtPrice > 0
-    ? selectedList.filter(m => shirtSizes[m.id]).length * shirtPrice
+  const rawShirts = showShirtSelector && !isCamp
+    ? members.filter(m => shirtSizes[m.id]).length * shirtPrice
     : 0
   const adsTotal = selectedAds.reduce((sum, size) => sum + ACCOLADE_AD_PRICES[size], 0)
 
@@ -52,13 +50,9 @@ export default function FeesForm({ showId, showSlug, showTitle, eventType, feesC
   }
   const grandTotal = tuitionTotal + shirtsTotal + adsTotal
 
-  function toggleMember(id: string) {
-    setSelectedIds(prev => {
-      const next = new Set(prev)
-      if (next.has(id)) next.delete(id)
-      else next.add(id)
-      return next
-    })
+  function memberTuition(index: number): number {
+    if (isCamp) return campTuition
+    return index < 2 ? SHOW_TUITION_TIER_1 : SHOW_TUITION_TIER_2
   }
 
   function toggleAd(size: AdSize) {
@@ -78,7 +72,7 @@ export default function FeesForm({ showId, showSlug, showTitle, eventType, feesC
   }
 
   function handleSubmit() {
-    if (selectedList.length === 0) return
+    if (members.length === 0) return
     setSubmitError(null)
     startTransition(async () => {
       try {
@@ -87,7 +81,7 @@ export default function FeesForm({ showId, showSlug, showTitle, eventType, feesC
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
             show_slug: showSlug,
-            family_member_ids: selectedList.map(m => m.id),
+            family_member_ids: members.map(m => m.id),
             shirt_sizes: shirtSizes,
             ads: selectedAds,
             coupon_code: couponState?.valid ? couponInput.toUpperCase().trim() : undefined,
@@ -110,52 +104,31 @@ export default function FeesForm({ showId, showSlug, showTitle, eventType, feesC
 
   return (
     <div>
-      {/* Tuition pricing note — shows only */}
-      {isShow && (
-        <div style={{ background: 'var(--layer)', border: '1px solid var(--border)', borderRadius: '4px', padding: '16px 20px', marginBottom: '24px' }}>
-          <p style={{ fontSize: '0.65rem', letterSpacing: '0.2em', textTransform: 'uppercase', color: 'var(--muted)', marginBottom: '10px' }}>Tuition</p>
-          <div style={{ display: 'flex', gap: '24px', flexWrap: 'wrap' }}>
-            <span style={{ fontSize: '0.85rem', color: 'var(--warm-white)' }}>1st &amp; 2nd child — <strong style={{ color: 'var(--gold)' }}>$50 each</strong></span>
-            <span style={{ fontSize: '0.85rem', color: 'var(--warm-white)' }}>3rd+ child — <strong style={{ color: 'var(--gold)' }}>$25 each</strong></span>
-          </div>
-        </div>
-      )}
-
-      {/* Member selection */}
+      {/* Participants + shirt selection */}
       <div style={{ marginBottom: '32px' }}>
-        <p style={LABEL_SM}>Who is participating?</p>
+        <p style={LABEL_SM}>Participants</p>
         <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-          {members.map(m => (
-            <div key={m.id} style={{ background: 'var(--layer)', border: `1px solid ${selectedIds.has(m.id) ? 'var(--gold)' : 'var(--border)'}`, borderRadius: '4px', padding: '14px 18px' }}>
-              <label style={{ display: 'flex', alignItems: 'flex-start', gap: '12px', cursor: 'pointer' }}>
-                <input
-                  type="checkbox"
-                  checked={selectedIds.has(m.id)}
-                  onChange={() => toggleMember(m.id)}
-                  style={{ marginTop: '2px', accentColor: 'var(--gold)' }}
-                />
-                <div style={{ flex: 1 }}>
-                  <span style={{ fontSize: '0.9rem', color: 'var(--warm-white)' }}>{m.name}</span>
+          {members.map((m, i) => (
+            <div key={m.id} style={{ background: 'var(--layer)', border: '1px solid var(--border)', borderRadius: '4px', padding: '14px 18px' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '12px' }}>
+                <span style={{ fontSize: '0.9rem', color: 'var(--warm-white)' }}>{m.name}</span>
+                <span style={{ fontSize: '0.82rem', color: 'var(--gold)', whiteSpace: 'nowrap' }}>
+                  ${memberTuition(i).toFixed(2)}
+                </span>
+              </div>
 
-                  {/* Shirt size — shows only (with shirt price) or camp (size required, $0) */}
-                  {selectedIds.has(m.id) && (isCamp || shirtPrice > 0) && (
-                    <div style={{ marginTop: '10px' }}>
-                      <label style={{ ...LABEL_SM, letterSpacing: '0.1em' }}>
-                        Shirt Size{isCamp ? '' : ` (+$${shirtPrice.toFixed(2)})`}
-                      </label>
-                      <select
-                        value={shirtSizes[m.id] ?? ''}
-                        onChange={e => setShirtSizes(prev => ({ ...prev, [m.id]: e.target.value as ShirtSize }))}
-                        style={SELECT}
-                        onClick={e => e.stopPropagation()}
-                      >
-                        <option value="">Select size (optional)</option>
-                        {SHIRT_SIZES.map(s => <option key={s} value={s}>{s}</option>)}
-                      </select>
-                    </div>
-                  )}
+              {showShirtSelector && (
+                <div style={{ marginTop: '10px' }}>
+                  <select
+                    value={shirtSizes[m.id] ?? ''}
+                    onChange={e => setShirtSizes(prev => ({ ...prev, [m.id]: e.target.value as ShirtSize }))}
+                    style={{ ...SELECT, fontSize: '0.78rem' }}
+                  >
+                    <option value="">Shirt size (optional{!isCamp && shirtPrice > 0 ? ` +$${shirtPrice.toFixed(2)}` : ''})</option>
+                    {SHIRT_SIZES.map(s => <option key={s} value={s}>{s}</option>)}
+                  </select>
                 </div>
-              </label>
+              )}
             </div>
           ))}
         </div>
@@ -225,53 +198,47 @@ export default function FeesForm({ showId, showSlug, showTitle, eventType, feesC
       {/* Order summary */}
       <div style={{ background: 'var(--layer)', border: '1px solid var(--border)', borderRadius: '4px', padding: '20px 24px', marginBottom: '24px' }}>
         <p style={LABEL_SM}>Order Summary</p>
-        {childCount === 0 ? (
-          <p style={{ fontSize: '0.82rem', color: 'var(--muted)' }}>Select at least one participant above.</p>
-        ) : (
-          <>
-            {tuitionTotal > 0 && (
-              <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.85rem', color: 'var(--muted)', marginBottom: '6px' }}>
-                <span>Tuition ({childCount} {childCount === 1 ? 'child' : 'children'})</span>
-                <span>${tuitionTotal.toFixed(2)}</span>
-              </div>
-            )}
-            {rawTuition > 0 && tuitionTotal === 0 && (
-              <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.85rem', color: 'var(--muted)', marginBottom: '6px' }}>
-                <span>Tuition <s>${rawTuition.toFixed(2)}</s></span>
-                <span style={{ color: 'var(--teal)' }}>$0.00</span>
-              </div>
-            )}
-            {shirtsTotal > 0 && (
-              <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.85rem', color: 'var(--muted)', marginBottom: '6px' }}>
-                <span>Shirts</span>
-                <span>${shirtsTotal.toFixed(2)}</span>
-              </div>
-            )}
-            {rawShirts > 0 && shirtsTotal === 0 && (
-              <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.85rem', color: 'var(--muted)', marginBottom: '6px' }}>
-                <span>Shirts <s>${rawShirts.toFixed(2)}</s></span>
-                <span style={{ color: 'var(--teal)' }}>$0.00</span>
-              </div>
-            )}
-            {adsTotal > 0 && (
-              <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.85rem', color: 'var(--muted)', marginBottom: '6px' }}>
-                <span>Playbill Ads</span>
-                <span>${adsTotal.toFixed(2)}</span>
-              </div>
-            )}
-            <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '1rem', color: 'var(--warm-white)', fontWeight: 600, marginTop: '12px', paddingTop: '12px', borderTop: '1px solid var(--border)' }}>
-              <span>Total</span>
-              <span style={{ color: 'var(--gold)' }}>${grandTotal.toFixed(2)}</span>
-            </div>
-          </>
+        {tuitionTotal > 0 && (
+          <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.85rem', color: 'var(--muted)', marginBottom: '6px' }}>
+            <span>Tuition ({childCount} {childCount === 1 ? 'child' : 'children'})</span>
+            <span>${tuitionTotal.toFixed(2)}</span>
+          </div>
         )}
+        {rawTuition > 0 && tuitionTotal === 0 && (
+          <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.85rem', color: 'var(--muted)', marginBottom: '6px' }}>
+            <span>Tuition <s>${rawTuition.toFixed(2)}</s></span>
+            <span style={{ color: 'var(--teal)' }}>$0.00</span>
+          </div>
+        )}
+        {shirtsTotal > 0 && (
+          <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.85rem', color: 'var(--muted)', marginBottom: '6px' }}>
+            <span>Shirts</span>
+            <span>${shirtsTotal.toFixed(2)}</span>
+          </div>
+        )}
+        {rawShirts > 0 && shirtsTotal === 0 && (
+          <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.85rem', color: 'var(--muted)', marginBottom: '6px' }}>
+            <span>Shirts <s>${rawShirts.toFixed(2)}</s></span>
+            <span style={{ color: 'var(--teal)' }}>$0.00</span>
+          </div>
+        )}
+        {adsTotal > 0 && (
+          <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.85rem', color: 'var(--muted)', marginBottom: '6px' }}>
+            <span>Playbill Ads</span>
+            <span>${adsTotal.toFixed(2)}</span>
+          </div>
+        )}
+        <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '1rem', color: 'var(--warm-white)', fontWeight: 600, marginTop: '12px', paddingTop: '12px', borderTop: '1px solid var(--border)' }}>
+          <span>Total</span>
+          <span style={{ color: 'var(--gold)' }}>${grandTotal.toFixed(2)}</span>
+        </div>
       </div>
 
       {submitError && <p style={{ fontSize: '0.78rem', color: 'var(--rose)', marginBottom: '12px' }}>{submitError}</p>}
 
       <button
         onClick={handleSubmit}
-        disabled={pending || selectedList.length === 0}
+        disabled={pending || members.length === 0}
         className="btn-primary"
         style={{ fontSize: '0.85rem', width: '100%' }}
       >
