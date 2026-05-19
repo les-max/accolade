@@ -23,6 +23,7 @@ export default async function AccountAuditionsPage() {
     .select('id, parent_name')
     .eq('id', fu.family_id)
     .single()
+  if (!family) redirect('/account/setup')
 
   const { data: auditions } = await supabase
     .from('auditions')
