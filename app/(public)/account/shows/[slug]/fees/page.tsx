@@ -58,12 +58,12 @@ export default async function FeesPage({
       .maybeSingle(),
     supabase
       .from('family_members')
-      .select('id, first_name, last_name')
+      .select('id, name')
       .eq('family_id', family.id)
-      .order('first_name'),
+      .order('name'),
   ])
 
-  const members = (membersData ?? []) as { id: string; first_name: string; last_name: string }[]
+  const members = (membersData ?? []) as { id: string; name: string }[]
 
   return (
     <section style={{ padding: 'clamp(40px, 8vw, 72px) clamp(20px, 5vw, 48px)' }}>

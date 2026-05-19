@@ -7,7 +7,7 @@ import {
 } from '@/lib/fees-constants'
 import { validateCoupon } from './fees-actions'
 
-interface Member { id: string; first_name: string; last_name: string }
+interface Member { id: string; name: string }
 
 interface FeesFormProps {
   showId: string
@@ -124,7 +124,7 @@ export default function FeesForm({ showId, showSlug, showTitle, eventType, feesC
                   style={{ marginTop: '2px', accentColor: 'var(--gold)' }}
                 />
                 <div style={{ flex: 1 }}>
-                  <span style={{ fontSize: '0.9rem', color: 'var(--warm-white)' }}>{m.first_name} {m.last_name}</span>
+                  <span style={{ fontSize: '0.9rem', color: 'var(--warm-white)' }}>{m.name}</span>
 
                   {/* Shirt size — shows only (with shirt price) or camp (size required, $0) */}
                   {selectedIds.has(m.id) && (isCamp || shirtPrice > 0) && (
