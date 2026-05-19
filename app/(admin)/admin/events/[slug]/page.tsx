@@ -43,7 +43,7 @@ export default async function ShowDetailPage({
     supabase.from('venues').select('id, name, address, city, state').order('name'),
     supabase.from('shows').select('id, title, show_image, show_image_wide, venue_id, season').eq('event_type', 'show').eq('archived', false).order('title'),
     supabase.from('show_members')
-      .select('id, show_role, families(parent_name, email)')
+      .select('id, show_role, show_part, person_name')
       .eq('show_id', show.id)
       .order('show_role'),
     supabase.from('show_fees_config').select('shirt_price, tuition_amount, fees_enabled').eq('show_id', show.id).maybeSingle(),
@@ -52,8 +52,21 @@ export default async function ShowDetailPage({
   ])
 
   const showPerformanceIds = (performancesData ?? []).filter(p => p.type === 'performance').map(p => p.id)
-  const { data: ticketConfigData } = showPerformanceIds.length > 0
-    ? await supabase.from('ticket_performances').select('show_performance_id, capacity, price, sales_enabled').in('show_performance_id', showPerformanceIds)
+  const [{ data: ticketConfigData }, { data: linkedAuditionShows }] = await Promise.all([
+    showPerformanceIds.length > 0
+      ? supabase.from('ticket_performances').select('show_performance_id, capacity, price, sales_enabled').in('show_performance_id', showPerformanceIds)
+      : Promise.resolve({ data: [] }),
+    supabase.from('shows').select('id').eq('parent_show_id', show.id).eq('event_type', 'audition'),
+  ])
+
+  const auditionShowIds = (linkedAuditionShows ?? []).map(s => s.id)
+  const { data: auditionersRaw } = auditionShowIds.length > 0
+    ? await supabase
+        .from('auditions')
+        .select('id, auditioner_name, family_member_id, family_id, is_adult')
+        .in('show_id', auditionShowIds)
+        .neq('status', 'cancelled')
+        .order('auditioner_name')
     : { data: [] }
 
   // Staff assignments — only needed for admin on show detail overview tab
@@ -180,6 +193,7 @@ export default async function ShowDetailPage({
             slug={slug}
             role={role}
             membersData={(membersData ?? []) as unknown as Parameters<typeof PeopleTab>[0]['membersData']}
+            auditioners={(auditionersRaw ?? []) as unknown as Parameters<typeof PeopleTab>[0]['auditioners']}
           />
         )}
         {activeTab === 'finances' && (

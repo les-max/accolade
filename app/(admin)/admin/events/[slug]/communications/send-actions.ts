@@ -28,13 +28,15 @@ export async function sendShowEmail({
   if (memberGroups.length > 0) {
     const { data: members } = await supabase
       .from('show_members')
-      .select('families(parent_name, email)')
+      .select('person_name, email, families(parent_name, email)')
       .eq('show_id', showId)
       .in('show_role', memberGroups)
 
     for (const m of members ?? []) {
-      const f = m.families as unknown as { parent_name: string; email: string }
-      if (f?.email) emailSet.set(f.email.toLowerCase(), f.parent_name ?? f.email)
+      const f = m.families as unknown as { parent_name: string; email: string } | null
+      const resolvedEmail = f?.email ?? m.email
+      const resolvedName = f?.parent_name ?? m.person_name
+      if (resolvedEmail) emailSet.set(resolvedEmail.toLowerCase(), resolvedName)
     }
   }
 
