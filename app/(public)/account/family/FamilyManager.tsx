@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useTransition } from 'react'
-import { addFamilyMember, deleteFamilyMember, updateFamilyMember, updateFamilyContact, inviteCoParent } from './actions'
+import { addFamilyMember, deleteFamilyMember, updateFamilyMember, updateFamilyContact } from './actions'
 import { computeAge } from '@/lib/utils/age'
 
 type Member = { id: string; name: string; birthdate: string | null; age: number | null; grade: string | null; gender: string | null }
@@ -122,23 +122,6 @@ export default function FamilyManager({ family, members, showGradePrompt }: { fa
   const [showAddForm, setShowAddForm] = useState(false)
   const [editingContact, setEditingContact] = useState(false)
   const [isPending, startTransition] = useTransition()
-  const [inviteSent, setInviteSent] = useState(false)
-  const [inviteError, setInviteError] = useState('')
-
-  function handleInvite(e: React.FormEvent<HTMLFormElement>) {
-    e.preventDefault()
-    setInviteError('')
-    const data = new FormData(e.currentTarget)
-    startTransition(async () => {
-      const result = await inviteCoParent(data)
-      if (result.error) {
-        setInviteError(result.error)
-      } else {
-        setInviteSent(true)
-      }
-    })
-  }
-
   function handleAdd(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault()
     const form = e.currentTarget
@@ -261,27 +244,9 @@ export default function FamilyManager({ family, members, showGradePrompt }: { fa
                 </div>
                 {family.spouse_email && (
                   <div style={{ borderTop: '1px solid var(--border)', paddingTop: '16px' }}>
-                    {inviteSent ? (
-                      <p style={{ fontSize: '0.78rem', color: 'var(--teal)' }}>
-                        Invite sent to {family.spouse_email}
-                      </p>
-                    ) : (
-                      <form onSubmit={handleInvite} style={{ display: 'flex', alignItems: 'center', gap: '12px', flexWrap: 'wrap' }}>
-                        <input type="hidden" name="email" value={family.spouse_email} />
-                        <input type="hidden" name="name" value={family.spouse_name ?? ''} />
-                        <p style={{ fontSize: '0.78rem', color: 'var(--muted)', flex: 1 }}>
-                          {family.spouse_name} doesn't have a login yet.
-                        </p>
-                        <button
-                          type="submit"
-                          disabled={isPending}
-                          style={{ background: 'none', border: '1px solid var(--gold)', borderRadius: '2px', color: 'var(--gold)', fontSize: '0.62rem', letterSpacing: '0.12em', textTransform: 'uppercase', padding: '7px 14px', cursor: 'pointer', whiteSpace: 'nowrap' }}
-                        >
-                          {isPending ? 'Sending…' : 'Send Login Invite'}
-                        </button>
-                        {inviteError && <p style={{ fontSize: '0.72rem', color: 'var(--rose)', width: '100%' }}>{inviteError}</p>}
-                      </form>
-                    )}
+                    <p style={{ fontSize: '0.78rem', color: 'var(--muted)' }}>
+                      A login invite was sent to {family.spouse_email}.
+                    </p>
                   </div>
                 )}
               </div>
