@@ -110,6 +110,17 @@ export default function FeesForm({ showId, showSlug, showTitle, eventType, feesC
 
   return (
     <div>
+      {/* Tuition pricing note — shows only */}
+      {isShow && (
+        <div style={{ background: 'var(--layer)', border: '1px solid var(--border)', borderRadius: '4px', padding: '16px 20px', marginBottom: '24px' }}>
+          <p style={{ fontSize: '0.65rem', letterSpacing: '0.2em', textTransform: 'uppercase', color: 'var(--muted)', marginBottom: '10px' }}>Tuition</p>
+          <div style={{ display: 'flex', gap: '24px', flexWrap: 'wrap' }}>
+            <span style={{ fontSize: '0.85rem', color: 'var(--warm-white)' }}>1st &amp; 2nd child — <strong style={{ color: 'var(--gold)' }}>$50 each</strong></span>
+            <span style={{ fontSize: '0.85rem', color: 'var(--warm-white)' }}>3rd+ child — <strong style={{ color: 'var(--gold)' }}>$25 each</strong></span>
+          </div>
+        </div>
+      )}
+
       {/* Member selection */}
       <div style={{ marginBottom: '32px' }}>
         <p style={LABEL_SM}>Who is participating?</p>

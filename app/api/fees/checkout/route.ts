@@ -67,7 +67,7 @@ export async function POST(req: NextRequest) {
   // Validate family_member_ids belong to this family
   const { data: allMembers } = await supabase
     .from('family_members')
-    .select('id, first_name, last_name')
+    .select('id, name')
     .eq('family_id', family.id)
   const memberMap = new Map((allMembers ?? []).map(m => [m.id, m]))
   const validMemberIds = family_member_ids.filter(id => memberMap.has(id))
@@ -112,7 +112,7 @@ export async function POST(req: NextRequest) {
   for (let i = 0; i < validMemberIds.length; i++) {
     const memberId = validMemberIds[i]
     const member = memberMap.get(memberId)!
-    const memberName = `${member.first_name} ${member.last_name}`
+    const memberName = member.name
 
     let tuitionPrice: number
     if (isCamp) {
