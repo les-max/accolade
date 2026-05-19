@@ -28,7 +28,7 @@ export default async function CommunicationsPage({
   const emailableByRole: Record<string, number> = {}
   for (const m of members ?? []) {
     countByRole[m.show_role] = (countByRole[m.show_role] ?? 0) + 1
-    const f = m.families as { email: string | null } | null
+    const f = m.families as unknown as { email: string | null } | null
     if (f?.email ?? m.email) emailableByRole[m.show_role] = (emailableByRole[m.show_role] ?? 0) + 1
   }
   const memberGroups = Object.entries(countByRole).map(([label, count]) => ({
