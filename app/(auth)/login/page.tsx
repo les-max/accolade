@@ -95,7 +95,7 @@ export default function LoginPage() {
             Sign in
           </h1>
           <p style={{ color: 'var(--muted)', fontSize: '0.85rem', marginBottom: '32px' }}>
-            Enter your email and we&apos;ll send you a magic link.
+            Enter your email and we&apos;ll send you a magic link. New families can use this same form to create an account.
           </p>
 
           <label style={{ display: 'block', marginBottom: '24px' }}>

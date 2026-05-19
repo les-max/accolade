@@ -15,8 +15,41 @@ export async function GET(request: Request) {
       const meta = data.user.user_metadata
       const service = createServiceClient()
 
+      // Check family_invites by email (spouse invite flow)
+      if (data.user.email) {
+        const { data: invite } = await service
+          .from('family_invites')
+          .select('id, family_id')
+          .eq('email', data.user.email.toLowerCase())
+          .is('accepted_at', null)
+          .order('invited_at', { ascending: false })
+          .limit(1)
+          .maybeSingle()
+
+        if (invite) {
+          const { data: existing } = await service
+            .from('family_users')
+            .select('id')
+            .eq('user_id', data.user.id)
+            .maybeSingle()
+
+          if (!existing) {
+            await service.from('family_users').insert({
+              family_id: invite.family_id,
+              user_id:   data.user.id,
+              name:      meta?.name ?? '',
+            })
+          }
+
+          await service
+            .from('family_invites')
+            .update({ accepted_at: new Date().toISOString() })
+            .eq('id', invite.id)
+        }
+      }
+
       if (meta?.invited_as_co_parent && meta?.family_id) {
-        // Spouse accepting an invite — link them to the existing family
+        // Legacy path: old-style invite with metadata
         const { data: existing } = await service
           .from('family_users')
           .select('id')

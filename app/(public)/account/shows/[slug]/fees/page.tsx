@@ -38,11 +38,13 @@ export default async function FeesPage({
 
   if (!feesConfig?.fees_enabled) {
     return (
+      <section style={{ padding: 'clamp(40px, 8vw, 72px) clamp(20px, 5vw, 48px)' }}>
       <div style={{ maxWidth: '600px' }}>
         <Link href="/account" style={{ color: 'var(--muted)', fontSize: '0.78rem', textDecoration: 'none', display: 'inline-block', marginBottom: '20px' }}>← Account</Link>
         <h1 style={{ fontFamily: "'Playfair Display', serif", fontSize: '1.6rem', fontWeight: 700, marginBottom: '12px' }}>{show.title}</h1>
         <p style={{ color: 'var(--muted)', fontSize: '0.85rem' }}>Fees are not yet open for this production. Check back soon.</p>
       </div>
+      </section>
     )
   }
 
@@ -64,6 +66,7 @@ export default async function FeesPage({
   const members = (membersData ?? []) as { id: string; first_name: string; last_name: string }[]
 
   return (
+    <section style={{ padding: 'clamp(40px, 8vw, 72px) clamp(20px, 5vw, 48px)' }}>
     <div style={{ maxWidth: '600px' }}>
       <Link href="/account" style={{ color: 'var(--muted)', fontSize: '0.78rem', textDecoration: 'none', display: 'inline-block', marginBottom: '20px' }}>← Account</Link>
       <h1 style={{ fontFamily: "'Playfair Display', serif", fontSize: '1.6rem', fontWeight: 700, marginBottom: '4px' }}>{show.title}</h1>
@@ -100,5 +103,6 @@ export default async function FeesPage({
         />
       )}
     </div>
+    </section>
   )
 }

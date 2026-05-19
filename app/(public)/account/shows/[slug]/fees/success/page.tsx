@@ -39,6 +39,7 @@ export default async function FeesSuccessPage({
     .maybeSingle() : { data: null }
 
   return (
+    <section style={{ padding: 'clamp(40px, 8vw, 72px) clamp(20px, 5vw, 48px)' }}>
     <div style={{ maxWidth: '560px' }}>
       <div style={{ textAlign: 'center', padding: '48px 0 32px' }}>
         <p style={{ fontSize: '2rem', marginBottom: '16px' }}>✓</p>
@@ -67,5 +68,6 @@ export default async function FeesSuccessPage({
         </Link>
       </div>
     </div>
+    </section>
   )
 }

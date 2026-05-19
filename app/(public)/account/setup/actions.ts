@@ -1,7 +1,9 @@
 'use server'
 
 import { createClient } from '@/lib/supabase/server'
+import { createServiceClient } from '@/lib/supabase/service'
 import { redirect } from 'next/navigation'
+import { sendSpouseInvite } from '@/lib/email/invite-emails'
 
 export async function createFamilyProfile(formData: FormData) {
   const supabase = await createClient()
@@ -35,6 +37,24 @@ export async function createFamilyProfile(formData: FormData) {
     user_id:   user.id,
     name:      parent_name,
   })
+
+  if (spouse_email) {
+    const service = createServiceClient()
+    await service.from('family_invites').insert({ family_id: family.id, email: spouse_email.toLowerCase() })
+    const { data: linkData } = await service.auth.admin.generateLink({
+      type: 'magiclink',
+      email: spouse_email,
+      options: { redirectTo: `${process.env.NEXT_PUBLIC_SITE_URL}/auth/callback` },
+    })
+    if (linkData?.properties?.action_link) {
+      await sendSpouseInvite({
+        spouseEmail: spouse_email,
+        spouseName: spouse_name,
+        invitedByName: parent_name,
+        magicLink: linkData.properties.action_link,
+      })
+    }
+  }
 
   redirect('/account/family')
 }

@@ -44,6 +44,7 @@ export default async function BioPage({
   )
 
   return (
+    <section style={{ padding: 'clamp(40px, 8vw, 72px) clamp(20px, 5vw, 48px)' }}>
     <div style={{ maxWidth: '680px' }}>
       <div style={{ marginBottom: '40px' }}>
         <Link
@@ -77,5 +78,6 @@ export default async function BioPage({
         ))
       )}
     </div>
+    </section>
   )
 }
