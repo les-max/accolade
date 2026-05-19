@@ -45,6 +45,29 @@ export async function GET(request: Request) {
             .from('family_invites')
             .update({ accepted_at: new Date().toISOString() })
             .eq('id', invite.id)
+        } else {
+          // No invite — check if email matches an existing family record directly
+          const { data: existingFu } = await service
+            .from('family_users')
+            .select('id')
+            .eq('user_id', data.user.id)
+            .maybeSingle()
+
+          if (!existingFu) {
+            const { data: matchedFamily } = await service
+              .from('families')
+              .select('id')
+              .eq('email', data.user.email.toLowerCase())
+              .maybeSingle()
+
+            if (matchedFamily) {
+              await service.from('family_users').insert({
+                family_id: matchedFamily.id,
+                user_id:   data.user.id,
+                name:      meta?.name ?? '',
+              })
+            }
+          }
         }
       }
 

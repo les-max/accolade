@@ -38,7 +38,7 @@ export async function POST(req: NextRequest) {
 
   // Load family via family_users join table
   const { data: fu } = await authSupabase.from('family_users').select('family_id').eq('user_id', user.id).single()
-  if (!fu) return NextResponse.json({ error: 'Family not found' }, { status: 404 })
+  if (!fu) return NextResponse.json({ error: 'Your account isn\'t linked to a family profile. Try signing out and back in, or contact info@accoladetheatre.org.' }, { status: 404 })
 
   const { data: family } = await supabase
     .from('families')
@@ -46,7 +46,7 @@ export async function POST(req: NextRequest) {
     .eq('id', fu.family_id)
     .single()
   if (!family) {
-    return NextResponse.json({ error: 'Family not found' }, { status: 404 })
+    return NextResponse.json({ error: 'Your account isn\'t linked to a family profile. Try signing out and back in, or contact info@accoladetheatre.org.' }, { status: 404 })
   }
 
   // Load show + fees config

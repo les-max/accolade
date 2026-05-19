@@ -1,4 +1,5 @@
 import { createClient } from '@/lib/supabase/server'
+import { createServiceClient } from '@/lib/supabase/service'
 import { redirect } from 'next/navigation'
 import SetupForm from './SetupForm'
 
@@ -12,6 +13,38 @@ export default async function SetupPage() {
   // Already has a profile — skip setup
   const { data: fu } = await supabase.from('family_users').select('family_id').eq('user_id', user.id).single()
   if (fu) redirect('/account')
+
+  // Auto-link: if email matches a pending invite or existing family, link silently
+  if (user.email) {
+    const service = createServiceClient()
+    const email = user.email.toLowerCase()
+
+    const { data: invite } = await service
+      .from('family_invites')
+      .select('id, family_id')
+      .eq('email', email)
+      .is('accepted_at', null)
+      .order('invited_at', { ascending: false })
+      .limit(1)
+      .maybeSingle()
+
+    if (invite) {
+      await service.from('family_users').insert({ family_id: invite.family_id, user_id: user.id, name: '' })
+      await service.from('family_invites').update({ accepted_at: new Date().toISOString() }).eq('id', invite.id)
+      redirect('/account')
+    }
+
+    const { data: matchedFamily } = await service
+      .from('families')
+      .select('id')
+      .eq('email', email)
+      .maybeSingle()
+
+    if (matchedFamily) {
+      await service.from('family_users').insert({ family_id: matchedFamily.id, user_id: user.id, name: '' })
+      redirect('/account')
+    }
+  }
 
   return (
     <section style={{ padding: 'clamp(48px, 8vw, 80px) clamp(20px, 5vw, 48px)' }}>
