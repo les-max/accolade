@@ -30,7 +30,7 @@ export default async function AccountPage() {
   type ShowEntry = { id: string; title: string; slug: string; members: { name: string; role: string }[] }
   const showsMap = new Map<string, ShowEntry>()
   for (const entry of rosterEntries ?? []) {
-    const show = entry.shows as { id: string; title: string; slug: string; status: string } | null
+    const show = entry.shows as unknown as { id: string; title: string; slug: string; status: string } | null
     if (!show || show.status === 'draft') continue
     if (!showsMap.has(show.id)) showsMap.set(show.id, { id: show.id, title: show.title, slug: show.slug, members: [] })
     showsMap.get(show.id)!.members.push({ name: entry.person_name, role: entry.show_role })
