@@ -59,22 +59,40 @@ export default async function RegistrationsPage({
           <h1 style={{ fontFamily: "'Playfair Display', serif", fontSize: '2rem', fontWeight: 700 }}>
             Registrations
           </h1>
-          <a
-            href={`/api/admin/events/${slug}/registrations/export?slot=${slotFilter ?? ''}&status=${statusFilter ?? ''}`}
-            style={{
-              display: 'inline-flex', alignItems: 'center', gap: '8px',
-              padding: '10px 20px',
-              border: '1px solid var(--border)',
-              borderRadius: '2px',
-              color: 'var(--gold)',
-              fontSize: '0.65rem',
-              letterSpacing: '0.15em',
-              textTransform: 'uppercase',
-              textDecoration: 'none',
-            }}
-          >
-            Export CSV
-          </a>
+          <div style={{ display: 'flex', gap: '12px' }}>
+            <Link
+              href={`/admin/events/${slug}/registrations/import`}
+              style={{
+                display: 'inline-flex', alignItems: 'center', gap: '8px',
+                padding: '10px 20px',
+                border: '1px solid var(--border)',
+                borderRadius: '2px',
+                color: 'var(--muted)',
+                fontSize: '0.65rem',
+                letterSpacing: '0.15em',
+                textTransform: 'uppercase',
+                textDecoration: 'none',
+              }}
+            >
+              Import CSV
+            </Link>
+            <a
+              href={`/api/admin/events/${slug}/registrations/export?slot=${slotFilter ?? ''}&status=${statusFilter ?? ''}`}
+              style={{
+                display: 'inline-flex', alignItems: 'center', gap: '8px',
+                padding: '10px 20px',
+                border: '1px solid var(--border)',
+                borderRadius: '2px',
+                color: 'var(--gold)',
+                fontSize: '0.65rem',
+                letterSpacing: '0.15em',
+                textTransform: 'uppercase',
+                textDecoration: 'none',
+              }}
+            >
+              Export CSV
+            </a>
+          </div>
         </div>
       </div>
 
