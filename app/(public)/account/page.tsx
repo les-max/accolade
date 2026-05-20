@@ -40,12 +40,14 @@ export default async function AccountPage() {
 
   const feesPendingIds = new Set<string>()
   const waiversPendingIds = new Set<string>()
+  const volunteersOpenIds = new Set<string>()
 
   if (activeShowIds.length > 0) {
-    const [{ data: feeConfigs }, { data: paidOrders }, { data: waivers }] = await Promise.all([
+    const [{ data: feeConfigs }, { data: paidOrders }, { data: waivers }, { data: publishedVolShows }] = await Promise.all([
       supabase.from('show_fees_config').select('show_id').eq('fees_enabled', true).in('show_id', activeShowIds),
       supabase.from('show_fee_orders').select('show_id').eq('family_id', family.id).in('show_id', activeShowIds).eq('status', 'paid'),
       supabase.from('show_waivers').select('show_id, waiver_type').eq('family_id', family.id).in('show_id', activeShowIds),
+      supabase.from('shows').select('id').eq('volunteers_published', true).in('id', activeShowIds),
     ])
 
     const paidShowIds = new Set((paidOrders ?? []).map(o => o.show_id))
@@ -61,6 +63,10 @@ export default async function AccountPage() {
     for (const id of activeShowIds) {
       const signed = signedByShow.get(id)
       if (!signed?.has('liability') || !signed?.has('photo_video')) waiversPendingIds.add(id)
+    }
+
+    for (const s of publishedVolShows ?? []) {
+      volunteersOpenIds.add(s.id)
     }
   }
 
@@ -116,6 +122,7 @@ export default async function AccountPage() {
             {activeShows.map((show, i) => {
               const feesDue = feesPendingIds.has(show.id)
               const waiversDue = waiversPendingIds.has(show.id)
+              const volunteersOpen = volunteersOpenIds.has(show.id)
               return (
                 <div key={show.id} style={{
                   padding: '16px 24px',
@@ -128,7 +135,7 @@ export default async function AccountPage() {
                       {show.members.map(m => `${m.name} · ${m.role}`).join('  •  ')}
                     </p>
                   </div>
-                  {(feesDue || waiversDue) && (
+                  {(feesDue || waiversDue || volunteersOpen) && (
                     <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap', flexShrink: 0 }}>
                       {feesDue && (
                         <Link
@@ -152,6 +159,18 @@ export default async function AccountPage() {
                           }}
                         >
                           Waiver needed →
+                        </Link>
+                      )}
+                      {volunteersOpen && (
+                        <Link
+                          href={`/account/shows/${show.slug}/volunteers`}
+                          style={{
+                            fontSize: '0.62rem', letterSpacing: '0.12em', textTransform: 'uppercase',
+                            color: 'var(--teal)', border: '1px solid var(--teal)', borderRadius: '2px',
+                            padding: '4px 10px', textDecoration: 'none', whiteSpace: 'nowrap',
+                          }}
+                        >
+                          Volunteer →
                         </Link>
                       )}
                     </div>

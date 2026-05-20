@@ -1,16 +1,17 @@
 import Link from 'next/link'
 import type { StaffRole } from '@/lib/staff'
 
-export type ShowTab = 'overview' | 'details' | 'schedule' | 'tickets' | 'people' | 'finances' | 'comms'
+export type ShowTab = 'overview' | 'details' | 'schedule' | 'tickets' | 'people' | 'finances' | 'comms' | 'volunteers'
 
 const TABS: { id: ShowTab; label: string }[] = [
-  { id: 'overview',  label: 'Overview' },
-  { id: 'details',   label: 'Details' },
-  { id: 'schedule',  label: 'Schedule' },
-  { id: 'tickets',   label: 'Tickets' },
-  { id: 'people',    label: 'Roster' },
-  { id: 'finances',  label: 'Show Fees' },
-  { id: 'comms',     label: 'Comms & Waivers' },
+  { id: 'overview',   label: 'Overview' },
+  { id: 'details',    label: 'Details' },
+  { id: 'schedule',   label: 'Schedule' },
+  { id: 'tickets',    label: 'Tickets' },
+  { id: 'people',     label: 'Roster' },
+  { id: 'finances',   label: 'Show Fees' },
+  { id: 'comms',      label: 'Comms & Waivers' },
+  { id: 'volunteers', label: 'Volunteers' },
 ]
 
 export default function ShowTabNav({

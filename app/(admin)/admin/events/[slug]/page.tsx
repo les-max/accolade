@@ -16,6 +16,7 @@ import TicketsTab from './tabs/TicketsTab'
 import PeopleTab from './tabs/PeopleTab'
 import FinancesTab from './tabs/FinancesTab'
 import CommsTab from './tabs/CommsTab'
+import VolunteersTab from './tabs/VolunteersTab'
 import { getShowRole } from '@/lib/staff'
 
 export default async function ShowDetailPage({
@@ -35,7 +36,7 @@ export default async function ShowDetailPage({
   const role = await getShowRole(show.id)
   if (!role) redirect('/admin/events')
 
-  const [{ data: slotsData }, { data: rolesData }, { data: regCounts }, { data: performancesData }, { data: venuesData }, { data: parentShowsData }, { data: membersData }, { data: feesConfigData }, { data: couponsData }, { data: showEventsData }] = await Promise.all([
+  const [{ data: slotsData }, { data: rolesData }, { data: regCounts }, { data: performancesData }, { data: venuesData }, { data: parentShowsData }, { data: membersData }, { data: feesConfigData }, { data: couponsData }, { data: showEventsData }, { data: volunteerPositionsData }] = await Promise.all([
     supabase.from('audition_slots').select('*').eq('show_id', show.id).order('start_time', { ascending: true }),
     supabase.from('show_roles').select('*').eq('show_id', show.id).order('sort_order', { ascending: true }),
     supabase.from('auditions').select('slot_id').eq('show_id', show.id).eq('status', 'registered'),
@@ -49,6 +50,7 @@ export default async function ShowDetailPage({
     supabase.from('show_fees_config').select('shirt_price, tuition_amount, fees_enabled').eq('show_id', show.id).maybeSingle(),
     supabase.from('show_coupon_codes').select('id, code, waive_tuition, waive_shirts, used_by_family_id').eq('show_id', show.id).order('created_at'),
     supabase.from('show_events').select('id, event_type, title, start_time, end_time, location, notes').eq('show_id', show.id).order('start_time'),
+    supabase.from('volunteer_positions').select('id, show_id, name, description, capacity, position_type, sort_order').eq('show_id', show.id).order('sort_order'),
   ])
 
   const showPerformanceIds = (performancesData ?? []).filter(p => p.type === 'performance').map(p => p.id)
@@ -68,6 +70,28 @@ export default async function ShowDetailPage({
         .neq('status', 'cancelled')
         .order('auditioner_name')
     : { data: [] }
+
+  // Volunteer signups for the positions on this show
+  const volunteerPositionIds = (volunteerPositionsData ?? []).map(p => p.id)
+  const { data: volunteerSignupsData } = volunteerPositionIds.length > 0
+    ? await supabase
+        .from('volunteer_signups')
+        .select('id, position_id, family_id, assigned_by, created_at, families(parent_name, email)')
+        .in('position_id', volunteerPositionIds)
+    : { data: [] }
+
+  type VolSignup = { id: string; position_id: string; family_id: string; assigned_by: string | null; created_at: string; families: { parent_name: string; email: string } | null }
+  const signupsByPosition = new Map<string, VolSignup[]>()
+  for (const s of (volunteerSignupsData ?? []) as unknown as VolSignup[]) {
+    if (!signupsByPosition.has(s.position_id)) signupsByPosition.set(s.position_id, [])
+    signupsByPosition.get(s.position_id)!.push(s)
+  }
+
+  const positionsWithSignups = (volunteerPositionsData ?? []).map(p => ({
+    ...p,
+    position_type: p.position_type as 'open' | 'assigned',
+    signups: signupsByPosition.get(p.id) ?? [],
+  }))
 
   // Staff assignments — only needed for admin on show detail overview tab
   let staffData: { id: string; role: string; admin_users: { id: string; email: string } }[] = []
@@ -122,7 +146,7 @@ export default async function ShowDetailPage({
 
   // Tabbed layout for shows
   if (show.event_type === 'show') {
-    const VALID_TABS: ShowTab[] = ['overview', 'details', 'schedule', 'tickets', 'people', 'finances', 'comms']
+    const VALID_TABS: ShowTab[] = ['overview', 'details', 'schedule', 'tickets', 'people', 'finances', 'comms', 'volunteers']
     const activeTab: ShowTab = VALID_TABS.includes(tabParam as ShowTab) ? (tabParam as ShowTab) : 'overview'
 
     return (
@@ -211,6 +235,15 @@ export default async function ShowDetailPage({
             show={{ id: show.id }}
             slug={slug}
             role={role}
+          />
+        )}
+        {activeTab === 'volunteers' && (
+          <VolunteersTab
+            show={{ id: show.id }}
+            slug={slug}
+            role={role}
+            published={show.volunteers_published ?? false}
+            positions={positionsWithSignups}
           />
         )}
       </div>
