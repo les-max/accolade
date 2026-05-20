@@ -37,16 +37,18 @@ export async function POST(req: NextRequest) {
   const supabase = createServiceClient()
 
   // Load family via family_users join table (service client bypasses RLS — user is already auth'd above)
-  const { data: fu } = await supabase.from('family_users').select('family_id').eq('user_id', user.id).maybeSingle()
-  if (!fu) return NextResponse.json({ error: 'Your account isn\'t linked to a family profile. Try signing out and back in, or contact info@accoladetheatre.org.' }, { status: 404 })
+  const { data: fu, error: fuErr } = await supabase.from('family_users').select('family_id').eq('user_id', user.id).maybeSingle()
+  console.log('[checkout] user_id:', user.id, 'email:', user.email, 'fu:', fu, 'fuErr:', fuErr)
+  if (!fu) return NextResponse.json({ error: 'No family_users row found for this account. Try signing out and back in, or contact info@accoladetheatre.org.' }, { status: 404 })
 
-  const { data: family } = await supabase
+  const { data: family, error: familyErr } = await supabase
     .from('families')
     .select('id, parent_name, email')
     .eq('id', fu.family_id)
     .single()
+  console.log('[checkout] family_id:', fu.family_id, 'family:', family, 'familyErr:', familyErr)
   if (!family) {
-    return NextResponse.json({ error: 'Your account isn\'t linked to a family profile. Try signing out and back in, or contact info@accoladetheatre.org.' }, { status: 404 })
+    return NextResponse.json({ error: 'Family profile not found. Try signing out and back in, or contact info@accoladetheatre.org.' }, { status: 404 })
   }
 
   // Load show + fees config
