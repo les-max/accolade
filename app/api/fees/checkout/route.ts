@@ -34,25 +34,25 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: 'Not authenticated' }, { status: 401 })
   }
 
-  const supabase = createServiceClient()
+  // Use the user's own session client for reads — RLS allows users to read their own rows,
+  // and this avoids a hard dependency on SUPABASE_SERVICE_ROLE_KEY for selects.
+  const { data: fu } = await authSupabase.from('family_users').select('family_id').eq('user_id', user.id).maybeSingle()
+  if (!fu) return NextResponse.json({ error: 'Your account isn\'t linked to a family profile. Try signing out and back in, or contact info@accoladetheatre.org.' }, { status: 404 })
 
-  // Load family via family_users join table (service client bypasses RLS — user is already auth'd above)
-  const { data: fu, error: fuErr } = await supabase.from('family_users').select('family_id').eq('user_id', user.id).maybeSingle()
-  console.log('[checkout] user_id:', user.id, 'email:', user.email, 'fu:', fu, 'fuErr:', fuErr)
-  if (!fu) return NextResponse.json({ error: 'No family_users row found for this account. Try signing out and back in, or contact info@accoladetheatre.org.' }, { status: 404 })
-
-  const { data: family, error: familyErr } = await supabase
+  const { data: family } = await authSupabase
     .from('families')
     .select('id, parent_name, email')
     .eq('id', fu.family_id)
     .single()
-  console.log('[checkout] family_id:', fu.family_id, 'family:', family, 'familyErr:', familyErr)
   if (!family) {
-    return NextResponse.json({ error: 'Family profile not found. Try signing out and back in, or contact info@accoladetheatre.org.' }, { status: 404 })
+    return NextResponse.json({ error: 'Your account isn\'t linked to a family profile. Try signing out and back in, or contact info@accoladetheatre.org.' }, { status: 404 })
   }
 
+  // Service client for writes (inserts/updates bypass RLS)
+  const supabase = createServiceClient()
+
   // Load show + fees config
-  const { data: show } = await supabase
+  const { data: show } = await authSupabase
     .from('shows')
     .select('id, title, event_type, show_fees_config ( shirt_price, tuition_amount, fees_enabled )')
     .eq('slug', show_slug)
@@ -67,7 +67,7 @@ export async function POST(req: NextRequest) {
   }
 
   // Validate family_member_ids belong to this family
-  const { data: allMembers } = await supabase
+  const { data: allMembers } = await authSupabase
     .from('family_members')
     .select('id, name')
     .eq('family_id', family.id)
@@ -78,7 +78,7 @@ export async function POST(req: NextRequest) {
   }
 
   // Check for existing paid order
-  const { data: existingPaid } = await supabase
+  const { data: existingPaid } = await authSupabase
     .from('show_fee_orders')
     .select('id')
     .eq('show_id', show.id)
@@ -172,8 +172,8 @@ export async function POST(req: NextRequest) {
 
   const totalDollars = lineItems.reduce((sum, l) => sum + l.unit_price * l.quantity, 0)
 
-  // Create order row
-  const { data: order, error: orderErr } = await supabase
+  // Create order row — use auth client (RLS insert policy allows own family)
+  const { data: order, error: orderErr } = await authSupabase
     .from('show_fee_orders')
     .insert({
       show_id: show.id,
@@ -189,7 +189,7 @@ export async function POST(req: NextRequest) {
   }
 
   // Insert line items
-  const { error: itemsErr } = await supabase.from('show_fee_order_items').insert(
+  const { error: itemsErr } = await authSupabase.from('show_fee_order_items').insert(
     lineItems.map(l => ({ order_id: order.id, ...l }))
   )
   if (itemsErr) {
@@ -197,7 +197,7 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: 'Failed to create order items' }, { status: 500 })
   }
 
-  // Mark coupon used (reserve it at checkout time)
+  // Mark coupon used — service client only (users shouldn't be able to update coupon records directly)
   if (coupon) {
     await supabase
       .from('show_coupon_codes')
@@ -209,7 +209,7 @@ export async function POST(req: NextRequest) {
 
   // $0 order: skip Stripe, mark paid immediately
   if (totalDollars === 0) {
-    await supabase.from('show_fee_orders').update({ status: 'paid' }).eq('id', order.id)
+    await authSupabase.from('show_fee_orders').update({ status: 'paid' }).eq('id', order.id)
     try {
       await sendFeeConfirmation({
         to: family.email,
@@ -249,7 +249,7 @@ export async function POST(req: NextRequest) {
     cancel_url: `${origin}/account/shows/${show_slug}/fees`,
   })
 
-  await supabase.from('show_fee_orders').update({ stripe_session_id: session.id }).eq('id', order.id)
+  await authSupabase.from('show_fee_orders').update({ stripe_session_id: session.id }).eq('id', order.id)
 
   return NextResponse.json({ url: session.url })
 }
