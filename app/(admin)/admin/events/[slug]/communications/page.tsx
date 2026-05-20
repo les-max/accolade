@@ -17,7 +17,7 @@ export default async function CommunicationsPage({
     .eq('slug', slug)
     .single()
 
-  if (!show || show.event_type !== 'show') notFound()
+  if (!show) notFound()
 
   const { data: members } = await supabase
     .from('show_members')
