@@ -13,14 +13,14 @@ const volunteerRoles = [
 
 
 const photoPlaceholders = [
-  { bg: 'linear-gradient(160deg, #1a2a3e, #0d1a2a)', label: 'Set Construction' },
-  { bg: 'linear-gradient(160deg, #2a1540, #1a0a2a)', label: 'Backstage Crew' },
-  { bg: 'linear-gradient(160deg, #1a2e1a, #0a1a0a)', label: 'Front of House' },
-  { bg: 'linear-gradient(160deg, #3a1a1a, #2a0a0a)', label: 'Costumes' },
-  { bg: 'linear-gradient(160deg, #1a2a1a, #0d1a0d)', label: 'Tech Crew' },
-  { bg: 'linear-gradient(160deg, #1e1a2e, #0d0a1a)', label: 'Rehearsal' },
-  { bg: 'linear-gradient(160deg, #2a2010, #1a1008)', label: 'Opening Night' },
-  { bg: 'linear-gradient(160deg, #1a1a2e, #0a0a1a)', label: 'Stage Management' },
+  { src: '/hero/1.jpg' },
+  { src: '/hero/2.jpg' },
+  { src: '/hero/3.jpg' },
+  { src: '/hero/4.jpg' },
+  { src: '/hero/5.jpg' },
+  { src: '/hompage/perform.jpg' },
+  { src: '/hompage/partner.jpg' },
+  { src: '/hompage/support.jpg' },
 ];
 
 const bentoGroups = [
@@ -92,11 +92,14 @@ export default function VolunteeringPage() {
                   key={ci}
                   style={{
                     gridArea: cell.area,
-                    background: cell.bg,
                     borderRadius: '4px',
                     overflow: 'hidden',
+                    background: '#0d1117',
                   }}
-                />
+                >
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img src={cell.src} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }} />
+                </div>
               ))}
             </div>
           ))}
