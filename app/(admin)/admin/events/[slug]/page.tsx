@@ -313,6 +313,21 @@ export default async function ShowDetailPage({
         </Link>
       </div>
 
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px', marginBottom: '32px' }}>
+        <Link href={`/admin/events/${slug}/registrations`} className="admin-link-card" style={{ padding: '20px 24px' }}>
+          <p style={{ fontSize: '0.65rem', letterSpacing: '0.25em', textTransform: 'uppercase', color: 'var(--muted)' }}>
+            Registrations
+          </p>
+          <span style={{ fontSize: '0.72rem', color: 'var(--gold)' }}>View List →</span>
+        </Link>
+        <Link href={`/admin/events/${slug}/communications`} className="admin-link-card" style={{ padding: '20px 24px' }}>
+          <p style={{ fontSize: '0.65rem', letterSpacing: '0.25em', textTransform: 'uppercase', color: 'var(--muted)' }}>
+            Communications
+          </p>
+          <span style={{ fontSize: '0.72rem', color: 'var(--gold)' }}>Send Email →</span>
+        </Link>
+      </div>
+
       <EventDetailsManager
         showId={show.id}
         slug={slug}
@@ -370,20 +385,6 @@ export default async function ShowDetailPage({
         />
       )}
 
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px', marginTop: '16px' }}>
-        <Link href={`/admin/events/${slug}/registrations`} className="admin-link-card" style={{ padding: '20px 24px' }}>
-          <p style={{ fontSize: '0.65rem', letterSpacing: '0.25em', textTransform: 'uppercase', color: 'var(--muted)' }}>
-            Registrations
-          </p>
-          <span style={{ fontSize: '0.72rem', color: 'var(--gold)' }}>View List →</span>
-        </Link>
-        <Link href={`/admin/events/${slug}/communications`} className="admin-link-card" style={{ padding: '20px 24px' }}>
-          <p style={{ fontSize: '0.65rem', letterSpacing: '0.25em', textTransform: 'uppercase', color: 'var(--muted)' }}>
-            Communications
-          </p>
-          <span style={{ fontSize: '0.72rem', color: 'var(--gold)' }}>Send Email →</span>
-        </Link>
-      </div>
     </div>
   )
 }
