@@ -18,6 +18,9 @@ const NAV_ITEMS: NavItem[] = [
     items: [
       { href: '/current-season', label: 'Current Season' },
       { href: '/auditions',      label: 'Auditions' },
+      { href: '/camps',          label: 'Camps' },
+      { href: '/workshops',      label: 'Workshops' },
+      { href: '/events',         label: 'Events' },
     ],
   },
   { type: 'link', href: '/past-shows', label: 'Past Shows' },
