@@ -3,6 +3,7 @@
 import { useState, useTransition } from 'react'
 import { updateShowDetails } from './actions'
 import { uploadEventImage } from '../uploadImage'
+import RichTextEditor from '@/components/RichTextEditor'
 import type { StaffRole } from '@/lib/staff'
 
 const inputStyle: React.CSSProperties = {
@@ -374,20 +375,18 @@ export default function EventDetailsManager({ showId, slug, role, show, venues, 
             </label>
           </div>
           <div style={{ marginTop: '16px' }}>
-            <label>
+            <div>
               <span style={labelStyle}>Audition Announcement <span style={{ color: 'var(--muted)', fontWeight: 400 }}>(optional)</span></span>
-              <textarea
+              <RichTextEditor
                 value={auditionAnnouncement}
+                onChange={setAuditionAnnouncement}
                 disabled={!isAdmin}
-                onChange={e => setAuditionAnnouncement(e.target.value)}
                 placeholder="What to prepare, what to wear, callback timing, director notes…"
-                rows={6}
-                style={{ ...inputStyle, resize: 'vertical', fontFamily: 'inherit', lineHeight: 1.6, opacity: isAdmin ? 1 : 0.5 }}
               />
               <p style={{ fontSize: '0.7rem', color: 'var(--muted)', marginTop: '6px' }}>
                 Shown via an &ldquo;Audition Announcement&rdquo; button on the public auditions page.
               </p>
-            </label>
+            </div>
           </div>
         </div>
       )}

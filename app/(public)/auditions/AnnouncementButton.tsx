@@ -57,9 +57,21 @@ export default function AnnouncementButton({ announcement }: { announcement: str
               Audition Announcement
             </p>
 
-            <div style={{ whiteSpace: 'pre-wrap', lineHeight: 1.8, color: 'var(--warm-white)', fontSize: '0.9rem' }}>
-              {announcement}
-            </div>
+            <div
+              className="announcement-body"
+              dangerouslySetInnerHTML={{ __html: announcement }}
+            />
+            <style>{`
+              .announcement-body { color: var(--warm-white); font-size: 0.9rem; line-height: 1.8; }
+              .announcement-body p { margin: 0 0 10px; }
+              .announcement-body p:last-child { margin-bottom: 0; }
+              .announcement-body strong { color: var(--warm-white); }
+              .announcement-body em { color: var(--muted); }
+              .announcement-body h3 { font-family: 'Playfair Display', serif; font-size: 1.1rem; font-weight: 700; margin: 16px 0 8px; }
+              .announcement-body ul, .announcement-body ol { padding-left: 20px; margin: 0 0 10px; }
+              .announcement-body li { margin-bottom: 4px; }
+              .announcement-body blockquote { border-left: 2px solid var(--gold); padding-left: 12px; color: var(--muted); margin: 10px 0; font-style: italic; }
+            `}</style>
           </div>
         </div>
       )}
