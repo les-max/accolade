@@ -73,6 +73,7 @@ export default function VolunteeringPage() {
       />
 
       {/* ── Bento Photo Strip ────────────────────────────── */}
+      <div style={{ position: 'sticky', top: '72px', zIndex: 50 }}>
       <div className="photo-marquee" style={{ borderTop: '1px solid var(--border)', borderBottom: '1px solid var(--border)', background: 'var(--deep)' }}>
         <div className="marquee-track" style={{ gap: '12px', padding: '0 12px', alignItems: 'start' }}>
           {[...bentoGroups, ...bentoGroups].map((group, gi) => (
@@ -104,6 +105,7 @@ export default function VolunteeringPage() {
             </div>
           ))}
         </div>
+      </div>
       </div>
 
       {/* ── Roles ─────────────────────────────────── */}
