@@ -12,7 +12,7 @@
 ### Nav
 - [x] Rename "Shows" → "Upcoming"
 - [x] Move "Past Shows" to top-level nav item
-- [ ] "Upcoming" dropdown: add Camps, Workshops, Events (pages don't exist yet)
+- [x] "Upcoming" dropdown: add Camps, Workshops, Events
 
 ### Auditions Page
 - [x] Remove title text overlaid on audition card images (titles baked into images)
@@ -20,7 +20,7 @@
 - [x] **Audition Announcement modal**: rich text field in admin → Audition tab; renders in modal on public page; "Download as PDF" link opens branded print page at `/auditions/[slug]/announcement`
 - [x] FAQ — update "Is there a fee?": $50/child (first 2), $25/child (3rd+), scholarships available
 - [x] FAQ — add/update: auditions announced ~30 days prior to audition date
-- [ ] **"What to Expect" section** — rewrite with new copy. *Waiting on copy from Les.*
+- [x] **"What to Expect" section** — rewritten with new copy
 
 ### Volunteer Page
 - [x] Remove "How it Works" section entirely
