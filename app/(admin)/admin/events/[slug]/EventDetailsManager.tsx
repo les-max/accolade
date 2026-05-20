@@ -110,6 +110,7 @@ type Props = {
     show_resume_upload: boolean
     allow_crew_signup: boolean
     crew_positions: number | null
+    audition_announcement: string | null
     venue_id: string | null
     season: number | null
     parent_show_id: string | null
@@ -138,6 +139,7 @@ export default function EventDetailsManager({ showId, slug, role, show, venues, 
   const [showResume, setShowResume] = useState(show.show_resume_upload ?? false)
   const [allowCrewSignup, setAllowCrewSignup] = useState(show.allow_crew_signup ?? false)
   const [crewPositions, setCrewPositions] = useState<number | null>(show.crew_positions)
+  const [auditionAnnouncement, setAuditionAnnouncement] = useState(show.audition_announcement ?? '')
   const [imageFile, setImageFile] = useState<File | null>(null)
   const [imagePreview, setImagePreview] = useState<string | null>(show.show_image)
   const [imageWideFile, setImageWideFile] = useState<File | null>(null)
@@ -198,6 +200,7 @@ export default function EventDetailsManager({ showId, slug, role, show, venues, 
           show_resume_upload: showResume,
           allow_crew_signup: allowCrewSignup,
           crew_positions: allowCrewSignup ? crewPositions : null,
+          audition_announcement: auditionAnnouncement || null,
         })
         setSaved(true)
         setTimeout(() => setSaved(false), 3000)
@@ -368,6 +371,22 @@ export default function EventDetailsManager({ showId, slug, role, show, venues, 
             <label>
               <span style={labelStyle}>Max Age <span style={{ color: 'var(--muted)', fontWeight: 400 }}>(optional)</span></span>
               <input type="number" min={1} max={99} value={ageMax ?? ''} disabled={!isAdmin} onChange={e => setAgeMax(e.target.value ? Number(e.target.value) : null)} placeholder="e.g. 18" style={{ ...inputStyle, opacity: isAdmin ? 1 : 0.5 }} />
+            </label>
+          </div>
+          <div style={{ marginTop: '16px' }}>
+            <label>
+              <span style={labelStyle}>Audition Announcement <span style={{ color: 'var(--muted)', fontWeight: 400 }}>(optional)</span></span>
+              <textarea
+                value={auditionAnnouncement}
+                disabled={!isAdmin}
+                onChange={e => setAuditionAnnouncement(e.target.value)}
+                placeholder="What to prepare, what to wear, callback timing, director notes…"
+                rows={6}
+                style={{ ...inputStyle, resize: 'vertical', fontFamily: 'inherit', lineHeight: 1.6, opacity: isAdmin ? 1 : 0.5 }}
+              />
+              <p style={{ fontSize: '0.7rem', color: 'var(--muted)', marginTop: '6px' }}>
+                Shown via an &ldquo;Audition Announcement&rdquo; button on the public auditions page.
+              </p>
             </label>
           </div>
         </div>

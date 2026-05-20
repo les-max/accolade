@@ -163,18 +163,20 @@ export async function updateShowDetails(
     show_resume_upload?: boolean
     allow_crew_signup?: boolean
     crew_positions?: number | null
+    audition_announcement?: string | null
     venue_id?: string | null
     season?: number | null
   }
 ) {
   const supabase = await createClient()
 
-  const { show_grade, show_headshot_upload, show_resume_upload, allow_crew_signup, crew_positions, ...coreFields } = fields
+  const { show_grade, show_headshot_upload, show_resume_upload, allow_crew_signup, crew_positions, audition_announcement, ...coreFields } = fields
   const update: Record<string, unknown> = { ...coreFields }
 
   if (
     show_grade !== undefined || show_headshot_upload !== undefined ||
-    show_resume_upload !== undefined || allow_crew_signup !== undefined || crew_positions !== undefined
+    show_resume_upload !== undefined || allow_crew_signup !== undefined ||
+    crew_positions !== undefined || audition_announcement !== undefined
   ) {
     const { data: existing } = await supabase
       .from('shows')
@@ -189,6 +191,7 @@ export async function updateShowDetails(
       ...(show_resume_upload !== undefined && { show_resume_upload }),
       ...(allow_crew_signup !== undefined && { allow_crew_signup }),
       ...(crew_positions !== undefined && { crew_positions }),
+      ...(audition_announcement !== undefined && { audition_announcement }),
     }
   }
 

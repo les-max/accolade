@@ -2,6 +2,7 @@ import Image from 'next/image';
 import PageHero from '@/components/PageHero';
 import Link from 'next/link';
 import { createClient } from '@/lib/supabase/server';
+import AnnouncementButton from './AnnouncementButton';
 
 export const metadata = {
   title: 'Auditions — Accolade Community Theatre',
@@ -39,6 +40,7 @@ export default async function AuditionsPage() {
                 : show.age_min ? `Ages ${show.age_min}+` : null;
               const parent = Array.isArray(show.parent_show) ? show.parent_show[0] : show.parent_show;
               const allowCrewSignup = (show.field_config as Record<string, unknown> | null)?.allow_crew_signup === true;
+              const announcement = ((show.field_config as Record<string, unknown> | null)?.audition_announcement as string) || null;
               const heroImage =
                 show.show_image_wide ?? show.show_image ??
                 parent?.show_image_wide ?? parent?.show_image ?? null;
@@ -81,6 +83,7 @@ export default async function AuditionsPage() {
                         <Link href={`/auditions/${show.slug}`} className="btn-primary">
                           <span>Register to Audition</span>
                         </Link>
+                        {announcement && <AnnouncementButton announcement={announcement} />}
                         {allowCrewSignup && (
                           <Link href={`/auditions/${show.slug}?crew=1`} className="btn-ghost">
                             <span>Join the Crew</span>
