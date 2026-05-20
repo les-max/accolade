@@ -8,14 +8,15 @@ Everything in this plan lives behind a login. Build in layers: auth first, then 
 
 ## Layer 1 — Auth + Roles (foundational, blocks everything else)
 
-Four permission levels:
+Five permission levels:
 
-| Level | Name | What they can do |
-|-------|------|-----------------|
-| 1 | User | View show info, rehearsal schedules, their own signups/payments/orders |
-| 2 | Organizer | Everything in L1 + create/manage volunteer signup lists |
-| 3 | Business | Everything in L2 + manage ticketing and anything money-related |
-| 4 | Admin | Everything |
+| Level | Name | Portal | Admin Panel | Notes |
+|-------|------|--------|-------------|-------|
+| 1 | User | Full portal access | None | Parents, grandparents, aging-out students. Volunteer roles + call times show on dashboard if assigned to a show. |
+| 2 | Org Volunteer | Full portal access | Limited | Org-level volunteers. Admin scoped to: view shows/rosters, send communications, manage volunteer signups, manage events/calendar. No casting, fees, financials, users, venues, or sponsors. |
+| 3 | Organizer | Full portal access | Show-level | Directors, stage managers. Full control over assigned shows. No platform-level settings. |
+| 4 | Business | TBD | TBD | Likely sponsors/partners. Purpose not yet defined. |
+| 5 | Admin | Full portal access | Full | Everything. |
 
 **Env vars needed (not yet added):**
 - `SUPABASE_SERVICE_ROLE_KEY` — Supabase project settings → API. Required for invite flow and user deletion.
@@ -23,9 +24,9 @@ Four permission levels:
 Add to Vercel env vars and `.env.local` before testing the invite flow.
 
 **Decided:**
-- Auth provider: Supabase Auth (already integrated — middleware, login route, and client all in place; magic link as primary login method)
+- Auth provider: Supabase Auth (already integrated — middleware, login route, and client all in place; email + password as primary auth method)
 - Account creation: hybrid — admin/organizer adds adults to a show roster, system sends invite email, user completes signup from that link
-- Accounts are adult-only to start (parents, cast, crew). Student accounts deferred.
+- Accounts are adult-only to start (parents, cast, crew). Student accounts (aging-out performers) are a future expansion — for now they can have User accounts but volunteer signup requires having a cast member in the show.
 
 ---
 
