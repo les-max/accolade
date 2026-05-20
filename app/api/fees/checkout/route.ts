@@ -36,8 +36,8 @@ export async function POST(req: NextRequest) {
 
   const supabase = createServiceClient()
 
-  // Load family via family_users join table
-  const { data: fu } = await authSupabase.from('family_users').select('family_id').eq('user_id', user.id).single()
+  // Load family via family_users join table (service client bypasses RLS — user is already auth'd above)
+  const { data: fu } = await supabase.from('family_users').select('family_id').eq('user_id', user.id).maybeSingle()
   if (!fu) return NextResponse.json({ error: 'Your account isn\'t linked to a family profile. Try signing out and back in, or contact info@accoladetheatre.org.' }, { status: 404 })
 
   const { data: family } = await supabase

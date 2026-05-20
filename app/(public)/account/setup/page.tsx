@@ -10,13 +10,15 @@ export default async function SetupPage() {
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) redirect('/login')
 
-  // Already has a profile — skip setup
-  const { data: fu } = await supabase.from('family_users').select('family_id').eq('user_id', user.id).single()
-  if (fu) redirect('/account')
+  // Use service client for all remaining checks to bypass any RLS ambiguity
+  const service = createServiceClient()
+
+  // Already has a profile — skip setup (service client avoids RLS false-negatives)
+  const { data: existingFu } = await service.from('family_users').select('family_id').eq('user_id', user.id).maybeSingle()
+  if (existingFu) redirect('/account')
 
   // Auto-link: if email matches a pending invite or existing family, link silently
   if (user.email) {
-    const service = createServiceClient()
     const email = user.email.toLowerCase()
 
     const { data: invite } = await service
@@ -29,7 +31,7 @@ export default async function SetupPage() {
       .maybeSingle()
 
     if (invite) {
-      await service.from('family_users').insert({ family_id: invite.family_id, user_id: user.id, name: '' })
+      await service.from('family_users').upsert({ family_id: invite.family_id, user_id: user.id, name: '' }, { onConflict: 'user_id' })
       await service.from('family_invites').update({ accepted_at: new Date().toISOString() }).eq('id', invite.id)
       redirect('/account')
     }
@@ -41,7 +43,7 @@ export default async function SetupPage() {
       .maybeSingle()
 
     if (matchedFamily) {
-      await service.from('family_users').insert({ family_id: matchedFamily.id, user_id: user.id, name: '' })
+      await service.from('family_users').upsert({ family_id: matchedFamily.id, user_id: user.id, name: '' }, { onConflict: 'user_id' })
       redirect('/account')
     }
   }
