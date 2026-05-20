@@ -83,7 +83,7 @@ export default async function AuditionsPage() {
                         <Link href={`/auditions/${show.slug}`} className="btn-primary">
                           <span>Register to Audition</span>
                         </Link>
-                        {announcement && <AnnouncementButton announcement={announcement} />}
+                        {announcement && <AnnouncementButton announcement={announcement} slug={show.slug} />}
                         {allowCrewSignup && (
                           <Link href={`/auditions/${show.slug}?crew=1`} className="btn-ghost">
                             <span>Join the Crew</span>

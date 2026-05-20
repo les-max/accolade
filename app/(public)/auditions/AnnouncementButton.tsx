@@ -2,7 +2,7 @@
 
 import { useState } from 'react'
 
-export default function AnnouncementButton({ announcement }: { announcement: string }) {
+export default function AnnouncementButton({ announcement, slug }: { announcement: string; slug: string }) {
   const [open, setOpen] = useState(false)
 
   return (
@@ -61,6 +61,27 @@ export default function AnnouncementButton({ announcement }: { announcement: str
               className="announcement-body"
               dangerouslySetInnerHTML={{ __html: announcement }}
             />
+
+            <div style={{ marginTop: '28px', paddingTop: '20px', borderTop: '1px solid var(--border)' }}>
+              <a
+                href={`/auditions/${slug}/announcement`}
+                target="_blank"
+                rel="noopener noreferrer"
+                style={{
+                  display: 'inline-flex', alignItems: 'center', gap: '8px',
+                  fontSize: '0.72rem', letterSpacing: '0.12em', textTransform: 'uppercase',
+                  color: 'var(--muted)', textDecoration: 'none',
+                }}
+              >
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                  <polyline points="7 10 12 15 17 10"/>
+                  <line x1="12" y1="15" x2="12" y2="3"/>
+                </svg>
+                Download as PDF
+              </a>
+            </div>
+
             <style>{`
               .announcement-body { color: var(--warm-white); font-size: 0.9rem; line-height: 1.8; }
               .announcement-body p { margin: 0 0 10px; }
