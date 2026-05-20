@@ -1,6 +1,8 @@
 'use client'
 
 import { useRouter, usePathname } from 'next/navigation'
+import { useTransition } from 'react'
+import { deleteAudition } from './actions'
 
 type Registration = {
   id: string
@@ -49,6 +51,15 @@ export default function RegistrationsTable({
 }) {
   const router = useRouter()
   const pathname = usePathname()
+  const [isPending, startTransition] = useTransition()
+
+  function handleDelete(auditionId: string, name: string) {
+    if (!confirm(`Delete "${name}"? This cannot be undone.`)) return
+    startTransition(async () => {
+      await deleteAudition(auditionId, slug)
+      router.refresh()
+    })
+  }
 
   function updateFilter(key: string, value: string) {
     const params = new URLSearchParams()
@@ -187,6 +198,23 @@ export default function RegistrationsTable({
                       </div>
                     )}
                   </div>
+                  <button
+                    onClick={() => handleDelete(reg.id, reg.auditioner_name)}
+                    disabled={isPending}
+                    style={{
+                      background: 'none',
+                      border: '1px solid rgba(200,60,60,0.35)',
+                      borderRadius: '2px',
+                      color: '#e07070',
+                      fontSize: '0.62rem',
+                      letterSpacing: '0.12em',
+                      textTransform: 'uppercase',
+                      padding: '7px 16px',
+                      cursor: isPending ? 'wait' : 'pointer',
+                    }}
+                  >
+                    Delete
+                  </button>
                 </div>
               </details>
             )
