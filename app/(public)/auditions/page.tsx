@@ -165,7 +165,7 @@ export default async function AuditionsPage() {
           {[
             { q: 'Do I need prior experience to audition?', a: 'Not at all. Accolade welcomes first-time performers. The director will always consider enthusiasm and commitment alongside skill.' },
             { q: 'What age ranges do you cast?', a: 'We are a youth theatre — our productions are cast with performers ages 5–19. Adults are welcome to be part of the community as volunteers and crew.' },
-            { q: 'Is there a fee to participate?', a: 'Most productions have a participation fee: $50 per child for the first two children in a family, and $25 per child for the third and beyond. Scholarship assistance is available — just reach out and ask.' },
+            { q: 'Is there a fee to participate?', a: <>Most productions have a participation fee: $50 per child for the first two children in a family, and $25 per child for the third and beyond. Scholarship assistance is available — just reach out at <a href="mailto:info@accoladetheatre.org" style={{ color: 'var(--teal)' }}>info@accoladetheatre.org</a> and ask.</> },
             { q: 'How do I know when auditions are announced?', a: 'Join our mailing list or follow us on social media. Audition announcements typically go out about 30 days before the audition date.' },
           ].map(({ q, a }, i) => (
             <div key={i} style={{ borderBottom: '1px solid var(--border)', padding: '28px 0' }}>
