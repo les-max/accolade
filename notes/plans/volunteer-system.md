@@ -88,8 +88,8 @@ Build after the core User Portal (Layer 2 in `user-portal.md`) is in place.
 
 ---
 
-## Open Questions
+## Decided
 
-- Should users be able to **un-claim** a volunteer role themselves, or do they need to contact an organizer?
-- Should organizers get a notification when someone claims an open role, or just see it in the admin panel?
-- When a show's volunteer positions are ready for signup, how does the organizer publish them? (Toggle, or automatic when positions are saved?)
+- Users **can un-claim** a volunteer role themselves at any time.
+- **No notifications** to organizers when someone claims or un-claims — organizers check the volunteer roster in the admin panel whenever they want.
+- **Publishing:** organizer clicks a "Publish Volunteer Positions" button in the admin show panel. Once published, a volunteer signup button appears on the family's show dashboard card — in the same area as fees and waivers. Families click it to browse open positions and claim one. Unpublishing hides the button and pauses new signups without removing existing assignments.
