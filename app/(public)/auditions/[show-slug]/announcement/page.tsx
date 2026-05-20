@@ -2,6 +2,7 @@ import { createClient } from '@/lib/supabase/server'
 import { notFound } from 'next/navigation'
 import Image from 'next/image'
 import AutoPrint from './AutoPrint'
+import PrintToolbar from './PrintToolbar'
 
 export async function generateMetadata({ params }: { params: Promise<{ 'show-slug': string }> }) {
   const { 'show-slug': slug } = await params
@@ -144,41 +145,6 @@ export default async function AnnouncementPrintPage({
           justify-content: space-between;
         }
 
-        /* Screen-only: print button bar */
-        .screen-toolbar {
-          position: fixed;
-          bottom: 0;
-          left: 0;
-          right: 0;
-          background: #1a1a1a;
-          padding: 16px 24px;
-          display: flex;
-          align-items: center;
-          justify-content: space-between;
-          gap: 16px;
-          z-index: 10;
-        }
-
-        .screen-toolbar p {
-          font-family: 'Helvetica Neue', Arial, sans-serif;
-          font-size: 0.8rem;
-          color: #aaa;
-        }
-
-        .screen-toolbar button {
-          font-family: 'Helvetica Neue', Arial, sans-serif;
-          font-size: 0.8rem;
-          letter-spacing: 0.1em;
-          text-transform: uppercase;
-          background: #c9a227;
-          color: #1a1a1a;
-          border: none;
-          padding: 10px 24px;
-          cursor: pointer;
-          font-weight: 600;
-          border-radius: 2px;
-        }
-
         @media print {
           .screen-toolbar { display: none !important; }
           .print-page { padding: 0; }
@@ -218,14 +184,7 @@ export default async function AnnouncementPrintPage({
         </div>
       </div>
 
-      <div className="screen-toolbar">
-        <p>Use your browser&rsquo;s print dialog to save as PDF.</p>
-        <button onClick={() => {}} id="print-btn">Print / Save as PDF</button>
-      </div>
-
-      <script dangerouslySetInnerHTML={{ __html: `
-        document.getElementById('print-btn').addEventListener('click', function() { window.print(); });
-      `}} />
+      <PrintToolbar />
     </>
   )
 }
