@@ -77,16 +77,29 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: 'No valid family members selected' }, { status: 400 })
   }
 
-  // Check for existing paid order
-  const { data: existingPaid } = await authSupabase
-    .from('show_fee_orders')
-    .select('id')
-    .eq('show_id', show.id)
-    .eq('family_id', family.id)
-    .eq('status', 'paid')
-    .maybeSingle()
+  // Block if already paid or if a pending order was created in the last 30 minutes
+  const [{ data: existingPaid }, { data: recentPending }] = await Promise.all([
+    authSupabase
+      .from('show_fee_orders')
+      .select('id')
+      .eq('show_id', show.id)
+      .eq('family_id', family.id)
+      .eq('status', 'paid')
+      .maybeSingle(),
+    authSupabase
+      .from('show_fee_orders')
+      .select('id')
+      .eq('show_id', show.id)
+      .eq('family_id', family.id)
+      .eq('status', 'pending')
+      .gte('created_at', new Date(Date.now() - 30 * 60 * 1000).toISOString())
+      .maybeSingle(),
+  ])
   if (existingPaid) {
     return NextResponse.json({ error: 'Fees already paid for this show' }, { status: 409 })
+  }
+  if (recentPending) {
+    return NextResponse.json({ error: 'A payment is already in progress for this show. Refresh the page to check its status.' }, { status: 409 })
   }
 
   // Validate coupon (if provided)

@@ -48,13 +48,21 @@ export default async function FeesPage({
     )
   }
 
-  const [{ data: paidOrder }, { data: membersData }] = await Promise.all([
+  const [{ data: paidOrder }, { data: pendingOrder }, { data: membersData }] = await Promise.all([
     supabase
       .from('show_fee_orders')
       .select('id, total_amount, created_at, show_fee_order_items ( label, unit_price, quantity, shirt_size )')
       .eq('show_id', show.id)
       .eq('family_id', family.id)
       .eq('status', 'paid')
+      .maybeSingle(),
+    supabase
+      .from('show_fee_orders')
+      .select('id, created_at')
+      .eq('show_id', show.id)
+      .eq('family_id', family.id)
+      .eq('status', 'pending')
+      .gte('created_at', new Date(Date.now() - 30 * 60 * 1000).toISOString())
       .maybeSingle(),
     supabase
       .from('family_members')
@@ -72,7 +80,18 @@ export default async function FeesPage({
       <h1 style={{ fontFamily: "'Playfair Display', serif", fontSize: '1.6rem', fontWeight: 700, marginBottom: '4px' }}>{show.title}</h1>
       <p style={{ fontSize: '0.65rem', letterSpacing: '0.25em', textTransform: 'uppercase', color: 'var(--muted)', marginBottom: '32px' }}>Production Fees</p>
 
-      {paidOrder ? (
+      {pendingOrder && !paidOrder ? (
+        <div style={{ background: 'var(--layer)', border: '1px solid var(--border)', borderRadius: '4px', padding: '20px 24px' }}>
+          <p style={{ fontSize: '0.65rem', letterSpacing: '0.2em', textTransform: 'uppercase', color: 'var(--gold)', marginBottom: '12px' }}>Payment Processing</p>
+          <p style={{ fontSize: '0.85rem', color: 'var(--muted)', lineHeight: 1.6 }}>
+            Your payment is being confirmed. This usually takes a few seconds — refresh the page and your receipt will appear here.
+          </p>
+          <p style={{ fontSize: '0.78rem', color: 'var(--muted)', marginTop: '12px' }}>
+            Questions? Contact us at{' '}
+            <a href="mailto:info@accoladetheatre.org" style={{ color: 'var(--gold)' }}>info@accoladetheatre.org</a>.
+          </p>
+        </div>
+      ) : paidOrder ? (
         <div>
           <div style={{ background: 'var(--layer)', border: '1px solid var(--border)', borderRadius: '4px', padding: '20px 24px', marginBottom: '24px' }}>
             <p style={{ fontSize: '0.65rem', letterSpacing: '0.2em', textTransform: 'uppercase', color: 'var(--teal)', marginBottom: '12px' }}>Paid</p>
