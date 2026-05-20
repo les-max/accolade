@@ -115,8 +115,8 @@ export default async function AuditionsPage() {
           <div className="g-3" style={{ display: 'grid', gap: '48px' }}>
             {[
               { step: '01', title: 'Read the Audition Announcement', body: 'Each show has its own requirements. The announcement tells you what to prepare, what to wear, and what to bring — so read it carefully before you do anything else.' },
-              { step: '02', title: 'Prepare', body: 'For musicals, bring 16–32 bars of a song in the style of the show. For plays, prepare a 1–2 minute monologue. Pick material that fits you — directors want to see who you are, not just what you\'ve memorized.' },
-              { step: '03', title: 'Be Yourself', body: 'Walk in ready to share your talent. Callbacks are held within a week, and all cast decisions are made by the director. However it goes, you\'ll hear from us.' },
+              { step: '02', title: 'Prepare', body: 'Work on whatever the Audition Announcement asks for. Keep going until your lines or your song feel second nature — when you\'re confident in your performance, it shows.' },
+              { step: '03', title: 'Be Yourself', body: 'Our casting panel wants to see the real you — how you carry yourself, how you take direction, and the energy you bring into the room. Relax, trust your preparation, and let your personality come through.' },
             ].map(({ step, title, body }) => (
               <div key={step}>
                 <div style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: '4rem', color: 'rgba(212,168,83,0.15)', lineHeight: 1, marginBottom: '16px' }}>{step}</div>
