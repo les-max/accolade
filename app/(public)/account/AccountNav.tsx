@@ -84,6 +84,25 @@ export default function AccountNav({ hasFamily, isAdmin }: { hasFamily: boolean;
             Admin
           </Link>
         )}
+        <a
+          href="https://drive.google.com/drive/folders/1ECJ3JlPKeUmAa4LsTZ11SzqdA19eNWLu"
+          target="_blank"
+          rel="noopener noreferrer"
+          style={{
+            display: 'inline-block',
+            padding: '18px 20px',
+            fontSize: '0.72rem',
+            letterSpacing: '0.15em',
+            textTransform: 'uppercase',
+            fontWeight: 500,
+            textDecoration: 'none',
+            color: 'var(--muted)',
+            borderBottom: '2px solid transparent',
+            whiteSpace: 'nowrap',
+          }}
+        >
+          Help ↗
+        </a>
         <button
           onClick={handleSignOut}
           style={{

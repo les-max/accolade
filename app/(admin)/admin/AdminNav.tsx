@@ -60,6 +60,31 @@ export default function AdminNav({ userEmail, role }: { userEmail: string; role:
         })}
       </nav>
 
+      {/* Help Docs */}
+      <div style={{ padding: '0 12px 16px' }}>
+        <a
+          href="https://drive.google.com/drive/folders/1ECJ3JlPKeUmAa4LsTZ11SzqdA19eNWLu"
+          target="_blank"
+          rel="noopener noreferrer"
+          style={{
+            display: 'block',
+            padding: '10px 12px',
+            borderRadius: '2px',
+            fontSize: '0.78rem',
+            letterSpacing: '0.1em',
+            textTransform: 'uppercase',
+            fontWeight: 500,
+            textDecoration: 'none',
+            color: 'var(--muted)',
+            transition: 'color 0.2s',
+          }}
+          onMouseOver={e => (e.currentTarget.style.color = 'var(--warm-white)')}
+          onMouseOut={e => (e.currentTarget.style.color = 'var(--muted)')}
+        >
+          Help Docs ↗
+        </a>
+      </div>
+
       {/* User + sign out */}
       <div style={{ padding: '24px', borderTop: '1px solid var(--border)' }}>
         <p style={{ fontSize: '0.72rem', color: 'var(--muted)', marginBottom: '12px', wordBreak: 'break-all' }}>
