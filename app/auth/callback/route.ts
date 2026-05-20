@@ -5,7 +5,8 @@ import { NextResponse } from 'next/server'
 export async function GET(request: Request) {
   const { searchParams, origin } = new URL(request.url)
   const code = searchParams.get('code')
-  const redirect = searchParams.get('redirect') ?? '/account'
+  const type = searchParams.get('type')
+  const redirect = type === 'recovery' ? '/set-password' : (searchParams.get('redirect') ?? '/account')
 
   if (code) {
     const supabase = await createClient()
