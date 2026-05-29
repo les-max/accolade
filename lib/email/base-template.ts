@@ -1,4 +1,4 @@
-const SITE = 'https://accoladetheatre.org'
+export const SITE = 'https://accoladetheatre.org'
 
 export function baseTemplate(content: string): string {
   return `<!DOCTYPE html>

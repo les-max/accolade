@@ -1,12 +1,11 @@
 import { resend } from './client'
-import { baseTemplate } from './base-template'
+import { baseTemplate, SITE } from './base-template'
 
 const TEST_EMAIL = process.env.RESEND_TEST_EMAIL || null
 const FROM = TEST_EMAIL
   ? 'Accolade Community Theatre <onboarding@resend.dev>'
   : 'Accolade Community Theatre <events@accoladetheatre.org>'
 const REPLY_TO = 'info@accoladetheatre.org'
-const SITE = 'https://accoladetheatre.org'
 
 export interface RegistrationConfirmationParams {
   email: string
