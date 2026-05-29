@@ -48,6 +48,23 @@ export async function searchPeopleByName(query: string): Promise<PersonSearchRes
   return results.slice(0, 10)
 }
 
+async function resolveFamilyId(
+  supabase: Awaited<ReturnType<typeof createClient>>,
+  familyId: string | null,
+  familyMemberId: string | null,
+): Promise<string | null> {
+  if (familyId) return familyId
+  if (familyMemberId) {
+    const { data } = await supabase
+      .from('family_members')
+      .select('family_id')
+      .eq('id', familyMemberId)
+      .single()
+    return data?.family_id ?? null
+  }
+  return null
+}
+
 export async function addShowMember(
   showId: string,
   slug: string,
@@ -64,9 +81,11 @@ export async function addShowMember(
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) throw new Error('Unauthorized')
 
+  const family_id = await resolveFamilyId(supabase, entry.family_id, entry.family_member_id)
+
   const { error } = await supabase.from('show_members').insert({
     show_id: showId,
-    family_id: entry.family_id,
+    family_id,
     family_member_id: entry.family_member_id,
     person_name: entry.person_name,
     show_role: entry.show_role,
@@ -91,14 +110,14 @@ export async function addShowMembersFromAuditions(
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) throw new Error('Unauthorized')
 
-  const rows = entries.map(e => ({
+  const rows = await Promise.all(entries.map(async e => ({
     show_id: showId,
-    family_id: e.family_id,
+    family_id: await resolveFamilyId(supabase, e.family_id, e.family_member_id),
     family_member_id: e.family_member_id,
     person_name: e.person_name,
     show_role: e.show_role,
     show_part: null,
-  }))
+  })))
 
   const { error } = await supabase.from('show_members').insert(rows)
   if (error) throw new Error(error.message)
@@ -119,9 +138,22 @@ export async function addShowMembersFromCSV(
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) throw new Error('Unauthorized')
 
+  // Batch-resolve family_id from email for any entries that have one
+  const emails = [...new Set(entries.map(e => e.email).filter(Boolean))] as string[]
+  const familyByEmail: Record<string, string> = {}
+  if (emails.length > 0) {
+    const { data: families } = await supabase
+      .from('families')
+      .select('id, email')
+      .in('email', emails)
+    for (const f of (families ?? [])) {
+      if (f.email) familyByEmail[f.email.toLowerCase()] = f.id
+    }
+  }
+
   const rows = entries.map(e => ({
     show_id: showId,
-    family_id: null,
+    family_id: (e.email && familyByEmail[e.email.toLowerCase()]) || null,
     family_member_id: null,
     person_name: e.person_name,
     show_role: e.show_role,
