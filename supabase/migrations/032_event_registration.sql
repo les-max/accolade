@@ -16,6 +16,9 @@ CREATE TABLE IF NOT EXISTS show_registrations (
 CREATE INDEX IF NOT EXISTS show_registrations_show_id_idx
   ON show_registrations (show_id);
 
+CREATE UNIQUE INDEX IF NOT EXISTS show_registrations_show_email_uidx
+  ON show_registrations (show_id, email);
+
 ALTER TABLE show_registrations ENABLE ROW LEVEL SECURITY;
 
 -- Public (anon + authenticated) may insert registrations
@@ -34,18 +37,23 @@ CREATE OR REPLACE FUNCTION register_for_show(
 ) RETURNS jsonb
 LANGUAGE plpgsql
 SECURITY DEFINER
+SET search_path = ''
 AS $$
 DECLARE
   v_capacity integer;
   v_claimed  integer;
   v_id       uuid;
 BEGIN
+  IF p_party_size < 1 OR p_party_size > 20 THEN
+    RETURN jsonb_build_object('error', 'Invalid party size');
+  END IF;
+
   SELECT registration_capacity INTO v_capacity
-  FROM shows WHERE id = p_show_id FOR UPDATE;
+  FROM public.shows WHERE id = p_show_id FOR UPDATE;
 
   IF v_capacity IS NOT NULL THEN
     SELECT COALESCE(SUM(party_size), 0) INTO v_claimed
-    FROM show_registrations WHERE show_id = p_show_id;
+    FROM public.show_registrations WHERE show_id = p_show_id;
 
     IF v_claimed + p_party_size > v_capacity THEN
       RETURN jsonb_build_object(
@@ -55,7 +63,7 @@ BEGIN
     END IF;
   END IF;
 
-  INSERT INTO show_registrations (show_id, name, email, party_size)
+  INSERT INTO public.show_registrations (show_id, name, email, party_size)
   VALUES (p_show_id, p_name, p_email, p_party_size)
   RETURNING id INTO v_id;
 
