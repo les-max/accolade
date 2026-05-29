@@ -1,6 +1,8 @@
-import { createClient } from '@/lib/supabase/server'
-import { notFound } from 'next/navigation'
+import { notFound, redirect } from 'next/navigation'
 import Link from 'next/link'
+import { createClient } from '@/lib/supabase/server'
+import { createServiceClient } from '@/lib/supabase/service'
+import { getShowRole } from '@/lib/staff'
 import RegistrationsTable from './RegistrationsTable'
 
 export default async function RegistrationsPage({
@@ -11,17 +13,81 @@ export default async function RegistrationsPage({
   searchParams: Promise<{ slot?: string; status?: string }>
 }) {
   const { slug } = await params
-  const { slot: slotFilter, status: statusFilter } = await searchParams
-
   const supabase = await createClient()
 
   const { data: show } = await supabase
     .from('shows')
-    .select('id, title, status')
+    .select('id, title, status, event_type, registration_capacity')
     .eq('slug', slug)
     .single()
 
   if (!show) notFound()
+
+  // ── Event-type branch: show_registrations ────────────────────────────────
+  if ((show as unknown as { event_type: string | null }).event_type === 'event') {
+    const role = await getShowRole(show.id)
+    if (!role) redirect('/admin/events')
+
+    const service = createServiceClient()
+    const { data: registrations } = await service
+      .from('show_registrations')
+      .select('id, name, email, party_size, created_at')
+      .eq('show_id', show.id)
+      .order('created_at', { ascending: false })
+
+    const rows = registrations ?? []
+    const totalClaimed = rows.reduce((acc, r) => acc + (r.party_size ?? 0), 0)
+    const capacity = (show as unknown as { registration_capacity: number | null }).registration_capacity
+
+    const summaryText = capacity !== null
+      ? `${totalClaimed} of ${capacity} seats claimed`
+      : `${totalClaimed} seat${totalClaimed === 1 ? '' : 's'} claimed — no cap set`
+
+    return (
+      <div style={{ maxWidth: '860px' }}>
+        <div style={{ marginBottom: '32px' }}>
+          <Link href={`/admin/events/${slug}`} style={{ color: 'var(--muted)', fontSize: '0.78rem', textDecoration: 'none', display: 'inline-block', marginBottom: '16px' }}>
+            ← {show.title}
+          </Link>
+          <h1 style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: '2rem', letterSpacing: '0.04em', lineHeight: 1, marginBottom: '8px' }}>
+            Registrations
+          </h1>
+          <p style={{ fontSize: '0.8rem', color: 'var(--muted)' }}>{summaryText}</p>
+        </div>
+
+        {rows.length === 0 ? (
+          <p style={{ color: 'var(--muted)', fontSize: '0.9rem' }}>No registrations yet.</p>
+        ) : (
+          <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.82rem' }}>
+            <thead>
+              <tr style={{ borderBottom: '1px solid var(--border)' }}>
+                {['Name', 'Email', 'Party', 'Registered'].map(h => (
+                  <th key={h} style={{ textAlign: 'left', padding: '8px 12px', fontSize: '0.6rem', letterSpacing: '0.15em', textTransform: 'uppercase', color: 'var(--muted)', fontWeight: 500 }}>
+                    {h}
+                  </th>
+                ))}
+              </tr>
+            </thead>
+            <tbody>
+              {rows.map(r => (
+                <tr key={r.id} style={{ borderBottom: '1px solid var(--border)' }}>
+                  <td style={{ padding: '10px 12px', color: 'var(--warm-white)' }}>{r.name}</td>
+                  <td style={{ padding: '10px 12px', color: 'var(--muted)' }}>{r.email}</td>
+                  <td style={{ padding: '10px 12px', color: 'var(--warm-white)', textAlign: 'center' }}>{r.party_size}</td>
+                  <td style={{ padding: '10px 12px', color: 'var(--muted)' }}>
+                    {new Date(r.created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        )}
+      </div>
+    )
+  }
+
+  // ── Audition / camp / workshop branch ────────────────────────────────────
+  const { slot: slotFilter, status: statusFilter } = await searchParams
 
   const { data: slots } = await supabase
     .from('audition_slots')
@@ -40,7 +106,6 @@ export default async function RegistrationsPage({
 
   const { data: registrations } = await query
 
-  // Summary counts
   const allRegs = registrations ?? []
   const counts = {
     registered: allRegs.filter(r => r.status === 'registered').length,
@@ -50,7 +115,6 @@ export default async function RegistrationsPage({
 
   return (
     <div style={{ maxWidth: '1100px' }}>
-      {/* Header */}
       <div style={{ marginBottom: '32px' }}>
         <Link href={`/admin/events/${slug}`} style={{ color: 'var(--muted)', fontSize: '0.78rem', textDecoration: 'none', display: 'inline-block', marginBottom: '16px' }}>
           ← {show.title}
@@ -62,33 +126,13 @@ export default async function RegistrationsPage({
           <div style={{ display: 'flex', gap: '12px' }}>
             <Link
               href={`/admin/events/${slug}/registrations/import`}
-              style={{
-                display: 'inline-flex', alignItems: 'center', gap: '8px',
-                padding: '10px 20px',
-                border: '1px solid var(--border)',
-                borderRadius: '2px',
-                color: 'var(--muted)',
-                fontSize: '0.65rem',
-                letterSpacing: '0.15em',
-                textTransform: 'uppercase',
-                textDecoration: 'none',
-              }}
+              style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', padding: '10px 20px', border: '1px solid var(--border)', borderRadius: '2px', color: 'var(--muted)', fontSize: '0.65rem', letterSpacing: '0.15em', textTransform: 'uppercase', textDecoration: 'none' }}
             >
               Import CSV
             </Link>
             <a
               href={`/api/admin/events/${slug}/registrations/export?slot=${slotFilter ?? ''}&status=${statusFilter ?? ''}`}
-              style={{
-                display: 'inline-flex', alignItems: 'center', gap: '8px',
-                padding: '10px 20px',
-                border: '1px solid var(--border)',
-                borderRadius: '2px',
-                color: 'var(--gold)',
-                fontSize: '0.65rem',
-                letterSpacing: '0.15em',
-                textTransform: 'uppercase',
-                textDecoration: 'none',
-              }}
+              style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', padding: '10px 20px', border: '1px solid var(--border)', borderRadius: '2px', color: 'var(--gold)', fontSize: '0.65rem', letterSpacing: '0.15em', textTransform: 'uppercase', textDecoration: 'none' }}
             >
               Export CSV
             </a>
@@ -96,24 +140,19 @@ export default async function RegistrationsPage({
         </div>
       </div>
 
-      {/* Summary cards */}
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '16px', marginBottom: '32px' }}>
         {[
           { label: 'Registered', count: counts.registered, color: 'var(--gold)' },
           { label: 'Waitlisted', count: counts.waitlisted, color: 'var(--teal)' },
           { label: 'Cancelled',  count: counts.cancelled,  color: 'var(--muted)' },
         ].map(({ label, count, color }) => (
-          <div key={label} style={{
-            background: 'var(--layer)', border: '1px solid var(--border)',
-            borderRadius: '4px', padding: '20px 24px',
-          }}>
+          <div key={label} style={{ background: 'var(--layer)', border: '1px solid var(--border)', borderRadius: '4px', padding: '20px 24px' }}>
             <p style={{ fontSize: '0.6rem', letterSpacing: '0.2em', textTransform: 'uppercase', color: 'var(--muted)', marginBottom: '8px' }}>{label}</p>
             <p style={{ fontFamily: "'Playfair Display', serif", fontSize: '2rem', fontWeight: 700, color }}>{count}</p>
           </div>
         ))}
       </div>
 
-      {/* Filters + table — client component */}
       <RegistrationsTable
         registrations={allRegs}
         slots={slots ?? []}
