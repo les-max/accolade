@@ -272,3 +272,19 @@ export async function updateCustomQuestions(slug: string, questions: CustomQuest
   if (error) throw new Error(error.message)
   revalidatePath(`/admin/events/${slug}`)
 }
+
+export async function saveRegistrationCapacity(showId: string, slug: string, formData: FormData) {
+  const supabase = await createClient()
+  const raw = formData.get('registration_capacity') as string
+  const registration_capacity = raw === '' ? null : parseInt(raw, 10)
+  if (registration_capacity !== null && (isNaN(registration_capacity) || registration_capacity < 1)) {
+    throw new Error('Invalid capacity value.')
+  }
+  const { error } = await supabase
+    .from('shows')
+    .update({ registration_capacity })
+    .eq('id', showId)
+  if (error) throw new Error(error.message)
+  revalidatePath(`/admin/events/${slug}`)
+  revalidatePath(`/admin/events/${slug}/registrations`)
+}
