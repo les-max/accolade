@@ -16,6 +16,7 @@ export type Member = {
   show_role: string
   show_part: string | null
   person_name: string
+  email: string | null
 }
 
 export type Auditioner = {
@@ -785,6 +786,7 @@ export default function RosterManager({
                     }}>
                       <div>
                         <p style={{ fontSize: '0.88rem', margin: 0 }}>{m.person_name}</p>
+                        {m.email && <p style={{ fontSize: '0.72rem', color: 'var(--muted)', margin: '2px 0 0' }}>{m.email}</p>}
                       </div>
                       <PartEditor memberId={m.id} slug={slug} initial={m.show_part} />
                       <button

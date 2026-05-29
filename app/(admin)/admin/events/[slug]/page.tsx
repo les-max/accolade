@@ -44,7 +44,7 @@ export default async function ShowDetailPage({
     supabase.from('venues').select('id, name, address, city, state').order('name'),
     supabase.from('shows').select('id, title, show_image, show_image_wide, venue_id, season').eq('event_type', 'show').eq('archived', false).order('title'),
     supabase.from('show_members')
-      .select('id, show_role, show_part, person_name')
+      .select('id, show_role, show_part, person_name, email')
       .eq('show_id', show.id)
       .order('show_role'),
     supabase.from('show_fees_config').select('shirt_price, tuition_amount, fees_enabled').eq('show_id', show.id).maybeSingle(),
