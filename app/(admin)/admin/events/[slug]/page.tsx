@@ -285,7 +285,7 @@ export default async function ShowDetailPage({
               </p>
             )}
           </div>
-          {['audition', 'event'].includes(show.event_type ?? '') && (
+          {['audition', 'event', 'camp', 'workshop'].includes(show.event_type ?? '') && (
             <StatusControl showId={show.id} currentStatus={show.status} slug={slug} />
           )}
         </div>
