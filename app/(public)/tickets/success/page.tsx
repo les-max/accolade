@@ -6,8 +6,6 @@ export const metadata = {
   title: 'Order Confirmed — Accolade Community Theatre',
 }
 
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!)
-
 function formatDate(d: string) {
   return new Date(d).toLocaleDateString('en-US', {
     weekday: 'long', month: 'long', day: 'numeric', year: 'numeric', timeZone: 'UTC',
@@ -40,6 +38,7 @@ export default async function TicketSuccessPage({
 
   if (session_id) {
     try {
+      const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!)
       const session = await stripe.checkout.sessions.retrieve(session_id)
       orderId = session.metadata?.order_id ?? null
 
