@@ -188,6 +188,7 @@ export async function updateShowDetails(
   showId: string,
   slug: string,
   fields: {
+    title?: string
     event_type: string
     start_date: string | null
     end_date: string | null

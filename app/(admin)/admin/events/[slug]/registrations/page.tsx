@@ -4,6 +4,7 @@ import { createClient } from '@/lib/supabase/server'
 import { createServiceClient } from '@/lib/supabase/service'
 import { getShowRole } from '@/lib/staff'
 import RegistrationsTable from './RegistrationsTable'
+import AddRegistrationForm from './AddRegistrationForm'
 
 export default async function RegistrationsPage({
   params,
@@ -123,7 +124,8 @@ export default async function RegistrationsPage({
           <h1 style={{ fontFamily: "'Playfair Display', serif", fontSize: '2rem', fontWeight: 700 }}>
             Registrations
           </h1>
-          <div style={{ display: 'flex', gap: '12px' }}>
+          <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap' }}>
+            <AddRegistrationForm showId={show.id} showSlug={slug} />
             <Link
               href={`/admin/events/${slug}/registrations/import`}
               style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', padding: '10px 20px', border: '1px solid var(--border)', borderRadius: '2px', color: 'var(--muted)', fontSize: '0.65rem', letterSpacing: '0.15em', textTransform: 'uppercase', textDecoration: 'none' }}

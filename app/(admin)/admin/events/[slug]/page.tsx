@@ -121,6 +121,7 @@ export default async function ShowDetailPage({
 
   // Shared show details shape for EventDetailsManager
   const detailsShow = {
+    title:                show.title ?? '',
     event_type:           show.event_type ?? 'show',
     start_date:           show.start_date ?? null,
     end_date:             show.end_date ?? null,

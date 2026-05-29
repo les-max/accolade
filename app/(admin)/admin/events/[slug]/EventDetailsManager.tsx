@@ -93,6 +93,7 @@ type Props = {
   slug: string
   role: StaffRole
   show: {
+    title: string
     event_type: string
     start_date: string | null
     end_date: string | null
@@ -125,6 +126,7 @@ export default function EventDetailsManager({ showId, slug, role, show, venues, 
   const eventType = show.event_type ?? 'show'
   const is = (types: string[]) => types.includes(eventType)
 
+  const [title, setTitle] = useState(show.title ?? '')
   const [startDate, setStartDate] = useState(show.start_date ?? '')
   const [endDate, setEndDate] = useState(show.end_date ?? '')
   const [featured, setFeatured] = useState(show.featured ?? false)
@@ -180,6 +182,7 @@ export default function EventDetailsManager({ showId, slug, role, show, venues, 
         if (imageWideFile) imageWideUrl = await uploadEventImage(imageWideFile)
 
         await updateShowDetails(showId, slug, {
+          title: title.trim() || show.title,
           event_type: eventType,
           start_date: startDate || null,
           end_date: endDate || null,
@@ -232,6 +235,20 @@ export default function EventDetailsManager({ showId, slug, role, show, venues, 
         }}>
           {TYPE_LABELS[eventType] ?? eventType}
         </span>
+      </div>
+
+      {/* Title */}
+      <div style={{ marginBottom: '20px' }}>
+        <label>
+          <span style={labelStyle}>Title</span>
+          <input
+            type="text"
+            value={title}
+            disabled={!isAdmin}
+            onChange={e => setTitle(e.target.value)}
+            style={{ ...inputStyle, opacity: isAdmin ? 1 : 0.5 }}
+          />
+        </label>
       </div>
 
       {/* Connected Show (audition only) */}
