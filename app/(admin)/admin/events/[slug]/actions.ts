@@ -31,6 +31,22 @@ export async function deletePerformance(id: string, slug: string) {
   revalidatePath(`/admin/events/${slug}`)
 }
 
+// Appends the America/Chicago UTC offset so Postgres stores the correct UTC value.
+function toCentralISO(date: string, time: string | null): string {
+  const t = time || '00:00'
+  const sample = new Date(`${date}T18:00:00Z`)
+  const parts = new Intl.DateTimeFormat('en-US', {
+    timeZone: 'America/Chicago',
+    timeZoneName: 'shortOffset',
+  }).formatToParts(sample)
+  const tz = parts.find(p => p.type === 'timeZoneName')?.value ?? 'GMT-6'
+  // tz is "GMT-5" (CDT) or "GMT-6" (CST)
+  const match = tz.match(/GMT([+-])(\d+)/)
+  const sign  = match?.[1] ?? '-'
+  const hours = (match?.[2] ?? '6').padStart(2, '0')
+  return `${date}T${t}:00${sign}${hours}:00`
+}
+
 export async function addShowEvent(showId: string, slug: string, formData: FormData) {
   const supabase = await createClient()
   const event_type = formData.get('event_type') as string
@@ -41,12 +57,40 @@ export async function addShowEvent(showId: string, slug: string, formData: FormD
   const location   = (formData.get('location') as string) || null
   const notes      = (formData.get('notes') as string) || null
 
-  const start_time = start_val ? `${date}T${start_val}:00` : `${date}T00:00:00`
-  const end_time   = end_val   ? `${date}T${end_val}:00`   : null
+  const start_time = toCentralISO(date, start_val || null)
+  const end_time   = end_val ? toCentralISO(date, end_val) : null
 
   const { error } = await supabase.from('show_events').insert({
     show_id: showId, event_type, title, start_time, end_time, location, notes,
   })
+  if (error) throw new Error(error.message)
+  revalidatePath(`/admin/events/${slug}`)
+}
+
+export async function bulkAddShowEvents(
+  showId: string,
+  slug: string,
+  events: Array<{
+    event_type: string
+    title: string
+    date: string
+    start_val: string
+    end_val: string
+    location: string | null
+    notes: string | null
+  }>
+) {
+  const supabase = await createClient()
+  const rows = events.map(e => ({
+    show_id:    showId,
+    event_type: e.event_type,
+    title:      e.title,
+    start_time: toCentralISO(e.date, e.start_val || null),
+    end_time:   e.end_val ? toCentralISO(e.date, e.end_val) : null,
+    location:   e.location,
+    notes:      e.notes,
+  }))
+  const { error } = await supabase.from('show_events').insert(rows)
   if (error) throw new Error(error.message)
   revalidatePath(`/admin/events/${slug}`)
 }
