@@ -4,6 +4,14 @@ import Link from 'next/link'
 
 export const metadata = { title: 'My Account — Accolade Community Theatre' }
 
+const EVENT_TYPE_LABEL: Record<string, string> = {
+  rehearsal:      'Rehearsal',
+  tech_rehearsal: 'Tech Rehearsal',
+  performance:    'Performance',
+  event:          'Event',
+  other:          'Event',
+}
+
 export default async function AccountPage() {
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
@@ -42,13 +50,17 @@ export default async function AccountPage() {
   const waiversPendingIds = new Set<string>()
   const volunteersOpenIds = new Set<string>()
 
+  let showEvents: Array<{ id: string; title: string; event_type: string; start_time: string; shows: unknown }> = []
+
   if (activeShowIds.length > 0) {
-    const [{ data: feeConfigs }, { data: paidOrders }, { data: waivers }, { data: publishedVolShows }] = await Promise.all([
+    const [{ data: feeConfigs }, { data: paidOrders }, { data: waivers }, { data: publishedVolShows }, { data: upcomingEvents }] = await Promise.all([
       supabase.from('show_fees_config').select('show_id').eq('fees_enabled', true).in('show_id', activeShowIds),
       supabase.from('show_fee_orders').select('show_id').eq('family_id', family.id).in('show_id', activeShowIds).eq('status', 'paid'),
       supabase.from('show_waivers').select('show_id, waiver_type').eq('family_id', family.id).in('show_id', activeShowIds),
       supabase.from('shows').select('id').eq('volunteers_published', true).in('id', activeShowIds),
+      supabase.from('show_events').select('id, title, event_type, start_time, shows(title)').in('show_id', activeShowIds).gte('start_time', nowIso).order('start_time').limit(10),
     ])
+    showEvents = upcomingEvents ?? []
 
     const paidShowIds = new Set((paidOrders ?? []).map(o => o.show_id))
     for (const c of feeConfigs ?? []) {
@@ -94,6 +106,15 @@ export default async function AccountPage() {
       date:  slot.start_time,
     })
   }
+  for (const e of showEvents) {
+    upcoming.push({
+      id:    `e-${e.id}`,
+      label: (e.shows as { title: string } | null)?.title ?? e.title,
+      type:  EVENT_TYPE_LABEL[e.event_type] ?? 'Event',
+      date:  e.start_time,
+    })
+  }
+
   upcoming.sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime())
   const nextThree = upcoming.slice(0, 3)
 
