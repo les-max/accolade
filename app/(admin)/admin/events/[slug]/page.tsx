@@ -18,6 +18,7 @@ import FinancesTab from './tabs/FinancesTab'
 import CommsTab from './tabs/CommsTab'
 import VolunteersTab from './tabs/VolunteersTab'
 import { getShowRole } from '@/lib/staff'
+import RegistrationConfig from './RegistrationConfig'
 
 export default async function ShowDetailPage({
   params,
@@ -338,6 +339,14 @@ export default async function ShowDetailPage({
       />
 
       <PerformancesManager showId={show.id} slug={slug} performances={performancesData ?? []} eventType={show.event_type ?? 'show'} />
+
+      {show.event_type === 'event' && (
+        <RegistrationConfig
+          showId={show.id}
+          slug={slug}
+          currentCapacity={(show as unknown as { registration_capacity: number | null }).registration_capacity}
+        />
+      )}
 
       {['camp', 'workshop'].includes(show.event_type ?? '') && (
         <FeesManager
