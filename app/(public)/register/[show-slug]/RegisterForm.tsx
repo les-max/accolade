@@ -26,16 +26,17 @@ export default function RegisterForm({
       )}
 
       {state?.error && (
-        <p style={{ fontSize: '0.85rem', color: '#e05555', margin: 0 }}>
+        <p role="alert" style={{ fontSize: '0.85rem', color: '#e05555', margin: 0 }}>
           {state.error}
         </p>
       )}
 
       <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-        <label style={{ fontSize: '0.7rem', letterSpacing: '0.15em', textTransform: 'uppercase', color: 'var(--muted)' }}>
+        <label htmlFor="reg-name" style={{ fontSize: '0.7rem', letterSpacing: '0.15em', textTransform: 'uppercase', color: 'var(--muted)' }}>
           Name
         </label>
         <input
+          id="reg-name"
           name="name"
           type="text"
           required
@@ -45,10 +46,11 @@ export default function RegisterForm({
       </div>
 
       <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-        <label style={{ fontSize: '0.7rem', letterSpacing: '0.15em', textTransform: 'uppercase', color: 'var(--muted)' }}>
+        <label htmlFor="reg-email" style={{ fontSize: '0.7rem', letterSpacing: '0.15em', textTransform: 'uppercase', color: 'var(--muted)' }}>
           Email
         </label>
         <input
+          id="reg-email"
           name="email"
           type="email"
           required
@@ -58,10 +60,11 @@ export default function RegisterForm({
       </div>
 
       <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-        <label style={{ fontSize: '0.7rem', letterSpacing: '0.15em', textTransform: 'uppercase', color: 'var(--muted)' }}>
+        <label htmlFor="reg-party-size" style={{ fontSize: '0.7rem', letterSpacing: '0.15em', textTransform: 'uppercase', color: 'var(--muted)' }}>
           Party size
         </label>
         <input
+          id="reg-party-size"
           name="party_size"
           type="number"
           required

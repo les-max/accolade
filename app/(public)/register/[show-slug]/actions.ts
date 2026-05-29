@@ -3,6 +3,7 @@
 import { createClient } from '@/lib/supabase/server'
 import { sendRegistrationConfirmation } from '@/lib/email/registration-emails'
 import { redirect } from 'next/navigation'
+import { waitUntil } from '@vercel/functions'
 
 export type RegisterResult = { error: string; remaining?: number } | null
 
@@ -54,7 +55,10 @@ export async function registerForShow(
   }
 
   // Non-blocking — registration succeeds even if the email fails
-  sendRegistrationConfirmation({ email, name, showTitle: show.title, partySize }).catch(() => {})
+  waitUntil(
+    sendRegistrationConfirmation({ email, name, showTitle: show.title, partySize })
+      .catch((err) => console.error('[registration] confirmation email failed:', err))
+  )
 
   redirect(`/register/${slug}/confirmation`)
 }
