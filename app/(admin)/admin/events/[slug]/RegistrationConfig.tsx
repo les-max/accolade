@@ -1,6 +1,6 @@
 'use client'
 
-import { useRef, useState } from 'react'
+import { useRef, useState, useTransition } from 'react'
 import { saveRegistrationCapacity } from './actions'
 
 export default function RegistrationConfig({
@@ -13,12 +13,21 @@ export default function RegistrationConfig({
   currentCapacity: number | null
 }) {
   const [saved, setSaved] = useState(false)
+  const [error, setError] = useState<string | null>(null)
+  const [isPending, startTransition] = useTransition()
   const formRef = useRef<HTMLFormElement>(null)
 
   async function handleSubmit(formData: FormData) {
-    await saveRegistrationCapacity(showId, slug, formData)
-    setSaved(true)
-    setTimeout(() => setSaved(false), 2000)
+    setError(null)
+    startTransition(async () => {
+      try {
+        await saveRegistrationCapacity(showId, slug, formData)
+        setSaved(true)
+        setTimeout(() => setSaved(false), 2000)
+      } catch (err) {
+        setError(err instanceof Error ? err.message : 'Something went wrong')
+      }
+    })
   }
 
   return (
@@ -51,6 +60,7 @@ export default function RegistrationConfig({
         </div>
         <button
           type="submit"
+          disabled={isPending}
           style={{
             background: 'transparent',
             border: '1px solid var(--border)',
@@ -60,12 +70,14 @@ export default function RegistrationConfig({
             letterSpacing: '0.15em',
             textTransform: 'uppercase',
             color: saved ? 'var(--gold)' : 'var(--warm-white)',
-            cursor: 'pointer',
+            cursor: isPending ? 'not-allowed' : 'pointer',
+            opacity: isPending ? 0.6 : 1,
           }}
         >
-          {saved ? 'Saved' : 'Save'}
+          {saved ? 'Saved' : isPending ? 'Saving...' : 'Save'}
         </button>
       </form>
+      {error && <p style={{ marginTop: '8px', fontSize: '0.72rem', color: '#e05555' }}>{error}</p>}
       <p style={{ marginTop: '10px', fontSize: '0.72rem', color: 'var(--muted)' }}>
         Leave blank for unlimited. Public form: <code style={{ fontSize: '0.7rem' }}>/register/{slug}</code>
       </p>

@@ -275,6 +275,8 @@ export async function updateCustomQuestions(slug: string, questions: CustomQuest
 
 export async function saveRegistrationCapacity(showId: string, slug: string, formData: FormData) {
   const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) throw new Error('Unauthorized')
   const raw = formData.get('registration_capacity') as string
   const registration_capacity = raw === '' ? null : parseInt(raw, 10)
   if (registration_capacity !== null && (isNaN(registration_capacity) || registration_capacity < 1)) {
