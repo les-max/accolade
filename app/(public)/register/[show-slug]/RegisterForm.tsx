@@ -61,7 +61,7 @@ export default function RegisterForm({
 
       <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
         <label htmlFor="reg-party-size" style={{ fontSize: '0.7rem', letterSpacing: '0.15em', textTransform: 'uppercase', color: 'var(--muted)' }}>
-          Party size
+          How many people are you registering?
         </label>
         <input
           id="reg-party-size"

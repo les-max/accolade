@@ -34,7 +34,7 @@ export default async function RegisterPage({
   const isFull = seatsRemaining !== null && seatsRemaining === 0
 
   return (
-    <div style={{ maxWidth: '520px', margin: '0 auto', padding: '48px 24px' }}>
+    <div style={{ maxWidth: '520px', margin: '0 auto', padding: '80px 24px 48px' }}>
       <h1 style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: '2.2rem', letterSpacing: '0.04em', marginBottom: '8px' }}>
         {show.title}
       </h1>
