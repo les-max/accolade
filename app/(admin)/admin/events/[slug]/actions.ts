@@ -211,17 +211,19 @@ export async function updateShowDetails(
     audition_announcement?: string | null
     venue_id?: string | null
     season?: number | null
+    registrations_open?: boolean
   }
 ) {
   const supabase = await createClient()
 
-  const { show_grade, show_headshot_upload, show_resume_upload, allow_crew_signup, crew_positions, audition_announcement, ...coreFields } = fields
+  const { show_grade, show_headshot_upload, show_resume_upload, allow_crew_signup, crew_positions, audition_announcement, registrations_open, ...coreFields } = fields
   const update: Record<string, unknown> = { ...coreFields }
 
   if (
     show_grade !== undefined || show_headshot_upload !== undefined ||
     show_resume_upload !== undefined || allow_crew_signup !== undefined ||
-    crew_positions !== undefined || audition_announcement !== undefined
+    crew_positions !== undefined || audition_announcement !== undefined ||
+    registrations_open !== undefined
   ) {
     const { data: existing } = await supabase
       .from('shows')
@@ -237,6 +239,7 @@ export async function updateShowDetails(
       ...(allow_crew_signup !== undefined && { allow_crew_signup }),
       ...(crew_positions !== undefined && { crew_positions }),
       ...(audition_announcement !== undefined && { audition_announcement }),
+      ...(registrations_open !== undefined && { registrations_open }),
     }
   }
 

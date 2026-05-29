@@ -21,7 +21,7 @@ export default async function CampsPage() {
 
   const { data } = await supabase
     .from('shows')
-    .select('id, slug, title, description, age_min, age_max, start_date, end_date, show_image, show_image_wide, cta_label, cta_url, status, parent_show:parent_show_id(show_image, show_image_wide)')
+    .select('id, slug, title, description, age_min, age_max, start_date, end_date, show_image, show_image_wide, cta_label, cta_url, status, field_config, parent_show:parent_show_id(show_image, show_image_wide)')
     .eq('event_type', 'camp')
     .eq('archived', false)
     .order('start_date', { ascending: true })
@@ -84,6 +84,7 @@ type Camp = {
   start_date: string | null; end_date: string | null
   show_image: string | null; show_image_wide: string | null
   cta_label: string | null; cta_url: string | null; status: string
+  field_config: Record<string, unknown> | null
   parent_show: { show_image: string | null; show_image_wide: string | null } | { show_image: string | null; show_image_wide: string | null }[] | null
 }
 
@@ -96,6 +97,7 @@ function CampCard({ camp, comingSoon = false }: { camp: Camp; comingSoon?: boole
     : camp.age_min ? `Ages ${camp.age_min}+` : null
   const ctaHref = camp.cta_url ?? `/auditions/${camp.slug}`
   const ctaLabel = camp.cta_label ?? 'Register for Camp'
+  const regsOpen = camp.field_config?.registrations_open !== false
 
   return (
     <div style={{ border: '1px solid var(--border)', borderRadius: '4px', background: 'var(--layer)', overflow: 'hidden' }}>
@@ -128,10 +130,15 @@ function CampCard({ camp, comingSoon = false }: { camp: Camp; comingSoon?: boole
               {camp.description}
             </p>
           )}
-          {!comingSoon && (
+          {!comingSoon && regsOpen && (
             <Link href={ctaHref} className="btn-primary">
               <span>{ctaLabel}</span>
             </Link>
+          )}
+          {(!comingSoon && !regsOpen) && (
+            <p style={{ fontSize: '0.72rem', letterSpacing: '0.15em', textTransform: 'uppercase', color: 'var(--muted)' }}>
+              Registration closed
+            </p>
           )}
           {comingSoon && (
             <p style={{ fontSize: '0.72rem', letterSpacing: '0.15em', textTransform: 'uppercase', color: 'var(--muted)' }}>

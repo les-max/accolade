@@ -26,7 +26,9 @@ export default async function AuditionRegistrationPage({
 
   if (!show) notFound()
 
-  if (show.status !== 'active') {
+  const regsOpen = (show.field_config as Record<string, unknown>)?.registrations_open !== false
+
+  if (show.status !== 'active' || !regsOpen) {
     return (
       <>
         <PageHero
@@ -38,7 +40,7 @@ export default async function AuditionRegistrationPage({
         <section style={{ padding: 'clamp(48px, 10vw, 100px) clamp(20px, 5vw, 48px)' }}>
           <div style={{ maxWidth: '600px', margin: '0 auto', textAlign: 'center' }}>
             <p style={{ fontFamily: "'Playfair Display', serif", fontSize: '1.4rem', marginBottom: '16px' }}>
-              Registration is not open yet
+              {regsOpen ? 'Registration is not open yet' : 'Registration is closed'}
             </p>
             <p style={{ color: 'var(--muted)', lineHeight: 1.8 }}>
               Audition registration for <strong style={{ color: 'var(--warm-white)' }}>{show.title}</strong> is not currently open.

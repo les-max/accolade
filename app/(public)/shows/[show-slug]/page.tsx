@@ -49,7 +49,7 @@ export default async function ShowDetailPage({ params }: { params: Promise<{ 'sh
 
   const { data: show } = await supabase
     .from('shows')
-    .select('id, slug, title, description, event_type, start_date, end_date, show_image, show_image_wide, cta_label, cta_url, youtube_video_id, status, venues(name, address, city, state, zip)')
+    .select('id, slug, title, description, event_type, start_date, end_date, show_image, show_image_wide, cta_label, cta_url, youtube_video_id, status, field_config, venues(name, address, city, state, zip)')
     .eq('slug', slug)
     .eq('archived', false)
     .single();
@@ -63,6 +63,7 @@ export default async function ShowDetailPage({ params }: { params: Promise<{ 'sh
     .order('date', { ascending: true })
     .order('start_time', { ascending: true });
 
+  const regsOpen = (show as unknown as { field_config: Record<string, unknown> | null }).field_config?.registrations_open !== false
   const accentColor = TYPE_COLORS[show.event_type] ?? 'var(--muted)';
   const heroImage = show.show_image_wide ?? show.show_image;
   const dateRange = formatDateRange(show.start_date, show.end_date);
@@ -235,7 +236,7 @@ export default async function ShowDetailPage({ params }: { params: Promise<{ 'sh
                     })()}
 
                     {/* Tickets */}
-                    {show.cta_url && (
+                    {show.cta_url && regsOpen && (
                       <div>
                         <p style={{ fontSize: '0.6rem', letterSpacing: '0.25em', textTransform: 'uppercase', color: 'var(--muted)', marginBottom: '6px' }}>Tickets</p>
                         <a
@@ -250,7 +251,7 @@ export default async function ShowDetailPage({ params }: { params: Promise<{ 'sh
                 </div>
               </div>
 
-              {show.cta_label && show.cta_url && (
+              {show.cta_label && show.cta_url && regsOpen && (
                 <Link href={show.cta_url} className="btn-primary" style={{ textAlign: 'center', justifyContent: 'center' }}>
                   <span>{show.cta_label}</span>
                   <svg width="16" height="16" viewBox="0 0 16 16" fill="none">

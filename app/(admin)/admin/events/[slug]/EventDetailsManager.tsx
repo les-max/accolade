@@ -116,6 +116,7 @@ type Props = {
     venue_id: string | null
     season: number | null
     parent_show_id: string | null
+    registrations_open: boolean
   }
   venues: { id: string; name: string; address: string | null; city: string | null; state: string | null }[]
   parentShows: { id: string; title: string; show_image: string | null; show_image_wide: string | null; venue_id: string | null; season: number | null }[]
@@ -143,6 +144,7 @@ export default function EventDetailsManager({ showId, slug, role, show, venues, 
   const [allowCrewSignup, setAllowCrewSignup] = useState(show.allow_crew_signup ?? false)
   const [crewPositions, setCrewPositions] = useState<number | null>(show.crew_positions)
   const [auditionAnnouncement, setAuditionAnnouncement] = useState(show.audition_announcement ?? '')
+  const [registrationsOpen, setRegistrationsOpen] = useState(show.registrations_open ?? true)
   const [imageFile, setImageFile] = useState<File | null>(null)
   const [imagePreview, setImagePreview] = useState<string | null>(show.show_image)
   const [imageWideFile, setImageWideFile] = useState<File | null>(null)
@@ -205,6 +207,7 @@ export default function EventDetailsManager({ showId, slug, role, show, venues, 
           allow_crew_signup: allowCrewSignup,
           crew_positions: allowCrewSignup ? crewPositions : null,
           audition_announcement: auditionAnnouncement || null,
+          registrations_open: registrationsOpen,
         })
         setSaved(true)
         setTimeout(() => setSaved(false), 3000)
@@ -562,6 +565,24 @@ export default function EventDetailsManager({ showId, slug, role, show, venues, 
               )}
             </>
           )}
+        </div>
+      )}
+
+      {/* Registrations open (audition, camp, workshop, event) */}
+      {is(['audition', 'camp', 'workshop', 'event']) && (
+        <div style={sectionStyle}>
+          <span style={sectionLabel}>Registration</span>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '14px', cursor: isAdmin ? 'pointer' : 'not-allowed' }}
+            onClick={() => isAdmin && setRegistrationsOpen(v => !v)}
+          >
+            <Toggle on={registrationsOpen} onChange={setRegistrationsOpen} disabled={!isAdmin} />
+            <div>
+              <p style={{ fontSize: '0.82rem', color: 'var(--warm-white)', marginBottom: '1px' }}>Registrations open</p>
+              <p style={{ fontSize: '0.7rem', color: 'var(--muted)' }}>
+                {registrationsOpen ? 'Registration button visible on public page' : 'Registration button hidden on public page'}
+              </p>
+            </div>
+          </div>
         </div>
       )}
 

@@ -12,12 +12,13 @@ export default async function RegisterPage({
 
   const { data: show } = await supabase
     .from('shows')
-    .select('id, title, status, registration_capacity')
+    .select('id, title, status, registration_capacity, field_config')
     .eq('slug', slug)
     .single()
 
   if (!show || show.status !== 'active') notFound()
 
+  const regsOpen = (show as unknown as { field_config: Record<string, unknown> | null }).field_config?.registrations_open !== false
   const capacity = (show as unknown as { registration_capacity: number | null }).registration_capacity
 
   let seatsRemaining: number | null = null
@@ -42,7 +43,11 @@ export default async function RegisterPage({
         Registration
       </p>
 
-      {isFull ? (
+      {!regsOpen ? (
+        <p style={{ fontSize: '1rem', color: 'var(--muted)', lineHeight: 1.7 }}>
+          Registration for this event is currently closed.
+        </p>
+      ) : isFull ? (
         <p style={{ fontSize: '1rem', color: 'var(--muted)', lineHeight: 1.7 }}>
           Registration for this event is now full.
         </p>
