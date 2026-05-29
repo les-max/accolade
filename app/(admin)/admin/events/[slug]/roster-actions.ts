@@ -104,6 +104,7 @@ export async function addShowMembersFromAuditions(
     family_id: string | null
     family_member_id: string | null
     show_role: string
+    email?: string | null
   }>
 ) {
   const supabase = await createClient()
@@ -117,6 +118,7 @@ export async function addShowMembersFromAuditions(
     person_name: e.person_name,
     show_role: e.show_role,
     show_part: null,
+    email: e.email || null,
   })))
 
   const { error } = await supabase.from('show_members').insert(rows)

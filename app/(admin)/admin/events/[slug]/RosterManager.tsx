@@ -25,6 +25,7 @@ export type Auditioner = {
   family_member_id: string | null
   family_id: string | null
   is_adult: boolean
+  parent_email: string | null
 }
 
 type CsvRow = {
@@ -350,6 +351,7 @@ function AuditionSection({
           family_id: a.family_id,
           family_member_id: a.family_member_id,
           show_role: group.trim(),
+          email: a.parent_email,
         })))
         setChecked(new Set())
       } catch (err) {

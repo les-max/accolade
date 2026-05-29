@@ -65,7 +65,7 @@ export default async function ShowDetailPage({
   const { data: auditionersRaw } = auditionShowIds.length > 0
     ? await supabase
         .from('auditions')
-        .select('id, auditioner_name, family_member_id, family_id, is_adult')
+        .select('id, auditioner_name, family_member_id, family_id, is_adult, parent_email')
         .in('show_id', auditionShowIds)
         .neq('status', 'cancelled')
         .order('auditioner_name')
