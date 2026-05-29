@@ -393,9 +393,8 @@ function AuditionSection({
             >
               <span>{isPending ? 'Adding…' : `Add ${checked.size > 0 ? checked.size : ''} Selected`}</span>
             </button>
+            {error && <p style={{ fontSize: '0.78rem', color: 'var(--rose)', margin: 0 }}>{error}</p>}
           </div>
-
-          {error && <p style={{ fontSize: '0.78rem', color: 'var(--rose)', marginBottom: '8px' }}>{error}</p>}
 
           {/* Auditioner table */}
           <div style={{ border: '1px solid var(--border)', borderRadius: '2px', overflow: 'hidden' }}>
