@@ -12,7 +12,7 @@ export async function createShow(formData: FormData) {
   const slug = formData.get('slug') as string
   const description = (formData.get('description') as string) || null
   const event_type = (formData.get('event_type') as string) || 'show'
-  const audition_type = (formData.get('audition_type') as 'window' | 'slot') || null
+  const audition_type = (formData.get('audition_type') as 'window' | 'slot') || undefined
   const age_min = formData.get('age_min') ? Number(formData.get('age_min')) : null
   const age_max = formData.get('age_max') ? Number(formData.get('age_max')) : null
   const parent_show_id = (formData.get('parent_show_id') as string) || null
