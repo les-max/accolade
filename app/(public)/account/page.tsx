@@ -50,6 +50,7 @@ export default async function AccountPage() {
   const waiversPendingIds = new Set<string>()
   const volunteersOpenIds = new Set<string>()
 
+  const nowIso = new Date().toISOString()
   let showEvents: Array<{ id: string; title: string; event_type: string; start_time: string; shows: unknown }> = []
 
   if (activeShowIds.length > 0) {
@@ -93,7 +94,6 @@ export default async function AccountPage() {
 
   type UpcomingItem = { id: string; label: string; type: string; date: string }
   const upcoming: UpcomingItem[] = []
-  const nowIso = new Date().toISOString()
 
   for (const a of auditions ?? []) {
     const slot = a.audition_slots as unknown as { label: string; start_time: string | null } | null
