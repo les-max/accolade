@@ -209,7 +209,7 @@ export default async function TicketsPage() {
                       )}
 
                       {show.ticketPerformances.length > 0 ? (
-                        <TicketCheckoutForm performances={show.ticketPerformances} />
+                        <TicketCheckoutForm showId={show.id} performances={show.ticketPerformances} />
                       ) : (
                         <div style={{ background: 'var(--layer)', border: '1px solid var(--border)', borderRadius: '4px', padding: '40px', textAlign: 'center' }}>
                           <p style={{ color: 'var(--muted)', marginBottom: '8px' }}>Ticket sales are not yet open.</p>
