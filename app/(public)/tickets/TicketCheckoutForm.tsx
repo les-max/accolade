@@ -1,7 +1,8 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useTransition } from 'react'
 import { useRouter } from 'next/navigation'
+import { validateTicketCoupon, type TicketCouponRow } from '@/app/(admin)/admin/events/[slug]/ticket-actions'
 
 type OptionGroup = {
   id: string
@@ -62,30 +63,58 @@ const stepperBtnStyle = (disabled: boolean): React.CSSProperties => ({
   flexShrink: 0,
 })
 
-export default function TicketCheckoutForm({ performances }: { performances: TicketPerf[] }) {
+export default function TicketCheckoutForm({
+  showId,
+  performances,
+}: {
+  showId: string
+  performances: TicketPerf[]
+}) {
   const router = useRouter()
 
   const [quantities, setQuantities] = useState<Record<string, number>>(() =>
     Object.fromEntries(performances.map(p => [p.id, 0]))
   )
-  // optionQtys[ticket_perf_id][option_id] = quantity chosen
   const [optionQtys, setOptionQtys] = useState<Record<string, Record<string, number>>>({})
   const [name, setName] = useState('')
   const [email, setEmail] = useState('')
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
 
+  // Coupon state
+  const [couponInput, setCouponInput] = useState('')
+  const [appliedCoupon, setAppliedCoupon] = useState<TicketCouponRow | null>(null)
+  const [couponError, setCouponError] = useState('')
+  const [couponSuccess, setCouponSuccess] = useState('')
+  const [isCouponPending, startCouponTransition] = useTransition()
+
   const selectedItems = performances.filter(p => (quantities[p.id] ?? 0) > 0)
-  const total = selectedItems.reduce((sum, p) => sum + (quantities[p.id] ?? 0) * p.price, 0)
-  const totalQty = selectedItems.reduce((sum, p) => sum + (quantities[p.id] ?? 0), 0)
+  const subtotal = selectedItems.reduce((sum, p) => sum + (quantities[p.id] ?? 0) * p.price, 0)
   const hasSelection = selectedItems.length > 0
+  const totalQty = selectedItems.reduce((sum, p) => sum + (quantities[p.id] ?? 0), 0)
+
+  // Compute discount amount
+  function computeDiscount(rawSubtotal: number): number {
+    if (!appliedCoupon) return 0
+    let discount = 0
+    if (appliedCoupon.discount_type === 'percent') {
+      discount = rawSubtotal * (appliedCoupon.discount_value / 100)
+    } else {
+      discount = appliedCoupon.discount_value
+    }
+    // Cap so Stripe total never goes below $0.50
+    return Math.min(discount, Math.max(0, rawSubtotal - 0.5))
+  }
+
+  const discountAmount = computeDiscount(subtotal)
+  const total = Math.max(0.5, subtotal - discountAmount)
 
   function optionsValid(): boolean {
     for (const p of selectedItems) {
       for (const group of p.optionGroups) {
         if (!group.required) continue
-        const total = group.options.reduce((sum, opt) => sum + (optionQtys[p.id]?.[opt.id] ?? 0), 0)
-        if (total !== (quantities[p.id] ?? 0)) return false
+        const groupTotal = group.options.reduce((sum, opt) => sum + (optionQtys[p.id]?.[opt.id] ?? 0), 0)
+        if (groupTotal !== (quantities[p.id] ?? 0)) return false
       }
     }
     return true
@@ -94,6 +123,31 @@ export default function TicketCheckoutForm({ performances }: { performances: Tic
 
   function setQty(id: string, n: number) {
     setQuantities(q => ({ ...q, [id]: n }))
+  }
+
+  function handleApplyCoupon() {
+    if (!couponInput.trim()) return
+    setCouponError('')
+    setCouponSuccess('')
+    startCouponTransition(async () => {
+      const result = await validateTicketCoupon(showId, couponInput.trim())
+      if (result.valid) {
+        setAppliedCoupon(result.coupon)
+        setCouponSuccess(`Coupon applied: ${result.coupon.discount_type === 'percent' ? `${result.coupon.discount_value}% off` : `$${result.coupon.discount_value.toFixed(2)} off`}`)
+        setCouponError('')
+      } else {
+        setAppliedCoupon(null)
+        setCouponError(result.error)
+        setCouponSuccess('')
+      }
+    })
+  }
+
+  function handleRemoveCoupon() {
+    setAppliedCoupon(null)
+    setCouponInput('')
+    setCouponError('')
+    setCouponSuccess('')
   }
 
   async function handleSubmit(e: React.FormEvent) {
@@ -117,6 +171,7 @@ export default function TicketCheckoutForm({ performances }: { performances: Tic
           })),
           buyer_name: name.trim(),
           buyer_email: email.trim().toLowerCase(),
+          coupon_code: appliedCoupon?.code ?? null,
         }),
       })
       const data = await res.json()
@@ -254,6 +309,75 @@ export default function TicketCheckoutForm({ performances }: { performances: Tic
         </div>
       </div>
 
+      {/* Coupon code input */}
+      <div style={{ marginBottom: '28px' }}>
+        <p style={{ fontSize: '0.65rem', letterSpacing: '0.2em', textTransform: 'uppercase', color: '#a09db8', marginBottom: '12px' }}>
+          Coupon Code
+        </p>
+        {appliedCoupon ? (
+          <div
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'space-between',
+              padding: '12px 16px',
+              border: '1px solid rgba(61,158,140,0.4)',
+              borderRadius: '4px',
+              background: 'rgba(61,158,140,0.08)',
+            }}
+          >
+            <span style={{ fontSize: '0.85rem', color: '#3d9e8c' }}>{couponSuccess}</span>
+            <button
+              type="button"
+              onClick={handleRemoveCoupon}
+              style={{
+                background: 'transparent',
+                border: 'none',
+                color: '#a09db8',
+                fontSize: '0.78rem',
+                cursor: 'pointer',
+                padding: '0 4px',
+              }}
+            >
+              Remove
+            </button>
+          </div>
+        ) : (
+          <div style={{ display: 'flex', gap: '10px' }}>
+            <input
+              type="text"
+              placeholder="Enter coupon code"
+              value={couponInput}
+              onChange={e => { setCouponInput(e.target.value.toUpperCase()); setCouponError('') }}
+              onKeyDown={e => e.key === 'Enter' && (e.preventDefault(), handleApplyCoupon())}
+              disabled={isCouponPending}
+              style={{ ...inputStyle, flex: 1 }}
+            />
+            <button
+              type="button"
+              onClick={handleApplyCoupon}
+              disabled={isCouponPending || !couponInput.trim()}
+              style={{
+                padding: '12px 20px',
+                background: 'rgba(255,255,255,0.06)',
+                border: '1px solid rgba(255,255,255,0.15)',
+                borderRadius: '4px',
+                color: '#e8e4dc',
+                fontSize: '0.85rem',
+                cursor: isCouponPending || !couponInput.trim() ? 'not-allowed' : 'pointer',
+                opacity: isCouponPending || !couponInput.trim() ? 0.5 : 1,
+                whiteSpace: 'nowrap',
+              }}
+            >
+              Apply
+            </button>
+          </div>
+        )}
+        {couponError && (
+          <p style={{ margin: '8px 0 0', color: '#e07070', fontSize: '0.8rem' }}>{couponError}</p>
+        )}
+      </div>
+
       {/* Buyer info */}
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px', marginBottom: '24px' }}>
         <div>
@@ -270,10 +394,20 @@ export default function TicketCheckoutForm({ performances }: { performances: Tic
         </div>
       </div>
 
-      {/* Total */}
+      {/* Total with optional discount breakdown */}
       {hasSelection && (
         <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: '20px' }}>
           <div style={{ textAlign: 'right' }}>
+            {appliedCoupon && discountAmount > 0 && (
+              <>
+                <p style={{ margin: 0, fontSize: '0.72rem', color: '#6b6880' }}>
+                  Subtotal: <span style={{ color: '#a09db8' }}>${subtotal.toFixed(2)}</span>
+                </p>
+                <p style={{ margin: '2px 0', fontSize: '0.72rem', color: '#3d9e8c' }}>
+                  Discount: −${discountAmount.toFixed(2)}
+                </p>
+              </>
+            )}
             <p style={{ margin: 0, fontSize: '0.65rem', letterSpacing: '0.15em', textTransform: 'uppercase', color: '#6b6880' }}>Total</p>
             <p style={{ margin: '2px 0 0', fontSize: '1.6rem', color: '#d4a853', fontWeight: 700, letterSpacing: '-0.02em' }}>${total.toFixed(2)}</p>
           </div>
