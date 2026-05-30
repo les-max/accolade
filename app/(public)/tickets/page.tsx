@@ -132,15 +132,13 @@ export default async function TicketsPage() {
                     priority
                   />
                 )}
-                <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(0deg, rgba(14,13,20,0.8) 0%, transparent 50%)' }} />
-                <div style={{ position: 'absolute', bottom: '32px', left: '32px', right: '32px' }}>
-                  <h2 style={{ fontFamily: "'Playfair Display', serif", fontSize: '3rem', fontWeight: 900, lineHeight: 1 }}>{show.title}</h2>
-                  {dateRange && <p style={{ color: 'var(--teal)', fontSize: '0.78rem', letterSpacing: '0.1em', marginTop: '8px' }}>{dateRange}</p>}
-                </div>
               </div>
 
               {/* Ticket info */}
               <div>
+                <h2 style={{ fontFamily: "'Playfair Display', serif", fontSize: 'clamp(2rem, 3vw, 3rem)', fontWeight: 900, lineHeight: 1.1, marginBottom: '8px' }}>{show.title}</h2>
+                {dateRange && <p style={{ color: 'var(--teal)', fontSize: '0.78rem', letterSpacing: '0.1em', marginBottom: '24px' }}>{dateRange}</p>}
+
                 {venue && (
                   <div style={{ marginBottom: '20px' }}>
                     <span style={{ padding: '6px 14px', border: '1px solid rgba(61,158,140,0.3)', fontSize: '0.6rem', letterSpacing: '0.2em', textTransform: 'uppercase', color: 'var(--teal)' }}>
