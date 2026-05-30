@@ -31,6 +31,13 @@ export default async function TicketsPage() {
     .limit(1)
     .maybeSingle()
 
+  type OptionGroup = {
+    id: string
+    name: string
+    required: boolean
+    options: { id: string; name: string }[]
+  }
+
   // Fetch performance dates + ticket config for this show
   let ticketPerformances: {
     id: string
@@ -40,6 +47,7 @@ export default async function TicketsPage() {
     date: string
     start_time: string | null
     label: string | null
+    optionGroups: OptionGroup[]
   }[] = []
 
   if (show) {
@@ -56,7 +64,13 @@ export default async function TicketsPage() {
     if (perfIds.length > 0) {
       const { data: tickets } = await supabase
         .from('ticket_performances')
-        .select('id, show_performance_id, capacity, price, sales_enabled')
+        .select(`
+          id, show_performance_id, capacity, price, sales_enabled,
+          ticket_option_groups (
+            id, name, required, sort_order,
+            ticket_options ( id, name, sort_order )
+          )
+        `)
         .in('show_performance_id', perfIds)
 
       const ticketIds = (tickets ?? []).filter(t => t.sales_enabled).map(t => t.id)
@@ -89,6 +103,14 @@ export default async function TicketsPage() {
           date: perf.date,
           start_time: perf.start_time,
           label: perf.label,
+          optionGroups: ((ticket as any).ticket_option_groups ?? []).map((g: any) => ({
+            id: g.id,
+            name: g.name,
+            required: g.required,
+            options: (g.ticket_options ?? [])
+              .sort((a: any, b: any) => a.sort_order - b.sort_order)
+              .map((o: any) => ({ id: o.id, name: o.name })),
+          })),
         }]
       })
     }
