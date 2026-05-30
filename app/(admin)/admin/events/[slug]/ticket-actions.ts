@@ -34,3 +34,62 @@ export async function upsertTicketPerformances(showId: string, slug: string, row
 
   void showId
 }
+
+export async function saveTicketOptionGroup(
+  ticketPerformanceId: string,
+  name: string,
+  slug: string
+) {
+  const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) throw new Error('Unauthorized')
+
+  const { error } = await supabase
+    .from('ticket_option_groups')
+    .insert({ ticket_performance_id: ticketPerformanceId, name: name.trim() })
+  if (error) throw new Error(error.message)
+  revalidatePath(`/admin/events/${slug}`)
+}
+
+export async function deleteTicketOptionGroup(groupId: string, slug: string) {
+  const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) throw new Error('Unauthorized')
+
+  const { error } = await supabase
+    .from('ticket_option_groups')
+    .delete()
+    .eq('id', groupId)
+  if (error) throw new Error(error.message)
+  revalidatePath(`/admin/events/${slug}`)
+}
+
+export async function saveTicketOption(
+  groupId: string,
+  name: string,
+  sortOrder: number,
+  slug: string
+) {
+  const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) throw new Error('Unauthorized')
+
+  const { error } = await supabase
+    .from('ticket_options')
+    .insert({ group_id: groupId, name: name.trim(), sort_order: sortOrder })
+  if (error) throw new Error(error.message)
+  revalidatePath(`/admin/events/${slug}`)
+}
+
+export async function deleteTicketOption(optionId: string, slug: string) {
+  const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) throw new Error('Unauthorized')
+
+  const { error } = await supabase
+    .from('ticket_options')
+    .delete()
+    .eq('id', optionId)
+  if (error) throw new Error(error.message)
+  revalidatePath(`/admin/events/${slug}`)
+}
