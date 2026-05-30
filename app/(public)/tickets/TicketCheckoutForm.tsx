@@ -420,7 +420,7 @@ export default function TicketCheckoutForm({
 
       <button
         type="submit"
-        disabled={loading || !hasSelection || !name.trim() || !email.trim() || !allOptionsValid}
+        disabled={loading || isCouponPending || !hasSelection || !name.trim() || !email.trim() || !allOptionsValid}
         style={{
           width: '100%',
           padding: '16px',
@@ -432,8 +432,8 @@ export default function TicketCheckoutForm({
           fontWeight: 700,
           letterSpacing: '0.05em',
           textTransform: 'uppercase',
-          cursor: loading ? 'wait' : !hasSelection || !name.trim() || !email.trim() || !allOptionsValid ? 'not-allowed' : 'pointer',
-          opacity: !hasSelection || !name.trim() || !email.trim() || !allOptionsValid ? 0.5 : 1,
+          cursor: loading ? 'wait' : isCouponPending || !hasSelection || !name.trim() || !email.trim() || !allOptionsValid ? 'not-allowed' : 'pointer',
+          opacity: isCouponPending || !hasSelection || !name.trim() || !email.trim() || !allOptionsValid ? 0.5 : 1,
           transition: 'opacity 0.15s',
         }}
       >
