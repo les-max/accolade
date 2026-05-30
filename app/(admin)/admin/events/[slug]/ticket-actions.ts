@@ -158,6 +158,9 @@ export async function addTicketCoupon(
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) throw new Error('Unauthorized')
 
+  if (discountValue <= 0) throw new Error('Discount value must be greater than 0')
+  if (discountType === 'percent' && discountValue > 100) throw new Error('Percent discount cannot exceed 100')
+
   const service = createServiceClient()
   const { error } = await service
     .from('show_coupon_codes')
@@ -176,7 +179,7 @@ export async function addTicketCoupon(
   revalidatePath(`/admin/events/${slug}`)
 }
 
-export async function deleteTicketCoupon(couponId: string, slug: string) {
+export async function deleteTicketCoupon(couponId: string, showId: string, slug: string) {
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) throw new Error('Unauthorized')
@@ -186,6 +189,7 @@ export async function deleteTicketCoupon(couponId: string, slug: string) {
     .from('show_coupon_codes')
     .delete()
     .eq('id', couponId)
+    .eq('show_id', showId)
   if (error) throw new Error(error.message)
   revalidatePath(`/admin/events/${slug}`)
 }
