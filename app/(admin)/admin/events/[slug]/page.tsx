@@ -57,7 +57,7 @@ export default async function ShowDetailPage({
   const showPerformanceIds = (performancesData ?? []).filter(p => p.type === 'performance').map(p => p.id)
   const [{ data: ticketConfigData }, { data: linkedAuditionShows }] = await Promise.all([
     showPerformanceIds.length > 0
-      ? supabase.from('ticket_performances').select('show_performance_id, capacity, price, sales_enabled').in('show_performance_id', showPerformanceIds)
+      ? supabase.from('ticket_performances').select('id, show_performance_id, capacity, price, sales_enabled, ticket_option_groups ( id, name, required, sort_order, ticket_options ( id, name, sort_order ) )').in('show_performance_id', showPerformanceIds)
       : Promise.resolve({ data: [] }),
     supabase.from('shows').select('id').eq('parent_show_id', show.id).eq('event_type', 'audition'),
   ])
@@ -213,7 +213,7 @@ export default async function ShowDetailPage({
             slug={slug}
             role={role}
             performancesData={performancesData ?? []}
-            ticketConfigData={ticketConfigData ?? []}
+            ticketConfigData={(ticketConfigData ?? []) as any}
           />
         )}
         {activeTab === 'people' && (
