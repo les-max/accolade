@@ -13,6 +13,6 @@ ALTER TABLE ticket_orders
 
 -- Helper function for atomic use_count increment (used by checkout API)
 CREATE OR REPLACE FUNCTION increment_coupon_use_count(coupon_id UUID)
-RETURNS void LANGUAGE sql SECURITY DEFINER AS $$
+RETURNS void LANGUAGE sql AS $$
   UPDATE show_coupon_codes SET use_count = use_count + 1 WHERE id = coupon_id;
 $$;
