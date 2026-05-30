@@ -121,7 +121,7 @@ export async function POST(req: NextRequest) {
   if (coupon_code?.trim()) {
     const { data: couponRow } = await supabase
       .from('show_coupon_codes')
-      .select('id, discount_type, discount_value, max_uses, use_count')
+      .select('id, discount_type, discount_value, max_uses')
       .eq('show_id', show.id)
       .ilike('code', coupon_code.trim())
       .not('discount_type', 'is', null)
@@ -130,10 +130,6 @@ export async function POST(req: NextRequest) {
     if (!couponRow) {
       return NextResponse.json({ error: 'Invalid coupon code' }, { status: 400 })
     }
-    if (couponRow.max_uses !== null && couponRow.use_count >= couponRow.max_uses) {
-      return NextResponse.json({ error: 'This coupon has reached its usage limit' }, { status: 400 })
-    }
-
     couponId = couponRow.id
     if (couponRow.discount_type === 'percent') {
       discountAmount = totalBeforeDiscount * (couponRow.discount_value / 100)
@@ -255,9 +251,14 @@ export async function POST(req: NextRequest) {
 
   await supabase.from('ticket_orders').update({ stripe_session_id: session.id }).eq('id', order.id)
 
-  // Increment coupon use_count after Stripe session created successfully
+  // Atomically claim coupon — also enforces max_uses at the DB level
   if (couponId) {
-    await supabase.rpc('increment_coupon_use_count', { coupon_id: couponId })
+    const { data: claimed, error: claimErr } = await supabase.rpc('claim_ticket_coupon', { p_coupon_id: couponId })
+    if (claimErr) console.error('[checkout] claim_ticket_coupon RPC error:', claimErr)
+    if (!claimed) {
+      // Coupon exhausted between validation and claim — order is still valid, just log it
+      console.warn('[checkout] Coupon exhausted at claim time, order proceeds without discount adjustment')
+    }
   }
 
   return NextResponse.json({ url: session.url })

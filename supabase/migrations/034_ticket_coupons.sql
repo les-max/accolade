@@ -16,3 +16,19 @@ CREATE OR REPLACE FUNCTION increment_coupon_use_count(coupon_id UUID)
 RETURNS void LANGUAGE sql AS $$
   UPDATE show_coupon_codes SET use_count = use_count + 1 WHERE id = coupon_id;
 $$;
+
+-- Atomic claim: increments use_count only if max_uses not reached.
+-- Returns TRUE if claim succeeded, FALSE if exhausted.
+CREATE OR REPLACE FUNCTION claim_ticket_coupon(p_coupon_id UUID)
+RETURNS BOOLEAN LANGUAGE plpgsql AS $$
+DECLARE
+  rows_updated INTEGER;
+BEGIN
+  UPDATE show_coupon_codes
+  SET use_count = use_count + 1
+  WHERE id = p_coupon_id
+    AND (max_uses IS NULL OR use_count < max_uses);
+  GET DIAGNOSTICS rows_updated = ROW_COUNT;
+  RETURN rows_updated > 0;
+END;
+$$;
