@@ -117,6 +117,7 @@ type Props = {
     season: number | null
     parent_show_id: string | null
     registrations_open: boolean
+    description: string | null
   }
   venues: { id: string; name: string; address: string | null; city: string | null; state: string | null }[]
   parentShows: { id: string; title: string; show_image: string | null; show_image_wide: string | null; venue_id: string | null; season: number | null }[]
@@ -128,6 +129,7 @@ export default function EventDetailsManager({ showId, slug, role, show, venues, 
   const is = (types: string[]) => types.includes(eventType)
 
   const [title, setTitle] = useState(show.title ?? '')
+  const [description, setDescription] = useState(show.description ?? '')
   const [startDate, setStartDate] = useState(show.start_date ?? '')
   const [endDate, setEndDate] = useState(show.end_date ?? '')
   const [featured, setFeatured] = useState(show.featured ?? false)
@@ -185,6 +187,7 @@ export default function EventDetailsManager({ showId, slug, role, show, venues, 
 
         await updateShowDetails(showId, slug, {
           title: title.trim() || show.title,
+          description: description.trim() || null,
           event_type: eventType,
           start_date: startDate || null,
           end_date: endDate || null,
@@ -250,6 +253,21 @@ export default function EventDetailsManager({ showId, slug, role, show, venues, 
             disabled={!isAdmin}
             onChange={e => setTitle(e.target.value)}
             style={{ ...inputStyle, opacity: isAdmin ? 1 : 0.5 }}
+          />
+        </label>
+      </div>
+
+      {/* Description */}
+      <div style={{ marginBottom: '20px' }}>
+        <label>
+          <span style={labelStyle}>Description <span style={{ color: 'var(--muted)', fontWeight: 400 }}>(optional)</span></span>
+          <textarea
+            value={description}
+            disabled={!isAdmin}
+            onChange={e => setDescription(e.target.value)}
+            rows={4}
+            placeholder="A short blurb shown on the tickets and show detail pages."
+            style={{ ...inputStyle, resize: 'vertical', opacity: isAdmin ? 1 : 0.5 }}
           />
         </label>
       </div>

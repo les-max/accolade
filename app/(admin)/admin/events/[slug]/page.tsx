@@ -145,6 +145,7 @@ export default async function ShowDetailPage({
     venue_id:               show.venue_id ?? null,
     season:                 show.season ?? null,
     registrations_open:     (show.field_config as Record<string, unknown>)?.registrations_open !== false,
+    description:            show.description ?? null,
   }
 
   // Tabbed layout for shows
