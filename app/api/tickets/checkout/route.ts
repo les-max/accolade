@@ -15,7 +15,11 @@ function formatTime(t: string) {
   return m === 0 ? `${hour}${ampm}` : `${hour}:${String(m).padStart(2, '0')}${ampm}`
 }
 
-type CheckoutItem = { ticket_performance_id: string; quantity: number }
+type CheckoutItem = {
+  ticket_performance_id: string
+  quantity: number
+  options?: { ticket_option_id: string; quantity: number }[]
+}
 
 type PerfRow = {
   id: string
@@ -65,6 +69,17 @@ export async function POST(req: NextRequest) {
   }
 
   const tpById = Object.fromEntries((tps as unknown as PerfRow[]).map(tp => [tp.id, tp]))
+
+  // Fetch option names so we can include them in the Stripe line item description
+  const allOptionIds = items.flatMap(i => (i.options ?? []).map(o => o.ticket_option_id))
+  const optionNameById: Record<string, string> = {}
+  if (allOptionIds.length > 0) {
+    const { data: optRows } = await supabase
+      .from('ticket_options')
+      .select('id, name')
+      .in('id', allOptionIds)
+    for (const o of optRows ?? []) optionNameById[o.id] = o.name
+  }
 
   // Verify all items found and sales are open
   for (const item of items) {
@@ -116,6 +131,31 @@ export async function POST(req: NextRequest) {
     }))
   )
 
+  // Fetch back the order item IDs (needed to link option selections)
+  const { data: orderItems } = await supabase
+    .from('ticket_order_items')
+    .select('id, ticket_performance_id')
+    .eq('order_id', order.id)
+
+  const optionInserts: { ticket_order_item_id: string; ticket_option_id: string; quantity: number }[] = []
+  for (const item of items) {
+    if (!item.options?.length) continue
+    const orderItem = (orderItems ?? []).find(oi => oi.ticket_performance_id === item.ticket_performance_id)
+    if (!orderItem) continue
+    for (const opt of item.options) {
+      if (opt.quantity > 0) {
+        optionInserts.push({
+          ticket_order_item_id: orderItem.id,
+          ticket_option_id: opt.ticket_option_id,
+          quantity: opt.quantity,
+        })
+      }
+    }
+  }
+  if (optionInserts.length > 0) {
+    await supabase.from('ticket_order_item_options').insert(optionInserts)
+  }
+
   // Build Stripe line items (one per performance)
   const origin = req.headers.get('origin') ?? 'https://accoladetheatre.org'
   const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!)
@@ -124,13 +164,21 @@ export async function POST(req: NextRequest) {
     const tp = tpById[item.ticket_performance_id]
     const perf = tp.show_performances
     const perfLabel = `${formatDate(perf.date)}${perf.start_time ? ' at ' + formatTime(perf.start_time) : ''}${perf.label ? ' — ' + perf.label : ''}`
+    const optionSummary = (item.options ?? [])
+      .filter(o => o.quantity > 0)
+      .map(o => `${o.quantity}× ${optionNameById[o.ticket_option_id] ?? 'Unknown'}`)
+      .join(', ')
+    const description = [
+      `${item.quantity} ticket${item.quantity !== 1 ? 's' : ''}`,
+      optionSummary,
+    ].filter(Boolean).join(' · ')
     return {
       price_data: {
         currency: 'usd',
         unit_amount: Math.round(tp.price * 100),
         product_data: {
           name: `${show.title} — ${perfLabel}`,
-          description: `${item.quantity} ticket${item.quantity !== 1 ? 's' : ''}`,
+          description,
         },
       },
       quantity: item.quantity,
