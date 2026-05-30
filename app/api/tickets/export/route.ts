@@ -62,11 +62,13 @@ export async function GET(req: NextRequest) {
     .eq('id', showId)
     .single()
 
-  // Fetch all paid orders for this show with full detail
+  // Fetch all paid orders for this show with full detail including coupon
   const { data: orders } = await service
     .from('ticket_orders')
     .select(`
       id, buyer_name, buyer_email, created_at, status, total_amount,
+      discount_amount,
+      show_coupon_codes ( code ),
       ticket_order_items (
         id, quantity,
         ticket_performances (
@@ -91,6 +93,7 @@ export async function GET(req: NextRequest) {
     'Order Date', 'Buyer Name', 'Buyer Email',
     'Performance Date', 'Performance Time', 'Performance Label',
     'Qty', 'Price Per Ticket', 'Subtotal', 'Options',
+    'Coupon Code', 'Discount',
   ]
 
   const rows: string[] = [csvRow(headers)]
@@ -99,8 +102,10 @@ export async function GET(req: NextRequest) {
     const orderDate = new Date(order.created_at).toLocaleDateString('en-US', {
       month: 'short', day: 'numeric', year: 'numeric',
     })
+    const couponCode = (order.show_coupon_codes as any)?.code ?? ''
+    const discountAmt = (order as any).discount_amount ?? 0
 
-    for (const item of order.ticket_order_items ?? []) {
+    for (const item of (order.ticket_order_items as any[]) ?? []) {
       const tp = item.ticket_performances as any
       const perf = tp?.show_performances as any
       const date = perf?.date ? formatDate(perf.date) : ''
@@ -130,6 +135,8 @@ export async function GET(req: NextRequest) {
         price.toFixed(2),
         subtotal.toFixed(2),
         options,
+        couponCode,
+        discountAmt > 0 ? `-${Number(discountAmt).toFixed(2)}` : '',
       ]))
     }
   }
