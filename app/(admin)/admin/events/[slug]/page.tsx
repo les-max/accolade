@@ -159,19 +159,24 @@ export default async function ShowDetailPage({
           <Link href="/admin/events" style={{ color: 'var(--muted)', fontSize: '0.78rem', textDecoration: 'none', display: 'inline-block', marginBottom: '16px' }}>
             ← Events
           </Link>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '8px' }}>
-            <h1 style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: '2.4rem', letterSpacing: '0.04em', lineHeight: 1 }}>{show.title}</h1>
-            <span style={{
-              padding: '4px 10px',
-              border: `1px solid ${badge.border}`,
-              borderRadius: '2px',
-              fontSize: '0.6rem',
-              letterSpacing: '0.15em',
-              textTransform: 'uppercase',
-              color: badge.color,
-            }}>
-              {show.status}
-            </span>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '16px', marginBottom: '8px' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+              <h1 style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: '2.4rem', letterSpacing: '0.04em', lineHeight: 1 }}>{show.title}</h1>
+              <span style={{
+                padding: '4px 10px',
+                border: `1px solid ${badge.border}`,
+                borderRadius: '2px',
+                fontSize: '0.6rem',
+                letterSpacing: '0.15em',
+                textTransform: 'uppercase',
+                color: badge.color,
+              }}>
+                {show.status}
+              </span>
+            </div>
+            {role === 'admin' && (
+              <StatusControl showId={show.id} currentStatus={show.status} slug={slug} />
+            )}
           </div>
         </div>
 
