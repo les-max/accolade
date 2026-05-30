@@ -55,11 +55,16 @@ export default async function ShowDetailPage({
   ])
 
   const showPerformanceIds = (performancesData ?? []).filter(p => p.type === 'performance').map(p => p.id)
-  const [{ data: ticketConfigData }, { data: linkedAuditionShows }] = await Promise.all([
+  const [{ data: ticketConfigData }, { data: linkedAuditionShows }, { data: ticketCouponsData }] = await Promise.all([
     showPerformanceIds.length > 0
       ? supabase.from('ticket_performances').select('id, show_performance_id, capacity, price, sales_enabled, ticket_option_groups ( id, name, required, sort_order, ticket_options ( id, name, sort_order ) )').in('show_performance_id', showPerformanceIds)
       : Promise.resolve({ data: [] }),
     supabase.from('shows').select('id').eq('parent_show_id', show.id).eq('event_type', 'audition'),
+    supabase.from('show_coupon_codes')
+      .select('id, code, discount_type, discount_value, max_uses, use_count')
+      .eq('show_id', show.id)
+      .not('discount_type', 'is', null)
+      .order('created_at'),
   ])
 
   const auditionShowIds = (linkedAuditionShows ?? []).map(s => s.id)
@@ -219,6 +224,7 @@ export default async function ShowDetailPage({
             role={role}
             performancesData={performancesData ?? []}
             ticketConfigData={(ticketConfigData ?? []) as any}
+            ticketCouponsData={(ticketCouponsData ?? []) as any}
           />
         )}
         {activeTab === 'people' && (
