@@ -173,7 +173,7 @@ export default function TicketCouponManager({ showId, slug, coupons }: Props) {
               borderRadius: '2px',
               color: 'var(--teal)',
               fontSize: '0.78rem',
-              cursor: 'pointer',
+              cursor: isPending || !code.trim() || !discountValue.trim() ? 'not-allowed' : 'pointer',
               whiteSpace: 'nowrap',
               opacity: isPending || !code.trim() || !discountValue.trim() ? 0.5 : 1,
             }}
@@ -229,7 +229,7 @@ export default function TicketCouponManager({ showId, slug, coupons }: Props) {
                     borderRadius: '2px',
                     color: 'var(--rose, #e07070)',
                     fontSize: '0.72rem',
-                    cursor: 'pointer',
+                    cursor: isPending ? 'not-allowed' : 'pointer',
                     opacity: isPending ? 0.5 : 1,
                   }}
                 >
