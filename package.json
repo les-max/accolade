@@ -6,7 +6,8 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "render-graphics": "npx remotion still remotion/index.ts Widescreen docs/graphics/accolade-awards-1920x1080.png && npx remotion still remotion/index.ts Portrait docs/graphics/accolade-awards-1200x1800.png"
   },
   "dependencies": {
     "@stripe/stripe-js": "^9.3.1",
@@ -23,12 +24,17 @@
     "stripe": "^22.1.0"
   },
   "devDependencies": {
+    "@remotion/bundler": "^4.0.469",
+    "@remotion/cli": "^4.0.469",
+    "@remotion/google-fonts": "^4.0.469",
+    "@remotion/renderer": "^4.0.469",
     "@tailwindcss/postcss": "^4",
     "@types/node": "^20",
     "@types/react": "^19",
     "@types/react-dom": "^19",
     "eslint": "^9",
     "eslint-config-next": "16.2.1",
+    "remotion": "^4.0.469",
     "tailwindcss": "^4",
     "typescript": "^5"
   }

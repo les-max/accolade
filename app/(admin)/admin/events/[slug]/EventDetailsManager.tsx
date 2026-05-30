@@ -523,8 +523,8 @@ export default function EventDetailsManager({ showId, slug, role, show, venues, 
         </div>
       )}
 
-      {/* Registration Form Fields (audition, camp, workshop) */}
-      {is(['audition', 'camp', 'workshop']) && (
+      {/* Registration Form Fields (audition only) */}
+      {is(['audition']) && (
         <div style={sectionStyle}>
           <span style={sectionLabel}>Registration Form Fields</span>
           {([

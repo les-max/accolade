@@ -30,6 +30,7 @@ export async function upsertTicketPerformances(showId: string, slug: string, row
 
   if (error) throw new Error(error.message)
   revalidatePath(`/admin/events/${slug}`)
+  revalidatePath('/tickets')
 
   void showId
 }
