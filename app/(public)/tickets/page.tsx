@@ -189,39 +189,7 @@ export default async function TicketsPage() {
         </div>
       </section>
 
-      {/* ── Group Sales ───────────────────────────── */}
-      <section style={{ padding: 'clamp(40px, 8vw, 80px) clamp(20px, 5vw, 48px)', background: 'var(--layer)', borderTop: '1px solid var(--border)', borderBottom: '1px solid var(--border)' }}>
-        <div className="g-2 reveal" style={{ display: 'grid', maxWidth: '1200px', margin: '0 auto', gap: '64px', alignItems: 'center' }}>
-          <div>
-            <p className="section-label">Groups & Schools</p>
-            <h2 style={{ fontFamily: "'Playfair Display', serif", fontSize: 'clamp(2rem, 3vw, 3rem)', fontWeight: 900, lineHeight: 1.1, marginBottom: '24px' }}>
-              Bring your<br />
-              <em style={{ fontStyle: 'italic', fontWeight: 400, color: 'var(--gold)' }}>group or class</em>
-            </h2>
-            <p style={{ color: 'var(--muted)', lineHeight: 1.8, marginBottom: '32px' }}>
-              Group discounts available for parties of 10 or more. We work with schools, churches, and community organizations to make live theatre accessible. Contact us for group pricing.
-            </p>
-            <a href="mailto:info@accoladetheatre.org" className="btn-ghost"><span>Contact for Group Sales</span></a>
-          </div>
-          <div style={{ background: 'var(--deep)', border: '1px solid var(--border)', borderRadius: '4px', padding: '40px' }}>
-            <h3 style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: '1.8rem', marginBottom: '24px' }}>Group Perks</h3>
-            {[
-              'Discounted ticket pricing for 10+ guests',
-              'Reserved seating blocks',
-              'Dedicated group coordinator',
-              'Pre-show meet & greet options',
-              'Flexible payment arrangements',
-            ].map((perk) => (
-              <div key={perk} style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '14px' }}>
-                <span style={{ width: '20px', height: '20px', borderRadius: '50%', background: 'rgba(61,158,140,0.15)', border: '1px solid var(--teal)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, fontSize: '10px', color: 'var(--teal)' }}>&#10003;</span>
-                <span style={{ fontSize: '0.88rem', color: 'var(--warm-white)' }}>{perk}</span>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* ── Partner CTA ───────────────────────────── */}
+{/* ── Partner CTA ───────────────────────────── */}
       <section style={{ padding: 'clamp(48px, 10vw, 100px) clamp(20px, 5vw, 48px)', textAlign: 'center' }}>
         <div className="reveal" style={{ maxWidth: '600px', margin: '0 auto' }}>
           <h2 style={{ fontFamily: "'Playfair Display', serif", fontSize: 'clamp(1.8rem, 3vw, 2.8rem)', fontWeight: 900, marginBottom: '20px' }}>
