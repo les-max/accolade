@@ -38,8 +38,29 @@ export default function TicketsTab({ show, slug, role, performancesData, ticketC
       }
     })
 
+  const hasOrders = ticketConfigData.length > 0
+
   return (
     <>
+      {role === 'admin' && hasOrders && (
+        <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: '16px' }}>
+          <a
+            href={`/api/tickets/export?showId=${show.id}`}
+            style={{
+              fontSize: '0.65rem',
+              letterSpacing: '0.15em',
+              textTransform: 'uppercase',
+              color: 'var(--teal)',
+              border: '1px solid rgba(61,158,140,0.3)',
+              borderRadius: '2px',
+              padding: '8px 16px',
+              textDecoration: 'none',
+            }}
+          >
+            Download CSV
+          </a>
+        </div>
+      )}
       <TicketManager
         showId={show.id}
         slug={slug}
