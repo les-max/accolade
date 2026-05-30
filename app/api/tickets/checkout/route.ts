@@ -37,10 +37,11 @@ type PerfRow = {
 
 export async function POST(req: NextRequest) {
   const body = await req.json()
-  const { items, buyer_name, buyer_email } = body as {
+  const { items, buyer_name, buyer_email, coupon_code } = body as {
     items: CheckoutItem[]
     buyer_name: string
     buyer_email: string
+    coupon_code?: string | null
   }
 
   if (!items?.length || !buyer_name || !buyer_email) {
@@ -70,7 +71,7 @@ export async function POST(req: NextRequest) {
 
   const tpById = Object.fromEntries((tps as unknown as PerfRow[]).map(tp => [tp.id, tp]))
 
-  // Fetch option names so we can include them in the Stripe line item description
+  // Fetch option names for Stripe line item descriptions
   const allOptionIds = items.flatMap(i => (i.options ?? []).map(o => o.ticket_option_id))
   const optionNameById: Record<string, string> = {}
   if (allOptionIds.length > 0) {
@@ -108,12 +109,51 @@ export async function POST(req: NextRequest) {
   const firstTp = tpById[items[0].ticket_performance_id]
   const show = firstTp.show_performances.shows
 
-  const totalAmount = items.reduce((sum, item) => sum + tpById[item.ticket_performance_id].price * item.quantity, 0)
+  const totalBeforeDiscount = items.reduce(
+    (sum, item) => sum + tpById[item.ticket_performance_id].price * item.quantity,
+    0
+  )
+
+  // Server-side coupon validation
+  let couponId: string | null = null
+  let discountAmount = 0
+
+  if (coupon_code?.trim()) {
+    const { data: couponRow } = await supabase
+      .from('show_coupon_codes')
+      .select('id, discount_type, discount_value, max_uses')
+      .eq('show_id', show.id)
+      .ilike('code', coupon_code.trim())
+      .not('discount_type', 'is', null)
+      .maybeSingle()
+
+    if (!couponRow) {
+      return NextResponse.json({ error: 'Invalid coupon code' }, { status: 400 })
+    }
+    couponId = couponRow.id
+    if (couponRow.discount_type === 'percent') {
+      discountAmount = totalBeforeDiscount * (couponRow.discount_value / 100)
+    } else {
+      discountAmount = couponRow.discount_value
+    }
+    // Cap so Stripe total never drops below $0.50
+    discountAmount = Math.min(discountAmount, Math.max(0, totalBeforeDiscount - 0.5))
+  }
+
+  const totalAmount = Math.max(0.5, totalBeforeDiscount - discountAmount)
 
   // Create order
   const { data: order, error: orderErr } = await supabase
     .from('ticket_orders')
-    .insert({ show_id: show.id, buyer_name, buyer_email, total_amount: totalAmount, status: 'pending' })
+    .insert({
+      show_id: show.id,
+      buyer_name,
+      buyer_email,
+      total_amount: totalAmount,
+      status: 'pending',
+      coupon_code_id: couponId,
+      discount_amount: discountAmount,
+    })
     .select('id')
     .single()
 
@@ -131,7 +171,7 @@ export async function POST(req: NextRequest) {
     }))
   )
 
-  // Fetch back the order item IDs (needed to link option selections)
+  // Fetch back order item IDs for option linking
   const { data: orderItems } = await supabase
     .from('ticket_order_items')
     .select('id, ticket_performance_id')
@@ -185,6 +225,21 @@ export async function POST(req: NextRequest) {
     }
   })
 
+  // Add negative line item for coupon discount
+  if (discountAmount > 0) {
+    lineItems.push({
+      price_data: {
+        currency: 'usd',
+        unit_amount: -Math.round(discountAmount * 100),
+        product_data: {
+          name: 'Discount',
+          description: `Coupon: ${coupon_code!.trim().toUpperCase()}`,
+        },
+      },
+      quantity: 1,
+    })
+  }
+
   const session = await stripe.checkout.sessions.create({
     mode: 'payment',
     customer_email: buyer_email,
@@ -195,6 +250,16 @@ export async function POST(req: NextRequest) {
   })
 
   await supabase.from('ticket_orders').update({ stripe_session_id: session.id }).eq('id', order.id)
+
+  // Atomically claim coupon — also enforces max_uses at the DB level
+  if (couponId) {
+    const { data: claimed, error: claimErr } = await supabase.rpc('claim_ticket_coupon', { p_coupon_id: couponId })
+    if (claimErr) console.error('[checkout] claim_ticket_coupon RPC error:', claimErr)
+    if (!claimed) {
+      // Coupon exhausted between validation and claim — order is still valid, just log it
+      console.warn('[checkout] Coupon exhausted at claim time, order proceeds without discount adjustment')
+    }
+  }
 
   return NextResponse.json({ url: session.url })
 }

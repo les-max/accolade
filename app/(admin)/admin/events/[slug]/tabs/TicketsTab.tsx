@@ -1,5 +1,6 @@
 import TicketManager from '../TicketManager'
 import TicketOptionManager, { type OptionGroup } from '../TicketOptionManager'
+import TicketCouponManager, { type TicketCouponRow } from '../TicketCouponManager'
 import type { StaffRole } from '@/lib/staff'
 
 type TicketConfigRow = {
@@ -17,9 +18,10 @@ interface Props {
   role: StaffRole
   performancesData: { id: string; type: string; date: string; start_time: string | null; label: string | null }[]
   ticketConfigData: TicketConfigRow[]
+  ticketCouponsData: TicketCouponRow[]
 }
 
-export default function TicketsTab({ show, slug, role, performancesData, ticketConfigData }: Props) {
+export default function TicketsTab({ show, slug, role, performancesData, ticketConfigData, ticketCouponsData }: Props) {
   const perfPerformances = performancesData.filter(p => p.type === 'performance')
 
   // Build the list of performances that have a ticket_performance record, with their option groups
@@ -70,6 +72,13 @@ export default function TicketsTab({ show, slug, role, performancesData, ticketC
       />
       {role === 'admin' && perfsWithOptions.length > 0 && (
         <TicketOptionManager slug={slug} performances={perfsWithOptions} />
+      )}
+      {role === 'admin' && (
+        <TicketCouponManager
+          showId={show.id}
+          slug={slug}
+          coupons={ticketCouponsData}
+        />
       )}
     </>
   )
