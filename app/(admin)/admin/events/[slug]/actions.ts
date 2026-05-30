@@ -182,6 +182,7 @@ export async function updateShowStatus(
   const { error } = await supabase.from('shows').update({ status }).eq('id', showId)
   if (error) throw new Error(error.message)
   revalidatePath(`/admin/events/${slug}`)
+  revalidatePath('/tickets')
 }
 
 export async function updateShowDetails(
